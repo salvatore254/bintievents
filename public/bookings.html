@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Bookings | Binti Tents & Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Book tents and event services with site visit and add-ons." />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- API Configuration for separate frontend/backend deployment -->
+  <script>
+    window.API_BASE_URL = window.API_BASE_URL || (window.location.origin + '/api');
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Logo"></a></div>
+      <nav class="main-nav">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="privatepackages.html">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="checkout.html">Checkout</a>
+      <button id="hamburger" class="hamburger">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-hero" style="background-image:url('images/well-dressed-table-26.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1>Book Your Perfect Event</h1>
+        <p class="lead">Select your tent, add-ons and venue location. Live pricing updates as you customize.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="booking-wrapper">
+      <!-- Progress indicator -->
+      <div class="booking-progress">
+        <div class="progress-step active">
+          <div class="progress-number">1</div>
+          <div class="progress-label">Your Details</div>
+        </div>
+        <div class="progress-line active"></div>
+        <div class="progress-step active">
+          <div class="progress-number">2</div>
+          <div class="progress-label">Tent Selection</div>
+        </div>
+        <div class="progress-line">
+        </div>
+        <div class="progress-step">
+          <div class="progress-number">3</div>
+          <div class="progress-label">Checkout</div>
+        </div>
+      </div>
+
+      <div class="booking-container">
+        <!-- Left: Form -->
+        <form id="booking-form" class="booking-form-panel">
+          <div class="form-section">
+            <h3><i class="fas fa-user-circle"></i> Your Details</h3>
+            
+            <div class="form-group">
+              <label for="fullname">Full Name *</label>
+              <input id="fullname" name="fullname" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input id="phone" name="phone" type="tel" placeholder="+254 712 345 678" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input id="email" name="email" type="email" placeholder="your@email.com" required>
+            </div>
+          </div>
+
+          <!-- Tent Selection Section -->
+          <div class="form-section">
+            <h3><i class="fas fa-campground"></i> Tent Selection</h3>
+
+            <div class="form-group">
+              <label for="tent-type">Choose Tent Type *</label>
+              <div class="select-wrapper">
+                <select id="tent-type" name="tent_type" required>
+                  <option value="">-- Select a tent --</option>
+                  <option value="stretch">Stretch Tent - KES 250/m²</option>
+                  <option value="cheese">Cheese Tent - KES 15,000</option>
+                  <option value="aframe">A-frame - KES 40,000/section</option>
+                  <option value="bline">B-line - KES 30,000</option>
+                </select>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+
+            <!-- Stretch Tent Options -->
+            <div id="stretch-options" class="conditional-section">
+              <div class="form-group">
+                <label for="stretch-size">Select Size</label>
+                <div class="select-wrapper">
+                  <select id="stretch-size" name="stretch_size">
+                    <option value="">-- Choose size --</option>
+                    <option value="22x15">22m × 15m (330 m²)</option>
+                    <option value="10x12">10m × 12m (120 m²)</option>
+                    <option value="9x8">9m × 8m (72 m²)</option>
+                    <option value="10x7.5">10m × 7.5m (75 m²)</option>
+                  </select>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cheese Tent Options -->
+            <div id="cheese-options" class="conditional-section">
+              <div class="form-group">
+                <label for="cheese-color">Select Color</label>
+                <div class="color-picker">
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="white">
+                    <span class="color-dot" style="background: #ffffff; border: 2px solid #ccc;"></span>
+                    <span>White</span>
+                  </label>
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="blue">
+                    <span class="color-dot" style="background: #007BFF;"></span>
+                    <span>Blue</span>
+                  </label>
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="pink">
+                    <span class="color-dot" style="background: #FF69B4;"></span>
+                    <span>Pink</span>
+                  </label>
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="yellow">
+                    <span class="color-dot" style="background: #FFD700;"></span>
+                    <span>Yellow</span>
+                  </label>
+                </div>
+                <select id="cheese-color" name="cheese_color" style="display:none;">
+                  <option value="">-- Select color --</option>
+                  <option value="white">White</option>
+                  <option value="blue">Blue</option>
+                  <option value="pink">Pink</option>
+                  <option value="yellow">Yellow</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- A-Frame Options -->
+            <div id="aframe-options" class="conditional-section">
+              <div class="form-group">
+                <label for="aframe-sections">Number of Sections</label>
+                <div class="select-wrapper">
+                  <select id="aframe-sections" name="aframe_sections">
+                    <option value="1">1 section</option>
+                    <option value="2">2 sections</option>
+                    <option value="3">3 sections</option>
+                  </select>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add-ons Section -->
+          <div class="form-section">
+            <h3><i class="fas fa-star"></i> Event Add-ons</h3>
+            
+            <div class="addons-grid">
+              <label class="addon-card">
+                <input type="checkbox" id="lighting">
+                <div class="addon-content">
+                  <div class="addon-icon"><i class="fas fa-lightbulb"></i></div>
+                  <div class="addon-text">
+                    <strong>Lighting</strong>
+                    <span>KES 20,000</span>
+                  </div>
+                </div>
+              </label>
+
+              <label class="addon-card">
+                <input type="checkbox" id="transport">
+                <div class="addon-content">
+                  <div class="addon-icon"><i class="fas fa-truck"></i></div>
+                  <div class="addon-text">
+                    <strong>Transport</strong>
+                    <span class="transport-dynamic">Dynamic</span>
+                  </div>
+                </div>
+              </label>
+
+              <label class="addon-card">
+                <input type="checkbox" id="sitevisit">
+                <div class="addon-content">
+                  <div class="addon-icon"><i class="fas fa-map-pin"></i></div>
+                  <div class="addon-text">
+                    <strong>Site Visit</strong>
+                    <span>1,500 KES</span>
+                  </div>
+                </div>
+              </label>
+
+              <label class="addon-card">
+                <input type="checkbox" id="decor">
+                <div class="addon-content">
+                  <div class="addon-icon"><i class="fas fa-sparkles"></i></div>
+                  <div class="addon-text">
+                    <strong>Decor</strong>
+                    <span>Upon Inquiry</span>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Venue Section -->
+          <div class="form-section">
+            <h3><i class="fas fa-map-marker-alt"></i> Venue Location</h3>
+            
+            <div class="form-group">
+              <label for="venue">Event Venue *</label>
+              <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa" required>
+              <small>Type your location for accurate transport pricing</small>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary btn-large">
+              <i class="fas fa-arrow-right"></i> Proceed to Checkout
+            </button>
+          </div>
+        </form>
+
+        <!-- Right: Summary Panel -->
+        <div class="booking-summary-panel">
+          <div class="summary-header">
+            <h3><i class="fas fa-receipt"></i> Booking Summary</h3>
+            <p class="summary-subtitle">Live calculation</p>
+          </div>
+
+          <div id="booking-summary" class="booking-summary"></div>
+
+          <div class="summary-footer">
+            <p class="summary-note">
+              <i class="fas fa-info-circle"></i>
+              Prices update automatically as you make selections
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;">Availability:<br>Mon - Sun, 6am - 10pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2025 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+  <script src="script.js" defer></script>
+
+  <script>
+    // Color picker for cheese tent
+    document.querySelectorAll('input[name="cheese_color_picker"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        document.getElementById('cheese-color').value = e.target.value;
+        // Trigger form update
+        const event = new Event('change', { bubbles: true });
+        document.getElementById('cheese-color').dispatchEvent(event);
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+

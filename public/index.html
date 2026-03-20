@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Binti Events — Luxury Event Packages Made Simple</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Binti Events - Stress-free luxury event packages for private celebrations and corporate events in Kenya." />
+  <meta name="keywords" content="event packages Kenya, wedding tents, party rentals, corporate events, event styling, luxury events, tent hire" />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- API Configuration for separate frontend/backend deployment -->
+  <script>
+    // Set API_BASE_URL for frontend to communicate with backend
+    // This allows frontend and backend to be hosted on different domains
+    window.API_BASE_URL = window.API_BASE_URL || (
+      process.env.REACT_APP_API_URL ||           // If using Create React App
+      window.location.origin + '/api'             // Default: same origin
+    );
+    console.log('API Base URL:', window.API_BASE_URL);
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Events"></a></div>
+      <nav class="main-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="privatepackages.html">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="bookings.html">Book Now</a>
+      <button id="hamburger" class="hamburger" aria-label="Open menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="background-image:url('images/well-dressed-table-26.jpg')">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1 data-aos="fade-up" data-aos-delay="0">Instinctively Elegant</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="100">Fast, reliable setups for private and corporate celebrations designed to save you time, money and stress</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Offer -->
+  <section class="trusted">
+    <div class="container">
+      <h2 data-aos="fade-up" style="text-align: center; margin-bottom: 40px;">What We Offer</h2>
+      <div class="trusted-inner">
+        <div class="trusted-item" data-aos="fade-up">
+          <div style="font-size: 2.5rem; color: #7851A9; margin-bottom: 12px;"><i class="fas fa-check-circle"></i></div>
+          <h3 style="color: #4A7A6B; margin-bottom: 8px; font-size: 1.1rem;">Curated Packages</h3>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Pre-designed for simplicity and elegance</p>
+        </div>
+        <div class="trusted-item" data-aos="fade-up" data-aos-delay="50">
+          <div style="font-size: 2.5rem; color: #7851A9; margin-bottom: 12px;"><i class="fas fa-rocket"></i></div>
+          <h3 style="color: #4A7A6B; margin-bottom: 8px; font-size: 1.1rem;">Fast Setup</h3>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Professional team, quick turnaround</p>
+        </div>
+        <div class="trusted-item" data-aos="fade-up" data-aos-delay="100">
+          <div style="font-size: 2.5rem; color: #7851A9; margin-bottom: 12px;"><i class="fas fa-tag"></i></div>
+          <h3 style="color: #4A7A6B; margin-bottom: 8px; font-size: 1.1rem;">Clear Pricing</h3>
+          <p style="color: #5A4A48; font-size: 0.9rem;">No surprises, transparent costs</p>
+        </div>
+        <div class="trusted-item" data-aos="fade-up" data-aos-delay="150">
+          <div style="font-size: 2.5rem; color: #7851A9; margin-bottom: 12px;"><i class="fas fa-quality-assurance"></i></div>
+          <h3 style="color: #4A7A6B; margin-bottom: 8px; font-size: 1.1rem;">Premium Quality</h3>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Beautiful equipment & professional service</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why We Exist -->
+  <section class="why-section container">
+    <div style="max-width: 700px; margin: 0 auto; text-align: center;" data-aos="fade-up">
+      <h2>Event Planning Doesn't Have to Be Complicated</h2>
+      <p style="font-size: 1.05rem; color: #5A4A48; margin-bottom: 24px; line-height: 1.7;">
+        Most event stress comes from too many choices. We've simplified the process by offering carefully curated packages that work — every time.
+      </p>
+    </div>
+  </section>
+
+  <!-- How It Works Preview -->
+  <section class="featured-services container">
+    <h2 data-aos="fade-up">Our Simple Process</h2>
+    <div class="cards-grid">
+      <div class="card" style="background: linear-gradient(135deg, #D4AF37 0%, #7851A9 100%);" data-aos="fade-up">
+        <div class="card-overlay" style="background: transparent;">
+          <h3 style="color: #fff; font-size: 3rem; margin-bottom: 16px;">1</h3>
+          <h4 style="color: #fff; font-size: 1.3rem; margin-bottom: 12px;">Choose a Package</h4>
+          <p style="color: rgba(255,255,255,0.95);">Pick from our carefully curated private or corporate event packages.</p>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, #7851A9 0%, #4A7A6B 100%);" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-overlay" style="background: transparent;">
+          <h3 style="color: #fff; font-size: 3rem; margin-bottom: 16px;">2</h3>
+          <h4 style="color: #fff; font-size: 1.3rem; margin-bottom: 12px;">Share Your Details</h4>
+          <p style="color: rgba(255,255,255,0.95);">Tell us your event date, location, guest count and any extras you'd like.</p>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, #4A7A6B 0%, #2F1F40 100%);" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-overlay" style="background: transparent;">
+          <h3 style="color: #fff; font-size: 3rem; margin-bottom: 16px;">3</h3>
+          <h4 style="color: #fff; font-size: 1.3rem; margin-bottom: 12px;">We Set Up & You Enjoy</h4>
+          <p style="color: rgba(255,255,255,0.95);">Our professional team handles everything. Sit back and celebrate your special day.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works - Detailed Section -->
+  <section style="padding: 80px 0; background: linear-gradient(180deg, transparent, rgba(244, 228, 208, 0.15));">
+    <div class="container">
+      <h2 data-aos="fade-up" style="margin-bottom: 60px;">How It Works: Five Simple Steps</h2>
+      
+      <div style="display: grid; gap: 40px; max-width: 900px; margin: 0 auto;">
+        <!-- Step 1 - Fade Right -->
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: start;" data-aos="fade-right" data-aos-duration="800">
+          <div style="background: linear-gradient(135deg, #D4AF37, #7851A9); width: 100px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">1</div>
+          <div>
+            <h3 style="color: #4A7A6B; font-size: 1.4rem; margin-bottom: 12px; font-family: 'Playfair Display', serif;">Choose Your Package</h3>
+            <p style="color: #5A4A5F; font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+              Browse our curated private or corporate event packages. Each is designed to deliver stunning results without complexity. Pick the tier that matches your vision and budget.
+            </p>
+            <div style="background: rgba(229, 213, 240, 0.5); padding: 16px; border-radius: 8px; border-left: 4px solid #7851A9;">
+              <strong style="color: #4A7A6B;">What's Included:</strong> Furniture, styling, setup and breakdown. Prices listed as "from..." based on guest count.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 - Fade Left -->
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: start;" data-aos="fade-left" data-aos-duration="800">
+          <div style="background: linear-gradient(135deg, #B97C7C, #6B4B4B); width: 100px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">2</div>
+          <div>
+            <h3 style="color: #6B4B4B; font-size: 1.4rem; margin-bottom: 12px; font-family: 'Playfair Display', serif;">Select Your Party Size</h3>
+            <p style="color: #5A4A48; font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+              Choose your guest count. Our packages scale in batches of 10 guests. If the standard package size doesn't match, we adjust pricing accordingly.
+            </p>
+            <div style="background: rgba(244, 228, 208, 0.5); padding: 16px; border-radius: 8px; border-left: 4px solid #B97C7C;">
+              <strong style="color: #6B4B4B;">Private Events:</strong> Up to 30, 60, or 150+ guests
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 - Fade Right -->
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: start;" data-aos="fade-right" data-aos-duration="800">
+          <div style="background: linear-gradient(135deg, #6B4B4B, #3F3835); width: 100px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">3</div>
+          <div>
+            <h3 style="color: #6B4B4B; font-size: 1.4rem; margin-bottom: 12px; font-family: 'Playfair Display', serif;">Add Your Extras</h3>
+            <p style="color: #5A4A48; font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+              Customize with add-ons like lighting, PA sound, dance floor, stage, welcome signs, table centrepieces, and more.
+            </p>
+            <div style="background: rgba(244, 228, 208, 0.5); padding: 16px; border-radius: 8px; border-left: 4px solid #B97C7C;">
+              <strong style="color: #6B4B4B;">Easy Upsells:</strong> Our extras are clearly priced with no surprises.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 - Fade Left -->
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: start;" data-aos="fade-left" data-aos-duration="800">
+          <div style="background: linear-gradient(135deg, #8B6F6F, #5A4A48); width: 100px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">4</div>
+          <div>
+            <h3 style="color: #6B4B4B; font-size: 1.4rem; margin-bottom: 12px; font-family: 'Playfair Display', serif;">Share Your Event Details</h3>
+            <p style="color: #5A4A48; font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+              Fill in your event information: date, time, location, contact details, and any special requests. This ensures our team can plan perfectly for your event.
+            </p>
+            <div style="background: rgba(244, 228, 208, 0.5); padding: 16px; border-radius: 8px; border-left: 4px solid #B97C7C;">
+              <strong style="color: #6B4B4B;">What We Confirm:</strong> Availability, delivery logistics, and all setup details.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 - Fade Right -->
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 32px; align-items: start;" data-aos="fade-right" data-aos-duration="800">
+          <div style="background: linear-gradient(135deg, #E0AC69, #D4945A); width: 100px; height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; font-family: 'Playfair Display', serif;">5</div>
+          <div>
+            <h3 style="color: #6B4B4B; font-size: 1.4rem; margin-bottom: 12px; font-family: 'Playfair Display', serif;">Secure Your Booking</h3>
+            <p style="color: #5A4A48; font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+              Pay a deposit (M-Pesa or card) to secure your booking. Balance due before your event. Confirmation sent via email.
+            </p>
+            <div style="background: rgba(244, 228, 208, 0.5); padding: 16px; border-radius: 8px; border-left: 4px solid #B97C7C;">
+              <strong style="color: #6B4B4B;">Payment Options:</strong> M-Pesa or Card. Flexible terms available.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section style="padding: 60px 0; background: linear-gradient(180deg, rgba(244, 228, 208, 0.2), transparent);">
+    <div class="container">
+      <h2 data-aos="fade-up" style="margin-bottom: 40px;">Why Clients Choose Us</h2>
+      <div class="reasons-grid">
+        <div class="reason-card" data-aos="fade-up">
+          <div class="reason-icon"><i class="fas fa-clock"></i></div>
+          <h3>On Time Delivery</h3>
+          <p>We respect your time. Professional setup and punctual service, every single time.</p>
+        </div>
+        <div class="reason-card" data-aos="fade-up" data-aos-delay="50">
+          <div class="reason-icon"><i class="fas fa-users"></i></div>
+          <h3>Professional Team</h3>
+          <p>Trained, courteous staff who understand event execution and deliver excellence.</p>
+        </div>
+        <div class="reason-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="reason-icon"><i class="fas fa-gem"></i></div>
+          <h3>Quality Equipment</h3>
+          <p>Clean, well-maintained furniture and décor that elevates every celebration.</p>
+        </div>
+        <div class="reason-card" data-aos="fade-up" data-aos-delay="150">
+          <div class="reason-icon"><i class="fas fa-tag"></i></div>
+          <h3>Clear Pricing</h3>
+          <p>No surprises. Transparent pricing and straightforward terms you can trust.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials container">
+    <h2 data-aos="fade-up">What Our Clients Say</h2>
+    <div class="testimonial-list">
+      <div class="testimonial-card" data-aos="fade-up">
+        <p>"Binti transformed our wedding into a dream. Every detail was perfect, and the team was so professional."</p>
+        <span>— Amina & Brian, Wedding</span>
+      </div>
+      <div class="testimonial-card" data-aos="fade-up" data-aos-delay="50">
+        <p>"For our corporate launch, they delivered exactly what we needed. Professional, reliable, and beautiful setups."</p>
+        <span>— Sarah M., Event Manager</span>
+      </div>
+      <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+        <p>"The best part? No stress, no back and forth. They made party planning easy and enjoyable."</p>
+        <span>— Grace K., Birthday Celebration</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="subscribe-section" data-aos="fade-up">
+    <h2>Ready to Plan Your Event?</h2>
+    <p>Choose a package and we'll take care of the rest. No complexity, just celebration.</p>
+    <div class="subscribe-form" style="gap: 0;">
+      <a href="privatepackages.html" class="btn-gold" style="flex: 1; padding: 14px 28px;">Explore Private Packages</a>
+      <a href="corporatepackages.html" class="btn-gold" style="flex: 1; padding: 14px 28px; background: rgba(255,255,255,0.2); color: #fff; font-weight: 600;">Explore Corporate Packages</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;">Availability:<br>Mon - Sun, 6am - 10pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2025 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp -->
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- Reason Cards Styling in style tag for now -->
+  <style>
+    .reasons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+      margin: 0;
+    }
+    .reason-card {
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(185, 124, 124, 0.08);
+      transition: all 0.3s ease;
+    }
+    .reason-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 28px rgba(185, 124, 124, 0.15);
+    }
+    .reason-icon {
+      font-size: 2.8rem;
+      color: #B97C7C;
+      margin-bottom: 16px;
+    }
+    .reason-card h3 {
+      color: #6B4B4B;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+    .reason-card p {
+      color: #5A4A48;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .why-section {
+      padding: 60px 0;
+    }
+  </style>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 50
+    });
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Contact — Binti Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Contact Binti Events for bookings, quotes and inquiries." />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- API Configuration for separate frontend/backend deployment -->
+  <script>
+    window.API_BASE_URL = window.API_BASE_URL || (window.location.origin + '/api');
+  </script>
+  <style>
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; max-width: 1000px; margin: 0 auto; }
+    .social-flex { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+    @media (max-width: 600px) {
+      .contact-grid { gap: 32px; }
+      .social-flex { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Events"></a></div>
+      <nav class="main-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="privatepackages.html">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="bookings.html">Book Now</a>
+      <button id="hamburger" class="hamburger" aria-label="Open menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Hero -->
+  <section class="page-hero" style="background-image: url('images/well-dressed-table-26.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1 data-aos="fade-up">Get In Touch</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="100">We'd love to hear from you. Reach out for quotes, inquiries, or just to say hello.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section style="padding: 80px 0;">
+    <div class="container">
+      <div class="contact-grid">
+        <!-- Contact Info -->
+        <div data-aos="fade-up">
+          <h2 style="color: #6B4B4B; font-size: 2rem; margin-bottom: 40px;">Contact Info</h2>
+          
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #6B4B4B; font-size: 1.1rem; margin-bottom: 8px;"><i class="fas fa-phone" style="color: #B97C7C; margin-right: 12px;"></i>Phone</h3>
+            <a href="tel:+254728307327" style="color: #5A4A48; text-decoration: none; font-size: 1.05rem; font-weight: 500;">+254 728 307 327</a>
+          </div>
+
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #6B4B4B; font-size: 1.1rem; margin-bottom: 8px;"><i class="fas fa-envelope" style="color: #B97C7C; margin-right: 12px;"></i>Email</h3>
+            <a href="mailto:info@bintievents.com" style="color: #5A4A48; text-decoration: none; font-size: 1.05rem; font-weight: 500;">info@bintievents.com</a>
+          </div>
+
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #6B4B4B; font-size: 1.1rem; margin-bottom: 8px;"><i class="fas fa-map-marker-alt" style="color: #B97C7C; margin-right: 12px;"></i>Location</h3>
+            <p style="color: #5A4A48; font-size: 1rem; line-height: 1.6;">
+              Nairobi, Kenya<br>
+              Service area covers 18+ cities across Kenya
+            </p>
+          </div>
+
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #6B4B4B; font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-clock" style="color: #B97C7C; margin-right: 12px;"></i>Response Time</h3>
+            <p style="color: #5A4A48; font-size: 1rem;">
+              We typically respond within <strong>24 hours</strong> on weekdays.
+            </p>
+          </div>
+
+          <div style="background: linear-gradient(135deg, rgba(224, 172, 105, 0.1), rgba(185, 124, 124, 0.1)); padding: 24px; border-radius: 12px; border-left: 4px solid #B97C7C;">
+            <h3 style="color: #6B4B4B; font-size: 1.05rem; margin-bottom: 12px;">Quick Response</h3>
+            <p style="color: #5A4A48; font-size: 0.95rem; margin-bottom: 16px;">For urgent inquiries, reach us on WhatsApp</p>
+            <a href="https://wa.me/+254728307327" target="_blank" rel="noopener" class="btn-gold" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 12px 20px;">
+              <i class="fab fa-whatsapp"></i> WhatsApp Us
+            </a>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div data-aos="fade-up" data-aos-delay="100">
+          <h2 style="color: #6B4B4B; font-size: 2rem; margin-bottom: 40px;">Send Message</h2>
+          
+          <form id="contact-form" style="display: grid; gap: 24px;">
+            <div>
+              <label for="name" style="display: block; color: #6B4B4B; font-weight: 600; margin-bottom: 8px;">Name *</label>
+              <input 
+                id="name" 
+                name="name" 
+                type="text"
+                required
+                placeholder="Your full name"
+                style="width: 100%; padding: 12px 16px; border: 1px solid rgba(185, 124, 124, 0.2); border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
+              >
+            </div>
+
+            <div>
+              <label for="email" style="display: block; color: #6B4B4B; font-weight: 600; margin-bottom: 8px;">Email *</label>
+              <input 
+                id="email" 
+                name="email" 
+                type="email"
+                required
+                placeholder="your@email.com"
+                style="width: 100%; padding: 12px 16px; border: 1px solid rgba(185, 124, 124, 0.2); border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
+              >
+            </div>
+
+            <div>
+              <label for="phone" style="display: block; color: #6B4B4B; font-weight: 600; margin-bottom: 8px;">Phone (Optional)</label>
+              <input 
+                id="phone" 
+                name="phone" 
+                type="tel"
+                placeholder="+254 xxx xxx xxx"
+                style="width: 100%; padding: 12px 16px; border: 1px solid rgba(185, 124, 124, 0.2); border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
+              >
+            </div>
+
+            <div>
+              <label for="subject" style="display: block; color: #6B4B4B; font-weight: 600; margin-bottom: 8px;">Subject *</label>
+              <select 
+                id="subject" 
+                name="subject"
+                required
+                style="width: 100%; padding: 12px 16px; border: 1px solid rgba(185, 124, 124, 0.2); border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
+              >
+                <option value="">Select a subject</option>
+                <option value="private-event">Private Event Inquiry</option>
+                <option value="corporate-event">Corporate Event Inquiry</option>
+                <option value="custom-package">Custom Package Request</option>
+                <option value="general-inquiry">General Inquiry</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="message" style="display: block; color: #6B4B4B; font-weight: 600; margin-bottom: 8px;">Message *</label>
+              <textarea 
+                id="message" 
+                name="message" 
+                required
+                placeholder="Tell us about your event..."
+                rows="6"
+                style="width: 100%; padding: 12px 16px; border: 1px solid rgba(185, 124, 124, 0.2); border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem; resize: vertical;"
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit" 
+              class="btn-gold"
+              style="width: 100%; padding: 14px 28px; border: none; cursor: pointer; font-size: 1rem; font-weight: 600;"
+            >
+              Send Message
+            </button>
+          </form>
+
+          <div id="form-message" style="margin-top: 16px; display: none; padding: 16px; border-radius: 8px; text-align: center;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Section -->
+  <section style="padding: 60px 0; background: linear-gradient(180deg, rgba(244, 228, 208, 0.2), transparent);">
+    <div class="container" style="text-align: center;">
+      <h2 data-aos="fade-up" style="margin-bottom: 40px;">Connect With Us</h2>
+      <p data-aos="fade-up" data-aos-delay="50" style="color: #5A4A48; font-size: 1.05rem; margin-bottom: 32px;">Follow our social media for event inspiration and updates</p>
+      
+      <div data-aos="fade-up" data-aos-delay="100" style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;">
+        <a href="https://facebook.com/bintievents" target="_blank" rel="noopener" style="width: 60px; height: 60px; background: #B97C7C; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; text-decoration: none; transition: all 0.3s;">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://instagram.com/bintievents" target="_blank" rel="noopener" style="width: 60px; height: 60px; background: #B97C7C; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; text-decoration: none; transition: all 0.3s;">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://tiktok.com/@bintievents" target="_blank" rel="noopener" style="width: 60px; height: 60px; background: #B97C7C; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; text-decoration: none; transition: all 0.3s;">
+          <i class="fab fa-tiktok"></i>
+        </a>
+            <a href="https://wa.me/+254728307327" target="_blank" rel="noopener" style="width: 60px; height: 60px; background: #25D366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; text-decoration: none; transition: all 0.3s;">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+    <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;">Availability:<br>Mon - Sun, 6am - 10pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2025 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp -->
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 50
+    });
+
+    // Form submission
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value;
+
+      // Save form data to localStorage for processing
+      const formData = {
+        name: name,
+        email: email,
+        phone: phone,
+        subject: subject,
+        message: message,
+        timestamp: new Date().toISOString()
+      };
+
+      localStorage.setItem('bintiContactForm', JSON.stringify(formData));
+
+      // Show success message
+      const msgDiv = document.getElementById('form-message');
+      msgDiv.style.display = 'block';
+      msgDiv.style.background = 'rgba(185, 124, 124, 0.1)';
+      msgDiv.style.color = '#6B4B4B';
+      msgDiv.innerHTML = '<strong>Thank you!</strong> We\'ve received your message and will get back to you within 24 hours.';
+
+      // Reset form
+      this.reset();
+
+      // Hide message after 5 seconds
+      setTimeout(() => {
+        msgDiv.style.display = 'none';
+      }, 5000);
+    });
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
+
+

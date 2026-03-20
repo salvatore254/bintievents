@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Private Event Packages — Binti Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Stress-free private event packages for birthdays, baby showers, graduations and more." />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Events"></a></div>
+      <nav class="main-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="privatepackages.html" class="active">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="bookings.html">Book Now</a>
+      <button id="hamburger" class="hamburger" aria-label="Open menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Hero -->
+  <section class="page-hero" style="background-image: url('images/well-dressed-table-26.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1 data-aos="fade-up">Private Event Packages</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="100">Stress-free celebrations for birthdays, baby showers, graduations and more</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section style="padding: 60px 0;">
+    <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <h2 data-aos="fade-up">Designed for Everyday Elegance</h2>
+      <p data-aos="fade-up" data-aos-delay="50" style="font-size: 1.05rem; color: #5A4A48; line-height: 1.7;">
+        From intimate home parties to milestone celebrations, our Private Event Packages deliver beautiful, stress-free setups. Choose your package, share your details, and let us create the perfect backdrop for your celebration.
+      </p>
+    </div>
+  </section>
+
+  <!-- Packages Grid -->
+  <section style="padding: 60px 0;">
+    <div class="container">
+      <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+        <!-- Package 1: Party Basic -->
+        <div class="package-card" data-aos="fade-up" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(120, 81, 169, 0.12);">
+          <div style="background: linear-gradient(135deg, #D4AF37, #C0A028); padding: 40px 20px; text-align: center; color: #fff;">
+            <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Party Basic</h3>
+            <p style="font-size: 0.95rem; opacity: 0.95;">Simple celebrations, beautifully done</p>
+          </div>
+          <div style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <p style="font-size: 0.9rem; color: #5A4A5F; margin-bottom: 16px;"><strong>Best for:</strong> Home parties, chamas, small barbeques, small celebrations</p>
+              <div style="background: rgba(229, 213, 240, 0.3); padding: 16px; border-radius: 8px; border-left: 4px solid #7851A9;">
+                <p style="color: #4A7A6B; font-weight: 600; margin-bottom: 12px;">Includes:</p>
+                <ul style="color: #5A4A5F; font-size: 0.9rem; line-height: 1.8; list-style: none; padding: 0;">
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Dressed plastic seats</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Round or rectangular guest tables</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Plain table cloths (white/cream/black)</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Basic high peak tent</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Setup and breakdown</li>
+                </ul>
+              </div>
+            </div>
+            <div style="padding: 20px 0; border-top: 1px solid rgba(120, 81, 169, 0.1); border-bottom: 1px solid rgba(120, 81, 169, 0.1);">
+              <p style="color: #5A4A5F; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #7851A9; font-size: 1.2rem; font-weight: 700;">KES 25,000</span></p>
+            </div>
+            <div style="padding-top: 20px;">
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Basic', 25000)">Choose Package</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package 2: Party Plus -->
+        <div class="package-card" data-aos="fade-up" data-aos-delay="100" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 40px rgba(120, 81, 169, 0.2); border: 2px solid #7851A9;">
+          <div style="background: linear-gradient(135deg, #7851A9, #2D5A3D); padding: 40px 20px; text-align: center; color: #fff;">
+            <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 6px 16px; border-radius: 20px; margin-bottom: 12px;"><strong style="font-size: 0.85rem;">MOST POPULAR</strong></div>
+            <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Party Plus</h3>
+            <p style="font-size: 0.95rem; opacity: 0.95;">Designed for everyday elegance</p>
+          </div>
+          <div style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <p style="font-size: 0.9rem; color: #5A4A5F; margin-bottom: 16px;"><strong>Best for:</strong> Milestone birthdays, baby showers, graduations, house warming</p>
+              <div style="background: rgba(120, 81, 169, 0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #7851A9;">
+                <p style="color: #4A7A6B; font-weight: 600; margin-bottom: 12px;">Includes:</p>
+                <ul style="color: #5A4A48; font-size: 0.9rem; line-height: 1.8; list-style: none; padding: 0;">
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Gold or white Chiavari seats</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Elegant guest tables</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Linens in multiple colors</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Balloon backdrop</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Cake table setup</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Charger plates & napkins</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Stretch or cheese tent</li>
+                </ul>
+              </div>
+            </div>
+            <div style="padding: 20px 0; border-top: 1px solid rgba(185, 124, 124, 0.1); border-bottom: 1px solid rgba(185, 124, 124, 0.1);">
+              <p style="color: #5A4A48; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #B97C7C; font-size: 1.2rem; font-weight: 700;">KES 45,000</span></p>
+            </div>
+            <div style="padding-top: 20px;">
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Plus', 45000)">Choose Package</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package 3: Party Premium -->
+        <div class="package-card" data-aos="fade-up" data-aos-delay="200" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(185, 124, 124, 0.12);">
+          <div style="background: linear-gradient(135deg, #6B4B4B, #3F3835); padding: 40px 20px; text-align: center; color: #fff;">
+            <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Party Premium</h3>
+            <p style="font-size: 0.95rem; opacity: 0.95;">An experience worth remembering</p>
+          </div>
+          <div style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <p style="font-size: 0.9rem; color: #5A4A48; margin-bottom: 16px;"><strong>Best for:</strong> Influencers, brand activations, intimate weddings, milestone events</p>
+              <div style="background: rgba(244, 228, 208, 0.3); padding: 16px; border-radius: 8px; border-left: 4px solid #B97C7C;">
+                <p style="color: #6B4B4B; font-weight: 600; margin-bottom: 12px;">Includes:</p>
+                <ul style="color: #5A4A48; font-size: 0.9rem; line-height: 1.8; list-style: none; padding: 0;">
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Luxury designer seats</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Stretch, blind or A-frame tent</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Lounge seating area (sofas & coffee)</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Table centrepieces</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Premium linen and sequin tables</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Cake table presentation</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Floral/balloon backdrop</li>
+                  <li><i class="fas fa-check" style="color: #B97C7C; margin-right: 8px;"></i>Silverware & glassware</li>
+                </ul>
+              </div>
+            </div>
+            <div style="padding: 20px 0; border-top: 1px solid rgba(185, 124, 124, 0.1); border-bottom: 1px solid rgba(185, 124, 124, 0.1);">
+              <p style="color: #5A4A48; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #B97C7C; font-size: 1.2rem; font-weight: 700;">KES 80,000</span></p>
+            </div>
+            <div style="padding-top: 20px;">
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Premium', 80000)">Choose Package</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Extras Section -->
+  <section style="padding: 60px 0; background: linear-gradient(180deg, rgba(244, 228, 208, 0.2), transparent);">
+    <div class="container">
+      <h2 data-aos="fade-up" style="margin-bottom: 40px;">Popular Add-ons</h2>
+      <p data-aos="fade-up" data-aos-delay="50" style="text-align: center; color: #5A4A48; font-size: 1rem; margin-bottom: 40px;">Enhance your package with these easy upsells</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+        <div data-aos="fade-up" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">PA Sound System</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">For music and announcements</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">+KES 8,000</p>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="50" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">Ambient Lighting</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Fairy lights & uplighting</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">+KES 12,000</p>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="100" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">Dance Floor</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Elegant wooden dance floor</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">+KES 10,000</p>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="150" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">Stage & Podium</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">For speeches and presentations</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">+KES 15,000</p>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="200" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">Welcome Signs</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Custom or standard designs</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">+KES 3,000</p>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="250" style="background: #fff; padding: 20px; border-radius: 12px; text-align: center;">
+          <h4 style="color: #6B4B4B; margin-bottom: 8px;">Extra Guests (per 10)</h4>
+          <p style="color: #5A4A48; font-size: 0.9rem;">Adjust your guest count</p>
+          <p style="color: #B97C7C; font-weight: 700; margin-top: 12px;">Package dependent</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="subscribe-section" data-aos="fade-up">
+    <h2>Choose Your Perfect Package</h2>
+    <p>Select a package above or WhatsApp us for questions</p>
+    <a href="https://wa.me/+254728307327" target="_blank" rel="noopener" class="btn-gold" style="display: inline-block; padding: 14px 32px;">Chat on WhatsApp</a>
+  </section>
+
+  <!-- Footer -->
+    <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;">Availability:<br>Mon - Sun, 6am - 10pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2025 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp -->
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 50
+    });
+
+    function selectPackage(packageName, basePrice) {
+      // Store the selected package in localStorage
+      const packageData = {
+        name: packageName,
+        basePrice: basePrice,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('bintiSelectedPackage', JSON.stringify(packageData));
+      
+      // Redirect to booking form
+      window.location.href = 'bookings.html';
+    }
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
+
+

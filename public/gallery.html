@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Gallery — Binti Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="View our event setups, styling and décor. See what Binti Events can create for your celebration." />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Events"></a></div>
+      <nav class="main-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="privatepackages.html">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="gallery.html" class="active">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="bookings.html">Book Now</a>
+      <button id="hamburger" class="hamburger" aria-label="Open menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Hero -->
+  <section class="page-hero" style="background-image: url('images/well-dressed-table-26.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1 data-aos="fade-up">Our Work</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="100">Beautiful event setups from private celebrations to corporate functions</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section style="padding: 80px 0;">
+    <div class="container">
+      <!-- Filter Tabs -->
+      <div style="text-align: center; margin-bottom: 60px;">
+        <div data-aos="fade-up">
+          <h2>Event Gallery</h2>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="50" style="margin-top: 32px;">
+          <button class="gallery-filter active" data-filter="all" style="margin: 0 12px; padding: 10px 24px; background: #B97C7C; color: #fff; border: none; border-radius: 24px; cursor: pointer; font-weight: 600; transition: all 0.3s;">All Events</button>
+          <button class="gallery-filter" data-filter="private" style="margin: 0 12px; padding: 10px 24px; background: transparent; color: #B97C7C; border: 2px solid #B97C7C; border-radius: 24px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Private Events</button>
+          <button class="gallery-filter" data-filter="corporate" style="margin: 0 12px; padding: 10px 24px; background: transparent; color: #B97C7C; border: 2px solid #B97C7C; border-radius: 24px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Corporate</button>
+          <button class="gallery-filter" data-filter="wedding" style="margin: 0 12px; padding: 10px 24px; background: transparent; color: #B97C7C; border: 2px solid #B97C7C; border-radius: 24px; cursor: pointer; font-weight: 600; transition: all 0.3s;">Weddings</button>
+        </div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Private Events -->
+        <div class="gallery-item" data-category="private" data-aos="fade-up">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #E0AC69, #B97C7C);">
+            <img src="images/Aframe.jpeg" alt="Birthday Party Setup" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Birthday Celebration</h4>
+                  <p style="font-size: 0.9rem;">Party Plus Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="private" data-aos="fade-up" data-aos-delay="50">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #B97C7C, #6B4B4B);">
+            <img src="images/table.jpeg" alt="Baby Shower" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Baby Shower</h4>
+                  <p style="font-size: 0.9rem;">Party Plus Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="private" data-aos="fade-up" data-aos-delay="100">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #D4945A, #A0696F);">
+            <img src="images/EV1.jpg" alt="Graduation Party" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Graduation Party</h4>
+                  <p style="font-size: 0.9rem;">Party Premium Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Corporate Events -->
+        <div class="gallery-item" data-category="corporate" data-aos="fade-up" data-aos-delay="150">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #6B4B4B, #3F3835);">
+            <img src="images/Aframe.jpeg" alt="Corporate Conference" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Conference Setup</h4>
+                  <p style="font-size: 0.9rem;">Corporate Essentials</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="corporate" data-aos="fade-up" data-aos-delay="200">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #E0AC69, #D4945A);">
+            <img src="images/table.jpeg" alt="Product Launch" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Product Launch</h4>
+                  <p style="font-size: 0.9rem;">Brand Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="corporate" data-aos="fade-up" data-aos-delay="250">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #B97C7C, #8B6F6F);">
+            <img src="images/EV1.jpg" alt="Networking Event" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Networking Event</h4>
+                  <p style="font-size: 0.9rem;">Brand Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weddings -->
+        <div class="gallery-item" data-category="wedding" data-aos="fade-up" data-aos-delay="300">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #E0AC69, #B97C7C);">
+            <img src="images/Aframe.jpeg" alt="Wedding Ceremony" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Wedding Reception</h4>
+                  <p style="font-size: 0.9rem;">Party Premium Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="wedding" data-aos="fade-up" data-aos-delay="350">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #D4945A, #A0696F);">
+            <img src="images/table.jpeg" alt="Intimate Wedding" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Intimate Wedding</h4>
+                  <p style="font-size: 0.9rem;">Party Premium Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-category="wedding" data-aos="fade-up" data-aos-delay="400">
+          <div style="position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: linear-gradient(135deg, #8B6F6F, #6B4B4B);">
+            <img src="images/EV1.jpg" alt="Wedding Lounge" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.3s;" class="gallery-overlay">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center;">
+                <div>
+                  <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Lounge Seating</h4>
+                  <p style="font-size: 0.9rem;">Party Premium Package</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="subscribe-section" data-aos="fade-up">
+    <h2>Inspired by Our Work?</h2>
+    <p>Let's create your perfect event. Browse our packages or get in touch.</p>
+    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+      <a href="privatepackages.html" class="btn-gold" style="display: inline-block; padding: 14px 28px;">Private Packages</a>
+      <a href="corporatepackages.html" class="btn-gold" style="display: inline-block; padding: 14px 28px; background: rgba(255,255,255,0.2); color: #fff;">Corporate Packages</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+    <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;">Availability:<br>Mon - Sun, 6am - 10pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2025 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp -->
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 50
+    });
+
+    // Gallery Filter
+    document.querySelectorAll('.gallery-filter').forEach(button => {
+      button.addEventListener('click', function() {
+        const filter = this.dataset.filter;
+
+        // Update active button
+        document.querySelectorAll('.gallery-filter').forEach(btn => btn.style.background = 'transparent');
+        document.querySelectorAll('.gallery-filter').forEach(btn => btn.style.color = '#B97C7C');
+        this.style.background = '#B97C7C';
+        this.style.color = '#fff';
+
+        // Filter images
+        document.querySelectorAll('.gallery-item').forEach(item => {
+          if (filter === 'all' || item.dataset.category === filter) {
+            item.style.display = 'block';
+            item.style.animation = 'fadeIn 0.3s';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Hover effect for gallery items
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('mouseenter', function() {
+        const img = this.querySelector('img');
+        const overlay = this.querySelector('.gallery-overlay');
+        if (img) img.style.transform = 'scale(1.1)';
+        if (overlay) overlay.style.background = 'rgba(0,0,0,0.5)';
+      });
+      item.addEventListener('mouseleave', function() {
+        const img = this.querySelector('img');
+        const overlay = this.querySelector('.gallery-overlay');
+        if (img) img.style.transform = 'scale(1)';
+        if (overlay) overlay.style.background = 'rgba(0,0,0,0)';
+      });
+    });
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
+
+
