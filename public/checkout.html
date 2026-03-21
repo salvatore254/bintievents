@@ -9,6 +9,49 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
+  <style>
+    /* M-Pesa themed styles */
+    .btn-mpesa-secondary {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .btn-mpesa-secondary:hover {
+      background-color: #00b842;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    }
+    
+    .btn-mpesa-secondary:active {
+      transform: translateY(0);
+    }
+    
+    /* Payment methods icon styling */
+    .payment-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02));
+      font-size: 1.8em;
+    }
+    
+    .payment-icon.mpesa-icon {
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.1), rgba(37, 211, 102, 0.05));
+    }
+    
+    .payment-icon.pesapal-icon {
+      background: linear-gradient(135deg, rgba(0, 102, 204, 0.1), rgba(0, 102, 204, 0.05));
+    }
+  </style>
+  
   <!-- API Configuration for separate frontend/backend deployment -->
   <script>
     window.API_BASE_URL = window.API_BASE_URL || (window.location.origin + '/api');
@@ -105,7 +148,7 @@
             <input type="radio" id="mpesa-option" name="payment-method" value="mpesa" checked>
             <label for="mpesa-option" class="payment-card">
               <div class="payment-icon mpesa-icon">
-                <i class="fas fa-mobile-alt"></i>
+                <span style="font-size: 2.5em; font-weight: bold; color: #25D366;">M</span>
               </div>
               <div class="payment-info">
                 <h3>M-Pesa</h3>
@@ -124,7 +167,7 @@
             <input type="radio" id="pesapal-option" name="payment-method" value="pesapal">
             <label for="pesapal-option" class="payment-card">
               <div class="payment-icon pesapal-icon">
-                <i class="fas fa-globe"></i>
+                <span style="font-size: 1.8em; font-weight: bold; color: #0066CC;">pspl</span>
               </div>
               <div class="payment-info">
                 <h3>Pesapal</h3>
@@ -140,24 +183,28 @@
         </div>
 
         <!-- M-Pesa Phone Number Field -->
-        <div id="mpesa-phone-section" class="mpesa-phone-section" style="padding: 24px; background: rgba(37, 211, 102, 0.08); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #25D366; display: none;">
-          <div style="margin-bottom: 12px;">
-            <h4 style="color: #155724; margin: 0 0 8px 0; font-size: 1rem;"><i class="fas fa-mobile-alt"></i> M-Pesa Phone Number</h4>
-            <p style="color: #666; margin: 0; font-size: 0.9rem;">Enter the phone number registered with M-Pesa for payment</p>
+        <div id="mpesa-phone-section" class="mpesa-phone-section" style="padding: 20px; background: linear-gradient(135deg, rgba(37, 211, 102, 0.05), rgba(37, 211, 102, 0.02)); border-radius: 12px; margin-bottom: 24px; border: 2px solid #25D366; display: none; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.1);">
+          <div style="margin-bottom: 16px;">
+            <h4 style="color: #155724; margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 600;"><i class="fas fa-mobile-alt" style="color: #25D366; margin-right: 8px;"></i> M-Pesa Phone Number</h4>
+            <p style="color: #666; margin: 0; font-size: 0.9rem;">Enter the phone number registered with M-Pesa where you'll receive the payment prompt</p>
           </div>
-          <div style="display: flex; gap: 12px;">
-            <input 
-              id="mpesa-phone" 
-              type="tel" 
-              placeholder="+254 712 345 678" 
-              style="flex: 1; padding: 12px 16px; border: 1px solid #25D366; border-radius: 6px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
-              pattern="^\+?[0-9]{10,15}$"
-            >
-            <button type="button" id="use-contact-phone" class="btn-secondary" style="padding: 12px 20px;">
-              <i class="fas fa-sync"></i> Use Contact
+          <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+              <input 
+                id="mpesa-phone" 
+                type="tel" 
+                placeholder="e.g., +254712345678 or 0712345678" 
+                style="width: 100%; padding: 14px 16px; border: 2px solid #25D366; border-radius: 8px; font-family: 'Raleway', sans-serif; font-size: 0.95rem; transition: all 0.3s; box-sizing: border-box;"
+                pattern="^\+?[0-9]{10,15}$"
+                onfocus="this.style.borderColor='#00b842'; this.style.boxShadow='0 0 0 3px rgba(37, 211, 102, 0.1)';"
+                onblur="this.style.borderColor='#25D366'; this.style.boxShadow='none';"
+              >
+            </div>
+            <button type="button" id="use-contact-phone" class="btn-mpesa-secondary" style="padding: 12px 18px; background-color: #25D366; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; white-space: nowrap;">
+              <i class="fas fa-sync" style="margin-right: 6px;"></i> Use Contact
             </button>
           </div>
-          <small style="color: #666; display: block; margin-top: 8px;">This should be the phone number where you'll receive the M-Pesa payment prompt</small>
+          <small style="color: #666; display: block; margin-top: 10px; line-height: 1.5;"><i class="fas fa-info-circle" style="color: #25D366;"></i> Make sure you use the phone number where you have M-Pesa registered</small>
         </div>
 
         <!-- Terms and Conditions Acceptance -->
@@ -196,11 +243,39 @@
         const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
         if (e.target.value === 'mpesa') {
           mpesaPhoneSection.style.display = 'block';
+          // Focus on M-Pesa phone input
+          setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
         } else {
           mpesaPhoneSection.style.display = 'none';
+          // Clear error when switching away from M-Pesa
+          const mpesaError = document.getElementById('mpesa-phone-error');
+          if (mpesaError) mpesaError.style.display = 'none';
         }
       });
     });
+
+    // Clear M-Pesa phone error as user types
+    const mpesaPhoneInput = document.getElementById('mpesa-phone');
+    if (mpesaPhoneInput) {
+      mpesaPhoneInput.addEventListener('input', () => {
+        const mpesaError = document.getElementById('mpesa-phone-error');
+        if (mpesaError) mpesaError.style.display = 'none';
+      });
+      
+      // Validate on blur
+      mpesaPhoneInput.addEventListener('blur', () => {
+        const value = mpesaPhoneInput.value.trim();
+        const mpesaError = document.getElementById('mpesa-phone-error');
+        const mpesaErrorText = document.getElementById('mpesa-phone-error-text');
+        
+        if (value && !/^\+?[0-9]{10,15}$/.test(value)) {
+          if (mpesaErrorText) {
+            mpesaErrorText.textContent = 'Invalid format. Use: +254712345678, 0712345678, or 254712345678';
+          }
+          if (mpesaError) mpesaError.style.display = 'block';
+        }
+      });
+    }
 
     // Use contact phone button - populate from booking details
     document.getElementById('use-contact-phone')?.addEventListener('click', () => {
@@ -208,11 +283,15 @@
         const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
         if (booking.phone) {
           document.getElementById('mpesa-phone').value = booking.phone;
+          // Clear error when populated
+          const mpesaError = document.getElementById('mpesa-phone-error');
+          if (mpesaError) mpesaError.style.display = 'none';
         } else {
-          alert('No contact phone number found. Please enter your M-Pesa phone number.');
+          window.showCheckoutError('No contact phone number found. Please enter your M-Pesa phone number manually.');
         }
       } catch (e) {
         console.error('Error loading phone number:', e);
+        window.showCheckoutError('Error loading phone number. Please enter manually.');
       }
     });
   </script>

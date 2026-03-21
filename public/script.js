@@ -456,14 +456,19 @@
     const modal = document.createElement('div');
     modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
     modal.innerHTML = `
-      <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center;">
-        <i class="fas fa-mobile-alt" style="font-size: 3em; color: #25D366; margin-bottom: 20px;"></i>
-        <h2>M-Pesa Payment</h2>
-        <p style="margin: 20px 0; font-size: 1.1em;">${message.replace(/\n/g, '<br>')}</p>
-        <p style="color: #666; margin: 20px 0;">Waiting for payment confirmation...</p>
-        <div style="margin: 20px 0;">
-          <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #25D366; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+      <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+        <div style="background: linear-gradient(135deg, #25D366, #00b842); padding: 30px; border-radius: 12px; margin-bottom: 24px;">
+          <span style="font-size: 3.5em; font-weight: bold; color: white;">M</span>
+          <p style="color: white; margin: 12px 0 0 0; font-size: 1.1em;">M-Pesa Payment</p>
         </div>
+        <p style="margin: 20px 0; font-size: 1.05em; color: #333; line-height: 1.6;">
+          <strong>Amount:</strong> KES ${amount.toLocaleString()}<br>
+          <strong>Phone:</strong> ${paymentPhone}
+        </p>
+        <p style="color: #666; margin: 20px 0; background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid #25D366;">
+          A payment prompt will be sent to your M-Pesa registered phone number. Please enter your M-Pesa PIN to complete the payment.
+        </p>
+        <p style="color: #666; margin: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Waiting for payment confirmation...</p>
         <small style="color: #999;">Do not close this window until payment is complete.</small>
       </div>
       <style>
@@ -481,9 +486,25 @@
       const confirmed = confirm('Did you complete the M-Pesa payment?');
       modal.remove();
       if (confirmed) {
-        alert('Thank you! Your payment has been received. Your booking is confirmed. You will receive a confirmation email shortly.');
+        const successMsg = 'Thank you! Your payment has been received. Your booking is confirmed. You will receive a confirmation email shortly.';
+        const successModal = document.createElement('div');
+        successModal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+        successModal.innerHTML = `
+          <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 30px; border-radius: 12px; margin-bottom: 24px;">
+              <i class="fas fa-check-circle" style="font-size: 3em; color: white;"></i>
+              <p style="color: white; margin: 12px 0 0 0; font-size: 1.1em;">Payment Successful</p>
+            </div>
+            <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">${successMsg}</p>
+            <button onclick="window.location.href='index.html'" style="background: #28a745; color: white; border: none; padding: 12px 28px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">
+              Back to Home
+            </button>
+          </div>
+        `;
+        document.body.appendChild(successModal);
         localStorage.removeItem('bintiBooking');
-        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+      } else {
+        alert('Please verify your payment status. If you completed the payment, your booking will be confirmed shortly.');
       }
     }, 5000);
   };
@@ -524,7 +545,7 @@
     
     // If button is disabled, don't allow proceed
     if (q('#pay-now-btn')?.disabled) {
-      alert(' Please accept the Terms and Conditions before proceeding with payment.');
+      alert('Please accept the Terms and Conditions before proceeding with payment.');
       return false;
     }
     
