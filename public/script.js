@@ -471,10 +471,9 @@
       return true;
     }
     
-    // Check if terms are accepted
-    if (!termsCheckbox.checked) {
-      alert('⚠️ Please accept the Terms and Conditions before proceeding with payment.\n\nYou must read and agree to our terms by clicking the checkbox.');
-      termsCheckbox.focus();
+    // If button is disabled, don't allow proceed
+    if (q('#pay-now-btn')?.disabled) {
+      alert('⚠️ Please accept the Terms and Conditions before proceeding with payment.');
       return false;
     }
     
@@ -492,5 +491,25 @@
     // For now, show success message
     alert('Payment processing initiated. This is a placeholder - implement actual payment gateway integration in the backend.');
     return true;
+  };
+
+  // --- Update payment button state based on terms checkbox
+  window.updatePaymentButtonState = function() {
+    const termsCheckbox = q('#accept-terms');
+    const payButton = q('#pay-now-btn');
+    
+    if (!termsCheckbox || !payButton) return;
+    
+    if (termsCheckbox.checked) {
+      // Enable button
+      payButton.disabled = false;
+      payButton.style.opacity = '1';
+      payButton.style.cursor = 'pointer';
+    } else {
+      // Disable button
+      payButton.disabled = true;
+      payButton.style.opacity = '0.5';
+      payButton.style.cursor = 'not-allowed';
+    }
   };
 })();

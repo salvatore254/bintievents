@@ -5,7 +5,7 @@
   <title>Checkout | Binti Tents & Events</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="Checkout and complete payment via Pesapal or M-Pesa STK push." />
-  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <link rel="icon" type="image/png" href="images/logo1.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
@@ -17,7 +17,7 @@
 <body>
   <header class="site-header">
     <div class="container nav-container">
-      <div class="logo"><a href="index.html"><img src="images/logo.jpg" alt="Binti Logo"></a></div>
+      <div class="logo"><a href="index.html"><img src="images/logo1.png" alt="Binti Logo"></a></div>
       <nav class="main-nav">
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
@@ -139,23 +139,23 @@
           </div>
         </div>
 
+        <!-- Terms and Conditions Acceptance -->
+        <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <input type="checkbox" id="accept-terms" name="accept-terms" onchange="updatePaymentButtonState()" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+            <label for="accept-terms" style="cursor: pointer; color: #5A4A48; font-size: 0.95rem; line-height: 1.6;">
+              I have read and agree to the <a href="terms.html" target="_blank" style="color: #7851A9; text-decoration: underline; font-weight: 600;">Terms and Conditions</a> and understand that my booking is subject to these terms.
+            </label>
+          </div>
+        </div>
+
         <div class="payment-actions">
-          <button id="pay-now-btn" class="btn-primary btn-large" onclick="proceedToPayment()">
+          <button id="pay-now-btn" class="btn-primary btn-large" onclick="proceedToPayment()" disabled style="opacity: 0.5; cursor: not-allowed;">
             <i class="fas fa-lock"></i> Proceed to Payment
           </button>
           <a href="bookings.html" class="btn-secondary">
             <i class="fas fa-edit"></i> Back to Edit
           </a>
-        </div>
-
-        <!-- Terms and Conditions Acceptance -->
-        <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
-          <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <input type="checkbox" id="accept-terms" name="accept-terms" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
-            <label for="accept-terms" style="cursor: pointer; color: #5A4A48; font-size: 0.95rem; line-height: 1.6;">
-              I have read and agree to the <a href="terms.html" target="_blank" style="color: #7851A9; text-decoration: underline; font-weight: 600;">Terms and Conditions</a> and understand that my booking is subject to these terms.
-            </label>
-          </div>
         </div>
 
         <div class="payment-security">
@@ -171,7 +171,7 @@
     <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-left">
-        <img src="images/logo.jpg" alt="Binti Events" class="footer-logo">
+        <img src="images/logo1.png" alt="Binti Events" class="footer-logo">
         <p class="caption">Instinctively Elegant</p>
         <div class="footer-contact">
           <div class="footer-contact-item">
