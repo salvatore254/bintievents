@@ -251,15 +251,19 @@
           const mpesaError = document.getElementById('mpesa-phone-error');
           if (mpesaError) mpesaError.style.display = 'none';
         }
+        // Update button state when payment method changes
+        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
       });
     });
 
-    // Clear M-Pesa phone error as user types
+    // Clear M-Pesa phone error as user types and update button state
     const mpesaPhoneInput = document.getElementById('mpesa-phone');
     if (mpesaPhoneInput) {
       mpesaPhoneInput.addEventListener('input', () => {
         const mpesaError = document.getElementById('mpesa-phone-error');
         if (mpesaError) mpesaError.style.display = 'none';
+        // Update button state when phone input changes
+        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
       });
       
       // Validate on blur
@@ -283,15 +287,18 @@
         const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
         if (booking.phone) {
           document.getElementById('mpesa-phone').value = booking.phone;
+          alert('Phone number populated: ' + booking.phone);
           // Clear error when populated
           const mpesaError = document.getElementById('mpesa-phone-error');
           if (mpesaError) mpesaError.style.display = 'none';
+          // Trigger button state update
+          if (window.updatePaymentButtonState) window.updatePaymentButtonState();
         } else {
-          window.showCheckoutError('No contact phone number found. Please enter your M-Pesa phone number manually.');
+          alert('No contact phone number found. Please enter your M-Pesa phone number manually.');
         }
       } catch (e) {
         console.error('Error loading phone number:', e);
-        window.showCheckoutError('Error loading phone number. Please enter manually.');
+        alert('Error loading phone number. Please enter manually.');
       }
     });
   </script>

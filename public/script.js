@@ -627,26 +627,47 @@
     return true;
   };
 
-  // --- Update payment button state based on terms checkbox
+  // --- Update payment button state based on terms checkbox and M-Pesa phone
   window.updatePaymentButtonState = function() {
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
+    const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
+    const mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
     
-    console.log('Updating button state - Terms checked:', termsCheckbox?.checked, 'Button exists:', !!payButton);
+    console.log('Updating button state - Terms checked:', termsCheckbox?.checked, 'Payment method:', paymentMethod, 'M-Pesa phone:', mpesaPhone);
     
     if (!termsCheckbox || !payButton) return;
     
-    if (termsCheckbox.checked) {
+    // Check if all conditions are met for enabling button
+    const termsAccepted = termsCheckbox.checked;
+    const mpesaPhoneFilled = paymentMethod === 'mpesa' ? mpesaPhone.length > 0 : true;
+    const shouldEnable = termsAccepted && mpesaPhoneFilled;
+    
+    if (shouldEnable) {
       // Enable button
       payButton.disabled = false;
       payButton.style.opacity = '1';
       payButton.style.cursor = 'pointer';
+      payButton.style.pointerEvents = 'auto';
+      // Change icon to unlocked
+      const icon = payButton.querySelector('i');
+      if (icon) {
+        icon.classList.remove('fa-lock');
+        icon.classList.add('fa-unlock');
+      }
       console.log('Button enabled');
     } else {
       // Disable button
       payButton.disabled = true;
       payButton.style.opacity = '0.5';
       payButton.style.cursor = 'not-allowed';
+      payButton.style.pointerEvents = 'none';
+      // Change icon to locked
+      const icon = payButton.querySelector('i');
+      if (icon) {
+        icon.classList.remove('fa-unlock');
+        icon.classList.add('fa-lock');
+      }
       console.log('Button disabled');
     }
   };
