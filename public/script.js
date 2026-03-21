@@ -460,4 +460,37 @@
     container.innerHTML = '';
     container.appendChild(iframe);
   };
+
+  // --- Payment validation: Ensure terms are accepted before proceeding
+  window.proceedToPayment = function() {
+    const termsCheckbox = q('#accept-terms');
+    
+    // If terms checkbox doesn't exist (not on checkout page), proceed normally
+    if (!termsCheckbox) {
+      console.log('Terms checkbox not found, proceeding with payment');
+      return true;
+    }
+    
+    // Check if terms are accepted
+    if (!termsCheckbox.checked) {
+      alert('⚠️ Please accept the Terms and Conditions before proceeding with payment.\n\nYou must read and agree to our terms by clicking the checkbox.');
+      termsCheckbox.focus();
+      return false;
+    }
+    
+    // Terms accepted - proceed with payment
+    const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
+    console.log('Payment method selected:', paymentMethod);
+    
+    // Store terms acceptance in localStorage
+    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+    booking.termsAccepted = true;
+    booking.termsAcceptedAt = new Date().toISOString();
+    localStorage.setItem('bintiBooking', JSON.stringify(booking));
+    
+    // TODO: Implement actual payment processing based on payment method
+    // For now, show success message
+    alert('Payment processing initiated. This is a placeholder - implement actual payment gateway integration in the backend.');
+    return true;
+  };
 })();

@@ -140,12 +140,22 @@
         </div>
 
         <div class="payment-actions">
-          <button id="pay-now-btn" class="btn-primary btn-large">
+          <button id="pay-now-btn" class="btn-primary btn-large" onclick="proceedToPayment()">
             <i class="fas fa-lock"></i> Proceed to Payment
           </button>
           <a href="bookings.html" class="btn-secondary">
             <i class="fas fa-edit"></i> Back to Edit
           </a>
+        </div>
+
+        <!-- Terms and Conditions Acceptance -->
+        <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <input type="checkbox" id="accept-terms" name="accept-terms" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+            <label for="accept-terms" style="cursor: pointer; color: #5A4A48; font-size: 0.95rem; line-height: 1.6;">
+              I have read and agree to the <a href="terms.html" target="_blank" style="color: #7851A9; text-decoration: underline; font-weight: 600;">Terms and Conditions</a> and understand that my booking is subject to these terms.
+            </label>
+          </div>
         </div>
 
         <div class="payment-security">
