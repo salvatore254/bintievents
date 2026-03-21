@@ -498,6 +498,8 @@
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
     
+    console.log('Updating button state - Terms checked:', termsCheckbox?.checked, 'Button exists:', !!payButton);
+    
     if (!termsCheckbox || !payButton) return;
     
     if (termsCheckbox.checked) {
@@ -505,11 +507,28 @@
       payButton.disabled = false;
       payButton.style.opacity = '1';
       payButton.style.cursor = 'pointer';
+      console.log('Button enabled');
     } else {
       // Disable button
       payButton.disabled = true;
       payButton.style.opacity = '0.5';
       payButton.style.cursor = 'not-allowed';
+      console.log('Button disabled');
     }
   };
+
+  // Initialize checkout page button state on load
+  onReady(() => {
+    const termsCheckbox = q('#accept-terms');
+    const payButton = q('#pay-now-btn');
+    
+    if (termsCheckbox && payButton) {
+      // Initialize button state
+      window.updatePaymentButtonState();
+      
+      // Add change listener
+      termsCheckbox.addEventListener('change', window.updatePaymentButtonState);
+      console.log('Checkout page initialized - button state listener attached');
+    }
+  });
 })();
