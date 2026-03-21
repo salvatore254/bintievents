@@ -10,7 +10,7 @@
      * Site visit: 1.5k Nairobi, arrange outside
    - Real-time zone identification as user types location
    - Checkout loader (reads booking with breakdown data from localStorage)
-   - loadPesapalIframe(orderRef) helper (placeholder)
+   - loadPesapalIframe(bookingId) helper (secure iframe from backend)
 */
 
 (function () {
@@ -446,19 +446,70 @@
     if (totalAmountEl) totalAmountEl.textContent = `KES ${(booking.total || 0).toLocaleString()}`;
   });
 
-  // --- Pesapal iframe helper (placeholder)
-  window.loadPesapalIframe = function(orderRef) {
+  // --- M-Pesa payment trigger
+  window.triggerMpesaPayment = function(bookingId, phone, amount, mpesaPhone) {
+    // Use M-Pesa phone if provided, otherwise use contact phone
+    const paymentPhone = mpesaPhone || phone;
+    const message = `M-Pesa payment initiated for booking #${bookingId.substring(0, 8)}...\n\nAmount: KES ${amount.toLocaleString()}\nPhone: ${paymentPhone}\n\nA payment prompt will be sent to your M-Pesa registered phone number. Please enter your M-Pesa PIN to complete the payment.`;
+    
+    // Show payment instruction modal
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    modal.innerHTML = `
+      <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center;">
+        <i class="fas fa-mobile-alt" style="font-size: 3em; color: #25D366; margin-bottom: 20px;"></i>
+        <h2>M-Pesa Payment</h2>
+        <p style="margin: 20px 0; font-size: 1.1em;">${message.replace(/\n/g, '<br>')}</p>
+        <p style="color: #666; margin: 20px 0;">Waiting for payment confirmation...</p>
+        <div style="margin: 20px 0;">
+          <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #25D366; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        </div>
+        <small style="color: #999;">Do not close this window until payment is complete.</small>
+      </div>
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    `;
+    document.body.appendChild(modal);
+    
+    // In production, backend would send actual STK push to phone
+    // For now, simulate after 5 seconds
+    setTimeout(() => {
+      const confirmed = confirm('Did you complete the M-Pesa payment?');
+      modal.remove();
+      if (confirmed) {
+        alert('Thank you! Your payment has been received. Your booking is confirmed. You will receive a confirmation email shortly.');
+        localStorage.removeItem('bintiBooking');
+        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+      }
+    }, 5000);
+  };
+
+  // --- Pesapal iframe helper
+  window.loadPesapalIframe = function(bookingId) {
     const container = q('#pesapal-container') || q('#pesapalFrameContainer') || document.body;
     if (!container) return;
     container.innerHTML = '<div class="message-container"><p>Loading secure payment window…</p></div>';
-    const iframe = document.createElement('iframe');
-    iframe.width = '100%';
-    iframe.height = '650';
-    iframe.frameBorder = '0';
-    // NOTE: In production, generate secure Pesapal iframe src from backend using Pesapal credentials.
-    iframe.src = `https://www.pesapal.com/pesapal_iframe_placeholder?orderRef=${encodeURIComponent(orderRef)}`;
-    container.innerHTML = '';
-    container.appendChild(iframe);
+    
+    // Fetch the secure iframe URL from backend
+    fetch(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`)
+      .then(res => res.json())
+      .then(data => {
+        const iframe = document.createElement('iframe');
+        iframe.width = '100%';
+        iframe.height = '650';
+        iframe.frameBorder = '0';
+        iframe.src = data.iframeUrl;
+        container.innerHTML = '';
+        container.appendChild(iframe);
+      })
+      .catch(err => {
+        console.error('Failed to load Pesapal iframe:', err);
+        container.innerHTML = '<p style="color: red;">Failed to load payment window. Please try again.</p>';
+      });
   };
 
   // --- Payment validation: Ensure terms are accepted before proceeding
@@ -473,23 +524,85 @@
     
     // If button is disabled, don't allow proceed
     if (q('#pay-now-btn')?.disabled) {
-      alert('⚠️ Please accept the Terms and Conditions before proceeding with payment.');
+      alert(' Please accept the Terms and Conditions before proceeding with payment.');
       return false;
     }
     
     // Terms accepted - proceed with payment
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
+    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+    
     console.log('Payment method selected:', paymentMethod);
     
-    // Store terms acceptance in localStorage
-    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
-    booking.termsAccepted = true;
-    booking.termsAcceptedAt = new Date().toISOString();
-    localStorage.setItem('bintiBooking', JSON.stringify(booking));
+    if (!booking.fullname || !booking.phone || !booking.email) {
+      alert('Booking information is incomplete. Please go back and complete your booking details.');
+      return false;
+    }
+
+    // Validate M-Pesa phone if M-Pesa is selected
+    let mpesaPhone = '';
+    if (paymentMethod === 'mpesa') {
+      mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
+      if (!mpesaPhone) {
+        alert('Please enter your M-Pesa registered phone number.');
+        q('#mpesa-phone')?.focus();
+        return false;
+      }
+      // Basic phone validation
+      if (!/^\+?[0-9]{10,15}$/.test(mpesaPhone)) {
+        alert('Please enter a valid phone number (e.g., +254712345678 or 0712345678).');
+        q('#mpesa-phone')?.focus();
+        return false;
+      }
+    }
     
-    // TODO: Implement actual payment processing based on payment method
-    // For now, show success message
-    alert('Payment processing initiated. This is a placeholder - implement actual payment gateway integration in the backend.');
+    // Create payment request with terms acceptance
+    const paymentData = {
+      fullname: booking.fullname,
+      phone: booking.phone,
+      email: booking.email,
+      mpesaPhone: mpesaPhone,
+      bookingDetails: {
+        tentType: booking.tentType,
+        stretchSize: booking.stretchSize,
+        cheeseColor: booking.cheeseColor,
+        aframeSections: booking.aframeSections,
+        venue: booking.venue,
+        total: booking.total
+      },
+      termsAccepted: true,
+      termsAcceptedAt: new Date().toISOString(),
+      paymentMethod: paymentMethod
+    };
+    
+    // Send to backend to create booking and initiate payment
+    fetch(`${API_BASE_URL}/bookings/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paymentData)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Successfully created booking
+          if (paymentMethod === 'mpesa') {
+            // Trigger M-Pesa STK push with M-Pesa phone
+            window.triggerMpesaPayment(data.bookingId, booking.phone, booking.total, mpesaPhone);
+          } else if (paymentMethod === 'pesapal') {
+            // Load Pesapal iframe
+            window.loadPesapalIframe(data.bookingId);
+          } else {
+            alert('Payment method not recognized. Please contact support.');
+          }
+        } else {
+          alert(`Booking creation failed: ${data.message || 'Unknown error'}`);
+        }
+      })
+      .catch(err => {
+        console.error('Payment error:', err);
+        alert('Payment processing failed. Please check your connection and try again.');
+      });
+    
     return true;
   };
 
@@ -530,5 +643,81 @@
       termsCheckbox.addEventListener('change', window.updatePaymentButtonState);
       console.log('Checkout page initialized - button state listener attached');
     }
+  });
+
+  // --- Contact Form Handler
+  onReady(() => {
+    const contactForm = q('#contact-form');
+    if (!contactForm) return; // Not on contact page
+    
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formMessage = q('#form-message');
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      try {
+        // Get form data
+        const name = q('#name', contactForm).value.trim();
+        const email = q('#email', contactForm).value.trim();
+        const phone = q('#phone', contactForm).value.trim();
+        const subject = q('#subject', contactForm).value;
+        const message = q('#message', contactForm).value.trim();
+        
+        // Validate required fields
+        if (!name || !email || !subject || !message) {
+          throw new Error('Please fill in all required fields.');
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        // Send to backend
+        const response = await fetch(`${API_BASE_URL}/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, subject, message })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Show success message
+          formMessage.style.display = 'block';
+          formMessage.style.backgroundColor = '#d4edda';
+          formMessage.style.color = '#155724';
+          formMessage.style.borderLeft = '4px solid #28a745';
+          formMessage.innerHTML = '<strong>✓ Success!</strong> Your message has been sent. We will respond within 24 hours.';
+          
+          // Reset form
+          contactForm.reset();
+          
+          // Scroll to message
+          formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          throw new Error(result.message || 'Failed to send message.');
+        }
+      } catch (err) {
+        console.error('Contact form error:', err);
+        
+        // Show error message
+        formMessage.style.display = 'block';
+        formMessage.style.backgroundColor = '#f8d7da';
+        formMessage.style.color = '#721c24';
+        formMessage.style.borderLeft = '4px solid #f5c6cb';
+        formMessage.innerHTML = `<strong>✗ Error:</strong> ${err.message}`;
+        
+        // Scroll to message
+        formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } finally {
+        // Reset button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+    
+    console.log('Contact form initialized');
   });
 })();

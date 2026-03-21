@@ -139,6 +139,27 @@
           </div>
         </div>
 
+        <!-- M-Pesa Phone Number Field -->
+        <div id="mpesa-phone-section" class="mpesa-phone-section" style="padding: 24px; background: rgba(37, 211, 102, 0.08); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #25D366; display: none;">
+          <div style="margin-bottom: 12px;">
+            <h4 style="color: #155724; margin: 0 0 8px 0; font-size: 1rem;"><i class="fas fa-mobile-alt"></i> M-Pesa Phone Number</h4>
+            <p style="color: #666; margin: 0; font-size: 0.9rem;">Enter the phone number registered with M-Pesa for payment</p>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <input 
+              id="mpesa-phone" 
+              type="tel" 
+              placeholder="+254 712 345 678" 
+              style="flex: 1; padding: 12px 16px; border: 1px solid #25D366; border-radius: 6px; font-family: 'Raleway', sans-serif; font-size: 0.95rem;"
+              pattern="^\+?[0-9]{10,15}$"
+            >
+            <button type="button" id="use-contact-phone" class="btn-secondary" style="padding: 12px 20px;">
+              <i class="fas fa-sync"></i> Use Contact
+            </button>
+          </div>
+          <small style="color: #666; display: block; margin-top: 8px;">This should be the phone number where you'll receive the M-Pesa payment prompt</small>
+        </div>
+
         <!-- Terms and Conditions Acceptance -->
         <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
           <div style="display: flex; align-items: flex-start; gap: 12px;">
@@ -168,7 +189,35 @@
     <div id="pesapal-container" class="iframe-container" style="display: none; margin-top: 30px;"></div>
   </main>
 
-    <footer class="site-footer">
+  <script>
+    // Show/hide M-Pesa phone field based on payment method selection
+    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
+        if (e.target.value === 'mpesa') {
+          mpesaPhoneSection.style.display = 'block';
+        } else {
+          mpesaPhoneSection.style.display = 'none';
+        }
+      });
+    });
+
+    // Use contact phone button - populate from booking details
+    document.getElementById('use-contact-phone')?.addEventListener('click', () => {
+      try {
+        const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+        if (booking.phone) {
+          document.getElementById('mpesa-phone').value = booking.phone;
+        } else {
+          alert('No contact phone number found. Please enter your M-Pesa phone number.');
+        }
+      } catch (e) {
+        console.error('Error loading phone number:', e);
+      }
+    });
+  </script>
+
+  <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-left">
         <img src="images/logo1.png" alt="Binti Events" class="footer-logo">
