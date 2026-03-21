@@ -800,9 +800,9 @@
     }
     
     // Attach click handler to "Proceed to Payment" button
-    const payButton = q('#pay-now-btn');
-    if (payButton) {
-      payButton.addEventListener('click', () => {
+    const paymentButton = q('#pay-now-btn');
+    if (paymentButton) {
+      paymentButton.addEventListener('click', () => {
         console.log('Pay button clicked');
         window.proceedToPayment();
       });
