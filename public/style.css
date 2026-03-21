@@ -1437,6 +1437,35 @@ section h2::after {
   transform: translateY(-2px);
 }
 
+/* Danger button style */
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  padding: 13px 28px;
+  border-radius: 30px;
+  border: 2px solid #dc3545;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  border-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Payment Security */
 .payment-security {
   padding: 16px 28px;

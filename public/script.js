@@ -674,10 +674,34 @@
     }
   };
   
-  // --- Clear booking and refresh page
+  // --- Clear booking from both pages
   window.clearBooking = function() {
     if (confirm('Are you sure you want to clear all booking details? This cannot be undone.')) {
+      // Remove booking data from localStorage
       localStorage.removeItem('bintiBooking');
+      
+      // Reset form fields if on bookings page
+      const bookingForm = q('#booking-form');
+      if (bookingForm) {
+        bookingForm.reset();
+        // Clear all form inputs
+        qa('input, select, textarea').forEach(field => {
+          field.value = '';
+        });
+        console.log('Booking form cleared');
+      }
+      
+      // Reset checkout form if on checkout page
+      const termsCheckbox = q('#accept-terms');
+      if (termsCheckbox) {
+        termsCheckbox.checked = false;
+        const mpesaPhoneInput = q('#mpesa-phone');
+        if (mpesaPhoneInput) mpesaPhoneInput.value = '';
+        // Reset button state
+        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
+        console.log('Checkout form cleared');
+      }
+      
       alert('Booking cleared successfully. Redirecting to booking form...');
       window.location.href = 'bookings.html';
     }
@@ -772,6 +796,24 @@
           console.error('Error loading phone number:', e);
           alert('Error loading phone number. Please enter manually.');
         }
+      });
+    }
+    
+    // Attach click handler to "Proceed to Payment" button
+    const payButton = q('#pay-now-btn');
+    if (payButton) {
+      payButton.addEventListener('click', () => {
+        console.log('Pay button clicked');
+        window.proceedToPayment();
+      });
+    }
+    
+    // Attach click handler to "Clear Booking" button
+    const clearBookingBtn = q('#clear-booking-btn');
+    if (clearBookingBtn) {
+      clearBookingBtn.addEventListener('click', () => {
+        console.log('Clear booking button clicked');
+        window.clearBooking();
       });
     }
     
