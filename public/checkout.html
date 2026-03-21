@@ -210,7 +210,7 @@
         <!-- Terms and Conditions Acceptance -->
         <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
           <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <input type="checkbox" id="accept-terms" name="accept-terms" onchange="updatePaymentButtonState()" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+            <input type="checkbox" id="accept-terms" name="accept-terms" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
             <label for="accept-terms" style="cursor: pointer; color: #5A4A48; font-size: 0.95rem; line-height: 1.6;">
               I have read and agree to the <a href="terms.html" target="_blank" style="color: #7851A9; text-decoration: underline; font-weight: 600;">Terms and Conditions</a> and understand that my booking is subject to these terms.
             </label>
@@ -218,12 +218,15 @@
         </div>
 
         <div class="payment-actions">
-          <button id="pay-now-btn" class="btn-primary btn-large" onclick="proceedToPayment()" disabled style="opacity: 0.5; cursor: not-allowed;">
+          <button id="pay-now-btn" class="btn-primary btn-large" onclick="proceedToPayment()" disabled style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">
             <i class="fas fa-lock"></i> Proceed to Payment
           </button>
           <a href="bookings.html" class="btn-secondary">
             <i class="fas fa-edit"></i> Back to Edit
           </a>
+          <button type="button" onclick="clearBooking()" class="btn-secondary" style="background: #dc3545; color: white; border: none;">
+            <i class="fas fa-trash"></i> Clear Booking
+          </button>
         </div>
 
         <div class="payment-security">
@@ -235,73 +238,6 @@
     <!-- Pesapal Container (hidden by default) -->
     <div id="pesapal-container" class="iframe-container" style="display: none; margin-top: 30px;"></div>
   </main>
-
-  <script>
-    // Show/hide M-Pesa phone field based on payment method selection
-    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
-        if (e.target.value === 'mpesa') {
-          mpesaPhoneSection.style.display = 'block';
-          // Focus on M-Pesa phone input
-          setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
-        } else {
-          mpesaPhoneSection.style.display = 'none';
-          // Clear error when switching away from M-Pesa
-          const mpesaError = document.getElementById('mpesa-phone-error');
-          if (mpesaError) mpesaError.style.display = 'none';
-        }
-        // Update button state when payment method changes
-        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
-      });
-    });
-
-    // Clear M-Pesa phone error as user types and update button state
-    const mpesaPhoneInput = document.getElementById('mpesa-phone');
-    if (mpesaPhoneInput) {
-      mpesaPhoneInput.addEventListener('input', () => {
-        const mpesaError = document.getElementById('mpesa-phone-error');
-        if (mpesaError) mpesaError.style.display = 'none';
-        // Update button state when phone input changes
-        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
-      });
-      
-      // Validate on blur
-      mpesaPhoneInput.addEventListener('blur', () => {
-        const value = mpesaPhoneInput.value.trim();
-        const mpesaError = document.getElementById('mpesa-phone-error');
-        const mpesaErrorText = document.getElementById('mpesa-phone-error-text');
-        
-        if (value && !/^\+?[0-9]{10,15}$/.test(value)) {
-          if (mpesaErrorText) {
-            mpesaErrorText.textContent = 'Invalid format. Use: +254712345678, 0712345678, or 254712345678';
-          }
-          if (mpesaError) mpesaError.style.display = 'block';
-        }
-      });
-    }
-
-    // Use contact phone button - populate from booking details
-    document.getElementById('use-contact-phone')?.addEventListener('click', () => {
-      try {
-        const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
-        if (booking.phone) {
-          document.getElementById('mpesa-phone').value = booking.phone;
-          alert('Phone number populated: ' + booking.phone);
-          // Clear error when populated
-          const mpesaError = document.getElementById('mpesa-phone-error');
-          if (mpesaError) mpesaError.style.display = 'none';
-          // Trigger button state update
-          if (window.updatePaymentButtonState) window.updatePaymentButtonState();
-        } else {
-          alert('No contact phone number found. Please enter your M-Pesa phone number manually.');
-        }
-      } catch (e) {
-        console.error('Error loading phone number:', e);
-        alert('Error loading phone number. Please enter manually.');
-      }
-    });
-  </script>
 
   <footer class="site-footer">
     <div class="container footer-inner">

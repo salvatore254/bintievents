@@ -631,17 +631,23 @@
   window.updatePaymentButtonState = function() {
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
+    
+    if (!termsCheckbox || !payButton) {
+      console.log('Button state elements not found');
+      return;
+    }
+    
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
     const mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
     
-    console.log('Updating button state - Terms checked:', termsCheckbox?.checked, 'Payment method:', paymentMethod, 'M-Pesa phone:', mpesaPhone);
-    
-    if (!termsCheckbox || !payButton) return;
+    console.log('Updating button state - Terms checked:', termsCheckbox.checked, 'Payment method:', paymentMethod, 'M-Pesa phone:', mpesaPhone);
     
     // Check if all conditions are met for enabling button
     const termsAccepted = termsCheckbox.checked;
     const mpesaPhoneFilled = paymentMethod === 'mpesa' ? mpesaPhone.length > 0 : true;
     const shouldEnable = termsAccepted && mpesaPhoneFilled;
+    
+    const icon = payButton.querySelector('i');
     
     if (shouldEnable) {
       // Enable button
@@ -650,12 +656,10 @@
       payButton.style.cursor = 'pointer';
       payButton.style.pointerEvents = 'auto';
       // Change icon to unlocked
-      const icon = payButton.querySelector('i');
       if (icon) {
-        icon.classList.remove('fa-lock');
-        icon.classList.add('fa-unlock');
+        icon.className = 'fas fa-unlock';
       }
-      console.log('Button enabled');
+      console.log('Button enabled - all conditions met');
     } else {
       // Disable button
       payButton.disabled = true;
@@ -663,12 +667,19 @@
       payButton.style.cursor = 'not-allowed';
       payButton.style.pointerEvents = 'none';
       // Change icon to locked
-      const icon = payButton.querySelector('i');
       if (icon) {
-        icon.classList.remove('fa-unlock');
-        icon.classList.add('fa-lock');
+        icon.className = 'fas fa-lock';
       }
-      console.log('Button disabled');
+      console.log('Button disabled - conditions not met');
+    }
+  };
+  
+  // --- Clear booking and refresh page
+  window.clearBooking = function() {
+    if (confirm('Are you sure you want to clear all booking details? This cannot be undone.')) {
+      localStorage.removeItem('bintiBooking');
+      alert('Booking cleared successfully. Redirecting to booking form...');
+      window.location.href = 'bookings.html';
     }
   };
 
@@ -677,14 +688,94 @@
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
     
-    if (termsCheckbox && payButton) {
-      // Initialize button state
-      window.updatePaymentButtonState();
-      
-      // Add change listener
-      termsCheckbox.addEventListener('change', window.updatePaymentButtonState);
-      console.log('Checkout page initialized - button state listener attached');
+    if (!termsCheckbox || !payButton) {
+      console.log('Checkout page elements not found');
+      return;
     }
+    
+    // Initialize button state
+    window.updatePaymentButtonState();
+    
+    // Add change listener to terms checkbox
+    termsCheckbox.addEventListener('change', () => {
+      console.log('Terms checkbox changed');
+      window.updatePaymentButtonState();
+    });
+    
+    // Show/hide M-Pesa phone field based on payment method selection
+    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        console.log('Payment method changed to:', e.target.value);
+        const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
+        if (e.target.value === 'mpesa') {
+          mpesaPhoneSection.style.display = 'block';
+          // Focus on M-Pesa phone input
+          setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
+        } else {
+          mpesaPhoneSection.style.display = 'none';
+          // Clear error when switching away from M-Pesa
+          const mpesaError = document.getElementById('mpesa-phone-error');
+          if (mpesaError) mpesaError.style.display = 'none';
+          // Clear M-Pesa phone value when switching away
+          const mpesaPhoneInput = document.getElementById('mpesa-phone');
+          if (mpesaPhoneInput) mpesaPhoneInput.value = '';
+        }
+        // Update button state when payment method changes
+        window.updatePaymentButtonState();
+      });
+    });
+
+    // M-Pesa phone input listeners
+    const mpesaPhoneInput = document.getElementById('mpesa-phone');
+    if (mpesaPhoneInput) {
+      mpesaPhoneInput.addEventListener('input', () => {
+        console.log('M-Pesa phone input changed');
+        const mpesaError = document.getElementById('mpesa-phone-error');
+        if (mpesaError) mpesaError.style.display = 'none';
+        // Update button state when phone input changes
+        window.updatePaymentButtonState();
+      });
+      
+      // Validate on blur
+      mpesaPhoneInput.addEventListener('blur', () => {
+        const value = mpesaPhoneInput.value.trim();
+        const mpesaError = document.getElementById('mpesa-phone-error');
+        const mpesaErrorText = document.getElementById('mpesa-phone-error-text');
+        
+        if (value && !/^\+?[0-9]{10,15}$/.test(value)) {
+          if (mpesaErrorText) {
+            mpesaErrorText.textContent = 'Invalid format. Use: +254712345678, 0712345678, or 254712345678';
+          }
+          if (mpesaError) mpesaError.style.display = 'block';
+        }
+      });
+    }
+
+    // Use contact phone button - populate from booking details
+    const useContactPhoneBtn = document.getElementById('use-contact-phone');
+    if (useContactPhoneBtn) {
+      useContactPhoneBtn.addEventListener('click', () => {
+        try {
+          const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+          if (booking.phone) {
+            document.getElementById('mpesa-phone').value = booking.phone;
+            alert('Phone number populated: ' + booking.phone);
+            // Clear error when populated
+            const mpesaError = document.getElementById('mpesa-phone-error');
+            if (mpesaError) mpesaError.style.display = 'none';
+            // Trigger button state update
+            window.updatePaymentButtonState();
+          } else {
+            alert('No contact phone number found. Please enter your M-Pesa phone number manually.');
+          }
+        } catch (e) {
+          console.error('Error loading phone number:', e);
+          alert('Error loading phone number. Please enter manually.');
+        }
+      });
+    }
+    
+    console.log('Checkout page initialized - all listeners attached');
   });
 
   // --- Contact Form Handler
