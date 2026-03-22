@@ -212,7 +212,40 @@
 
       log.info('BOOKING', 'Form values updated', values);
 
-      // Send to backend for calculation (includes dynamic transport)
+      // GUARD: Don't send API request if minimum required fields are missing
+      if (!values.tentType) {
+        log.warn('BOOKING', 'No tent type selected - skipping API call');
+        if (summaryBox) {
+          summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
+            <i class="fas fa-arrow-left"></i> Select a tent type to see live pricing
+          </p>`;
+        }
+        return;
+      }
+
+      // GUARD: For stretch tents, ensure size is selected
+      if (values.tentType === 'stretch' && !values.stretchSize) {
+        log.warn('BOOKING', 'Stretch tent selected but size not chosen - skipping API call');
+        if (summaryBox) {
+          summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
+            <i class="fas fa-arrow-left"></i> Select a tent size
+          </p>`;
+        }
+        return;
+      }
+
+      // GUARD: For transport, ensure location is provided
+      if (values.transport && !values.venue) {
+        log.warn('BOOKING', 'Transport checked but venue not entered - skipping API call');
+        if (summaryBox) {
+          summaryBox.innerHTML = `<p style="color: #d9534f; padding: 15px; border-radius: 4px; background: #ffe6e6;">
+            <strong>⚠️ Location Required:</strong> Please enter your venue location for transport pricing.
+          </p>`;
+        }
+        return;
+      }
+
+      // Payload construction
       const payload = {
         tentType: values.tentType,
         tentSize: values.stretchSize,
@@ -228,27 +261,6 @@
       };
 
       log.info('BOOKING', 'Sending calculation payload to backend', payload);
-
-      // Show helpful message if no tent selected
-      if (!values.tentType) {
-        log.warn('BOOKING', 'No tent type selected');
-        if (summaryBox) {
-          summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
-            <i class="fas fa-arrow-left"></i> Select a tent type to see live pricing
-          </p>`;
-        }
-        return;
-      }
-
-      // If transport is checked, require location
-      if (values.transport && !values.venue) {
-        let html = '<p><em>Waiting for configuration...</em></p>';
-        if (values.transport) {
-          html += '<p style="color: #d9534f;"><strong>⚠️ Location Required:</strong> Please enter your venue location for transport pricing.</p>';
-        }
-        if (summaryBox) summaryBox.innerHTML = html;
-        return;
-      }
 
       // Call backend calculate endpoint
       const calcUrl = `${API_BASE_URL}/bookings/calculate`;
