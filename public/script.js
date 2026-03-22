@@ -240,6 +240,9 @@
     
     log.info('BOOKING', 'Initializing booking form');
 
+    // Clear any old booking data to start fresh
+    localStorage.removeItem('bintiBooking');
+
     const draftRaw = localStorage.getItem('bintiBookingDraft');
     let draft = null;
     try { if (draftRaw) draft = JSON.parse(draftRaw); } catch (e) { log.error('BOOKING', 'Invalid draft JSON', e); }
@@ -602,6 +605,8 @@
       if (draft.aframeSections && aframeSectionsEl) aframeSectionsEl.value = draft.aframeSections;
       // call showConditional and update summary
       showConditional();
+      // IMPORTANT: Refresh summary after pre-fill so it displays correct data
+      setTimeout(() => updateSummary(), 100);
     }
 
     // Submit handler
