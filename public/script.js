@@ -194,23 +194,24 @@
     zoneInfoBox.style.cssText = 'padding: 10px; margin: 10px 0; background: #f0f8ff; border-left: 4px solid #007bff; border-radius: 4px; display: none; font-size: 0.9em;';
 
     function updateSummary() {
-      const values = {
-        tentType: tentTypeEl.value,
-        stretchSize: stretchSizeEl ? stretchSizeEl.value : '',
-        cheeseColor: cheeseColorEl ? cheeseColorEl.value : '',
-        aframeSections: aframeSectionsEl ? aframeSectionsEl.value : '1',
-        lighting: lightingEl ? lightingEl.checked : false,
-        transport: transportEl ? transportEl.checked : false,
-        decor: decorEl ? decorEl.checked : false,
-        pasound: pasoundEl ? pasoundEl.checked : false,
-        dancefloor: dancefloorEl ? dancefloorEl.checked : false,
-        stagepodium: stagepodiumEl ? stagepodiumEl.checked : false,
-        welcomesigns: welcomesignsEl ? welcomesignsEl.checked : false,
-        venue: venueEl ? venueEl.value : '',
-        sections: aframeSectionsEl ? aframeSectionsEl.value : '1'
-      };
+      try {
+        const values = {
+          tentType: tentTypeEl ? tentTypeEl.value : '',
+          stretchSize: stretchSizeEl ? stretchSizeEl.value : '',
+          cheeseColor: cheeseColorEl ? cheeseColorEl.value : '',
+          aframeSections: aframeSectionsEl ? aframeSectionsEl.value : '1',
+          lighting: lightingEl && lightingEl.checked ? true : false,
+          transport: transportEl && transportEl.checked ? true : false,
+          decor: decorEl && decorEl.checked ? true : false,
+          pasound: pasoundEl && pasoundEl.checked ? true : false,
+          dancefloor: dancefloorEl && dancefloorEl.checked ? true : false,
+          stagepodium: stagepodiumEl && stagepodiumEl.checked ? true : false,
+          welcomesigns: welcomesignsEl && welcomesignsEl.checked ? true : false,
+          venue: venueEl ? venueEl.value : '',
+          sections: aframeSectionsEl ? aframeSectionsEl.value : '1'
+        };
 
-      log.info('BOOKING', 'Form values updated', values);
+        log.info('BOOKING', 'Form values updated', values);
 
       // GUARD: Don't send API request if minimum required fields are missing
       if (!values.tentType) {
@@ -387,6 +388,10 @@
           log.error('BOOKING', 'Calculation API error', err);
           if (summaryBox) summaryBox.innerHTML = '<p style="color: #d9534f;"><strong>Error:</strong> Could not calculate booking. Please try again.</p>';
         });
+      } catch (err) {
+        log.error('BOOKING', 'updateSummary error', err);
+        if (summaryBox) summaryBox.innerHTML = '<p style="color: #d9534f;"><strong>Error:</strong> Form processing error. Please refresh and try again.</p>';
+      }
     }
 
     // Real-time zone identification
