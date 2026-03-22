@@ -5,9 +5,10 @@
    - Live booking price calculation with backend integration
      * Stretch: 250 KES/m²
      * A-frame: 40k/section, B-line: 30k, Cheese: 15k
-     * Lighting: 20k
+     * Ambient Lighting: 12k
      * Transport: Dynamic based on Nairobi zones or outside Nairobi regions
-     * Site visit: 1.5k Nairobi, arrange outside
+   - PA Sound System, Dance Floor, Stage & Podium, Welcome Signs add-ons
+   - Site visit requests redirect to contact form
    - Real-time zone identification as user types location
    - Checkout loader (reads booking with breakdown data from localStorage)
    - loadPesapalIframe(bookingId) helper (secure iframe from backend)
@@ -17,6 +18,30 @@
   // --- Configuration: API Base URL
   // This allows frontend to be hosted on a different server than the backend
   const API_BASE_URL = window.API_BASE_URL || "/api";
+  
+  // --- Logging utility for debugging
+  const log = {
+    info: (category, message, data) => {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = `[${timestamp}] [${category}]`;
+      console.log(prefix, message, data || '');
+    },
+    error: (category, message, error) => {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = `[${timestamp}] [${category}] ❌`;
+      console.error(prefix, message, error || '');
+    },
+    warn: (category, message, data) => {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = `[${timestamp}] [${category}] ⚠️`;
+      console.warn(prefix, message, data || '');
+    }
+  };
+  
+  // Make logger global for debugging in console
+  window.BintiLog = log;
+  
+  log.info('INIT', 'Binti Events script loaded', { API_BASE_URL });
   
   // --- helpers
   function onReady(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
@@ -81,16 +106,23 @@
   // --- Prefill bookings form from draft and add behaviour
   onReady(() => {
     const form = q('#booking-form');
-    if (!form) return;
+    if (!form) {
+      log.info('BOOKING', 'Not on booking form page');
+      return;
+    }
+    
+    log.info('BOOKING', 'Initializing booking form');
 
     const draftRaw = localStorage.getItem('bintiBookingDraft');
     let draft = null;
-    try { if (draftRaw) draft = JSON.parse(draftRaw); } catch (e) { console.warn('Invalid draft', e); }
+    try { if (draftRaw) draft = JSON.parse(draftRaw); } catch (e) { log.error('BOOKING', 'Invalid draft JSON', e); }
+    if (draft) log.info('BOOKING', 'Draft loaded from localStorage', draft);
 
     // --- Load selected package if user came from package page
     const packageRaw = localStorage.getItem('bintiSelectedPackage');
     let selectedPackage = null;
-    try { if (packageRaw) selectedPackage = JSON.parse(packageRaw); } catch (e) { console.warn('Invalid package', e); }
+    try { if (packageRaw) selectedPackage = JSON.parse(packageRaw); } catch (e) { log.error('BOOKING', 'Invalid package JSON', e); }
+    if (selectedPackage) log.info('BOOKING', 'Selected package loaded', selectedPackage);
 
     // Display selected package if it exists
     if (selectedPackage && selectedPackage.name) {
@@ -99,7 +131,7 @@
       if (packageSection && packageName) {
         packageSection.style.display = 'block';
         packageName.textContent = selectedPackage.name;
-        console.log('Selected package loaded:', selectedPackage.name);
+        log.info('BOOKING', 'Package section displayed', selectedPackage.name);
       }
     }
 
@@ -108,12 +140,16 @@
     const stretchSizeEl = q('#stretch-size');
     const cheeseColorEl = q('#cheese-color');
     const aframeSectionsEl = q('#aframe-sections');
-    const lightingEl = q('#lighting');
+    const lightingEl = q('#ambient-lighting');
     const transportEl = q('#transport');
     const decorEl = q('#decor');
-    const sitevisitEl = q('#sitevisit');
+    const pasoundEl = q('#pasound');
+    const dancefloorEl = q('#dancefloor');
+    const stagepodiumEl = q('#stage-podium');
+    const welcomesignsEl = q('#welcome-signs');
     const venueEl = q('#venue');
     const summaryBox = q('#booking-summary');
+    const siteVisitBtn = q('#site-visit-btn');
 
     function showConditional() {
       const val = tentTypeEl.value;
@@ -160,10 +196,15 @@
         lighting: lightingEl ? lightingEl.checked : false,
         transport: transportEl ? transportEl.checked : false,
         decor: decorEl ? decorEl.checked : false,
-        sitevisit: sitevisitEl ? sitevisitEl.checked : false,
+        pasound: pasoundEl ? pasoundEl.checked : false,
+        dancefloor: dancefloorEl ? dancefloorEl.checked : false,
+        stagepodium: stagepodiumEl ? stagepodiumEl.checked : false,
+        welcomesigns: welcomesignsEl ? welcomesignsEl.checked : false,
         venue: venueEl ? venueEl.value : '',
         sections: aframeSectionsEl ? aframeSectionsEl.value : '1'
       };
+
+      log.info('BOOKING', 'Form values updated', values);
 
       // Send to backend for calculation (includes dynamic transport)
       const payload = {
@@ -171,13 +212,19 @@
         tentSize: values.stretchSize,
         lighting: values.lighting ? 'yes' : 'no',
         transport: values.transport ? 'yes' : 'no',
-        siteVisit: values.sitevisit ? 'yes' : 'no',
+        pasound: values.pasound ? 'yes' : 'no',
+        dancefloor: values.dancefloor ? 'yes' : 'no',
+        stagepodium: values.stagepodium ? 'yes' : 'no',
+        welcomesigns: values.welcomesigns ? 'yes' : 'no',
         location: values.venue,
         sections: values.sections
       };
 
+      log.info('BOOKING', 'Sending calculation payload to backend', payload);
+
       // Show helpful message if no tent selected
       if (!values.tentType) {
+        log.warn('BOOKING', 'No tent type selected');
         if (summaryBox) {
           summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
             <i class="fas fa-arrow-left"></i> Select a tent type to see live pricing
@@ -186,29 +233,39 @@
         return;
       }
 
-      // If transport or site visit is checked, require location
-      if ((values.transport || values.sitevisit) && !values.venue) {
+      // If transport is checked, require location
+      if (values.transport && !values.venue) {
         let html = '<p><em>Waiting for configuration...</em></p>';
-        if (values.transport || values.sitevisit) {
-          html += '<p style="color: #d9534f;"><strong>⚠️ Location Required:</strong> Please enter your venue location for transport & site visit pricing.</p>';
+        if (values.transport) {
+          html += '<p style="color: #d9534f;"><strong>⚠️ Location Required:</strong> Please enter your venue location for transport pricing.</p>';
         }
         if (summaryBox) summaryBox.innerHTML = html;
         return;
       }
 
       // Call backend calculate endpoint
+      log.info('BOOKING', `Calling ${API_BASE_URL}/bookings/calculate`);
+      
       fetch(`${API_BASE_URL}/bookings/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-        .then(res => res.json())
+        .then(res => {
+          log.info('BOOKING', `API response received with status ${res.status}`);
+          return res.json();
+        })
         .then(data => {
+          log.info('BOOKING', 'Calculation response', data);
+          
           if (!data.success) {
-            let error = data.message || 'Calculation error';
+            const error = data.message || 'Calculation error';
+            log.error('BOOKING', 'Calculation failed', error);
             if (summaryBox) summaryBox.innerHTML = `<p style="color: #d9534f;"><strong>⚠️ Error:</strong> ${error}</p>`;
             return;
           }
+
+          log.info('BOOKING', 'Calculation successful', { breakdown: data.breakdown, total: data.total });
 
           const breakdown = data.breakdown;
           let html = '';
@@ -248,19 +305,29 @@
             }
           }
 
-          // Site visit
-          if (breakdown.siteVisit) {
-            const sv = breakdown.siteVisit;
-            if (sv.cost > 0) {
-              html += `<p><strong>Site visit (${sv.area}):</strong> KES ${sv.cost.toLocaleString()}</p>`;
-            } else {
-              html += `<p><strong>Site visit:</strong> Outside Nairobi - requires arrangements (we'll contact you)</p>`;
-            }
-          }
-
           // Decor
           if (values.decor) {
             html += `<p><strong>Decor:</strong> Upon Inquiry</p>`;
+          }
+
+          // PA Sound System
+          if (values.pasound) {
+            html += `<p><strong>PA Sound System:</strong> KES 8,000</p>`;
+          }
+
+          // Dance Floor
+          if (values.dancefloor) {
+            html += `<p><strong>Dance Floor:</strong> KES 10,000</p>`;
+          }
+
+          // Stage & Podium
+          if (values.stagepodium) {
+            html += `<p><strong>Stage & Podium:</strong> KES 15,000</p>`;
+          }
+
+          // Welcome Signs
+          if (values.welcomesigns) {
+            html += `<p><strong>Welcome Signs:</strong> KES 3,000</p>`;
           }
 
           html += `<hr><p><strong>Total (calculated):</strong> KES ${total.toLocaleString()}</p>`;
@@ -277,7 +344,10 @@
             lighting: values.lighting,
             transport: values.transport,
             decor: values.decor,
-            sitevisit: values.sitevisit,
+            pasound: values.pasound,
+            dancefloor: values.dancefloor,
+            stagepodium: values.stagepodium,
+            welcomesigns: values.welcomesigns,
             venue: values.venue,
             fullname: q('#fullname') ? q('#fullname').value : '',
             phone: q('#phone') ? q('#phone').value : '',
@@ -286,10 +356,15 @@
             breakdown: breakdown,
             selectedPackage: selectedPackage ? selectedPackage.name : null
           };
-          try { localStorage.setItem('bintiBooking', JSON.stringify(bookingSave)); } catch (e) { console.warn(e); }
+          try { 
+            localStorage.setItem('bintiBooking', JSON.stringify(bookingSave));
+            log.info('BOOKING', 'Booking saved to localStorage', bookingSave);
+          } catch (e) { 
+            log.error('BOOKING', 'Failed to save booking to localStorage', e);
+          }
         })
         .catch(err => {
-          console.error('Booking calculation error:', err);
+          log.error('BOOKING', 'Calculation API error', err);
           if (summaryBox) summaryBox.innerHTML = '<p style="color: #d9534f;"><strong>Error:</strong> Could not calculate booking. Please try again.</p>';
         });
     }
@@ -349,11 +424,20 @@
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, sitevisitEl, venueEl, q('#fullname'), q('#phone'), q('#email')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, q('#fullname'), q('#phone'), q('#email')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
     });
+
+    // Site visit button: redirect to contact form
+    if (siteVisitBtn) {
+      siteVisitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        log.info('BOOKING', 'Site visit request button clicked - redirecting to contact form');
+        window.location.href = 'contact.html?subject=site-visit-request';
+      });
+    }
 
     // initial display states
     showConditional();
@@ -377,16 +461,6 @@
         return;
       }
 
-      // If site visit chosen and location outside Nairobi -> redirect to contact page for arrangements
-      if (sitevisitEl.checked) {
-        const loc = (venueEl.value || '').toLowerCase();
-        if (!loc.includes('nairobi')) {
-          // redirect to contact page with parameter
-          window.location.href = 'contact.html?sitevisit=outside';
-          return;
-        }
-      }
-
       // booking saved already in updateSummary() to localStorage key 'bintiBooking'
       window.location.href = 'checkout.html';
     });
@@ -398,11 +472,28 @@
   // --- Checkout page: render booking and payment helpers
   onReady(() => {
     const orderSummary = q('#order-summary') || q('#booking-summary');
-    if (!orderSummary) return;
+    if (!orderSummary) {
+      log.info('CHECKOUT', 'Not on checkout page');
+      return;
+    }
+    
+    log.info('CHECKOUT', 'Loading order summary from localStorage');
+    
     const raw = localStorage.getItem('bintiBooking');
-    if (!raw) { orderSummary.innerHTML = '<p>No booking found. Please create a booking.</p>'; return; }
+    if (!raw) {
+      log.warn('CHECKOUT', 'No booking found in localStorage');
+      orderSummary.innerHTML = '<p>No booking found. Please create a booking.</p>';
+      return;
+    }
+    
     let booking = {};
-    try { booking = JSON.parse(raw); } catch (e) { console.warn(e); }
+    try { 
+      booking = JSON.parse(raw);
+      log.info('CHECKOUT', 'Booking loaded from localStorage', booking);
+    } catch (e) { 
+      log.error('CHECKOUT', 'Failed to parse booking JSON', e);
+    }
+    
     let html = '';
     html += `<p><strong>Name:</strong> ${booking.fullname || '—'}</p>`;
     html += `<p><strong>Phone:</strong> ${booking.phone || '—'}</p>`;
@@ -416,9 +507,10 @@
     
     // Use breakdown data if available (new system with TransportService)
     if (booking.breakdown) {
+      log.info('CHECKOUT', 'Using breakdown data from backend');
       const b = booking.breakdown;
       if (b.tent && b.tent.cost) html += `<p><strong>Tent cost:</strong> KES ${b.tent.cost.toLocaleString()}</p>`;
-      if (b.lighting && b.lighting > 0) html += `<p><strong>Lighting:</strong> KES ${b.lighting.toLocaleString()}</p>`;
+      if (b.lighting && b.lighting > 0) html += `<p><strong>Ambient Lighting:</strong> KES ${b.lighting.toLocaleString()}</p>`;
       if (b.transport && b.transport.cost) {
         html += `<p><strong>Transport:</strong> KES ${b.transport.cost.toLocaleString()}`;
         if (b.transport.serviceArea === 'nairobi') {
@@ -429,26 +521,21 @@
         }
         html += `</p>`;
       }
-      if (b.siteVisit) {
-        if (b.siteVisit.cost > 0) {
-          html += `<p><strong>Site visit (${b.siteVisit.area}):</strong> KES ${b.siteVisit.cost.toLocaleString()}</p>`;
-        } else if (b.siteVisit.note) {
-          html += `<p><strong>Site visit:</strong> ${b.siteVisit.note}</p>`;
-        }
-      }
+      // Site Visit is no longer part of add-ons - users request via contact form
     } else {
+      log.warn('CHECKOUT', 'No breakdown data - using fallback calculation');
       // Fallback to old calculation method
-      const tentPrice = booking.total ? booking.total - (booking.lighting ? 20000 : 0) - (booking.transport ? 7000 : 0) - (booking.sitevisit && booking.venue && booking.venue.toLowerCase().includes('nairobi') ? 1500 : 0) : 0;
+      const tentPrice = booking.total ? booking.total - (booking.lighting ? 12000 : 0) - (booking.transport ? 7000 : 0) : 0;
       if (booking.tentType) html += `<p><strong>Tent cost (approx):</strong> KES ${Math.max(0, tentPrice).toLocaleString()}</p>`;
-      if (booking.lighting) html += `<p><strong>Lighting:</strong> KES 20,000</p>`;
+      if (booking.lighting) html += `<p><strong>Ambient Lighting:</strong> KES 12,000</p>`;
       if (booking.transport) html += `<p><strong>Transport:</strong> KES 7,000</p>`;
-      if (booking.sitevisit) {
-        if (booking.venue && booking.venue.toLowerCase().includes('nairobi')) html += `<p><strong>Site visit (Nairobi):</strong> KES 1,500</p>`;
-        else html += `<p><strong>Site visit:</strong> Please contact us — outside Nairobi requires arrangements.</p>`;
-      }
     }
     
     if (booking.decor) html += `<p><strong>Decor:</strong> Upon Inquiry</p>`;
+    if (booking.pasound) html += `<p><strong>PA Sound System:</strong> KES 8,000</p>`;
+    if (booking.dancefloor) html += `<p><strong>Dance Floor:</strong> KES 10,000</p>`;
+    if (booking.stagepodium) html += `<p><strong>Stage & Podium:</strong> KES 15,000</p>`;
+    if (booking.welcomesigns) html += `<p><strong>Welcome Signs:</strong> KES 3,000</p>`;
 
     html += `<hr><p><strong>Final total (calculated):</strong> KES ${ (booking.total || 0).toLocaleString() }</p>`;
     orderSummary.innerHTML = html;
@@ -461,6 +548,8 @@
     if (subtotalEl) subtotalEl.textContent = `KES ${(booking.total || 0).toLocaleString()}`;
     if (taxEl) taxEl.textContent = 'KES 0';
     if (totalAmountEl) totalAmountEl.textContent = `KES ${(booking.total || 0).toLocaleString()}`;
+    
+    log.info('CHECKOUT', 'Order summary rendered', { total: booking.total });
   });
 
   // --- M-Pesa payment trigger
@@ -552,16 +641,19 @@
 
   // --- Payment validation: Ensure terms are accepted before proceeding
   window.proceedToPayment = function() {
+    log.info('PAYMENT', 'proceedToPayment called');
+    
     const termsCheckbox = q('#accept-terms');
     
     // If terms checkbox doesn't exist (not on checkout page), proceed normally
     if (!termsCheckbox) {
-      console.log('Terms checkbox not found, proceeding with payment');
+      log.info('PAYMENT', 'Terms checkbox not found - not on checkout page');
       return true;
     }
     
     // If button is disabled, don't allow proceed
     if (q('#pay-now-btn')?.disabled) {
+      log.warn('PAYMENT', 'Payment button is disabled - terms not accepted');
       alert('Please accept the Terms and Conditions before proceeding with payment.');
       return false;
     }
@@ -571,15 +663,17 @@
     const paymentAmount = q('input[name="payment-amount"]:checked')?.value || 'deposit';
     const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
     
+    log.info('PAYMENT', 'Payment form values', { paymentMethod, paymentAmount, booking });
+    
     // Calculate payment amount
     const totalAmount = booking.total || 0;
     const depositAmount = Math.round(totalAmount * 0.8);
     const amountToPay = paymentAmount === 'deposit' ? depositAmount : totalAmount;
     
-    console.log('Payment method selected:', paymentMethod);
-    console.log('Payment amount selected:', paymentAmount, 'Amount to pay:', amountToPay);
+    log.info('PAYMENT', 'Amount calculation', { totalAmount, depositAmount, amountToPay });
     
     if (!booking.fullname || !booking.phone || !booking.email) {
+      log.error('PAYMENT', 'Booking information incomplete', booking);
       alert('Booking information is incomplete. Please go back and complete your booking details.');
       return false;
     }
@@ -588,17 +682,22 @@
     let mpesaPhone = '';
     if (paymentMethod === 'mpesa') {
       mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
+      log.info('PAYMENT', 'M-Pesa phone validation', { mpesaPhone });
+      
       if (!mpesaPhone) {
+        log.warn('PAYMENT', 'M-Pesa phone empty');
         alert('Please enter your M-Pesa registered phone number.');
         q('#mpesa-phone')?.focus();
         return false;
       }
       // Basic phone validation
       if (!/^\+?[0-9]{10,15}$/.test(mpesaPhone)) {
+        log.error('PAYMENT', 'M-Pesa phone invalid format', mpesaPhone);
         alert('Please enter a valid phone number (e.g., +254712345678 or 0712345678).');
         q('#mpesa-phone')?.focus();
         return false;
       }
+      log.info('PAYMENT', 'M-Pesa phone valid');
     }
     
     // Create payment request with terms acceptance and payment amount choice
@@ -613,6 +712,13 @@
         cheeseColor: booking.cheeseColor,
         aframeSections: booking.aframeSections,
         venue: booking.venue,
+        lighting: booking.lighting,
+        transport: booking.transport,
+        decor: booking.decor,
+        pasound: booking.pasound,
+        dancefloor: booking.dancefloor,
+        stagepodium: booking.stagepodium,
+        welcomesigns: booking.welcomesigns,
         total: booking.total
       },
       termsAccepted: true,
@@ -624,31 +730,43 @@
       remainingAmount: totalAmount - depositAmount
     };
     
+    log.info('PAYMENT', 'Sending payment confirmation to backend', paymentData);
+    
     // Send to backend to create booking and initiate payment
     fetch(`${API_BASE_URL}/bookings/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(paymentData)
     })
-      .then(res => res.json())
+      .then(res => {
+        log.info('PAYMENT', `Backend response status: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
+        log.info('PAYMENT', 'Backend confirm response', data);
+        
         if (data.success) {
+          log.info('PAYMENT', 'Booking created successfully', { bookingId: data.bookingId });
           // Successfully created booking
           if (paymentMethod === 'mpesa') {
+            log.info('PAYMENT', 'Initiating M-Pesa payment');
             // Trigger M-Pesa STK push with calculated amount
             window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone);
           } else if (paymentMethod === 'pesapal') {
+            log.info('PAYMENT', 'Loading Pesapal iframe');
             // Load Pesapal iframe
             window.loadPesapalIframe(data.bookingId);
           } else {
+            log.error('PAYMENT', 'Unknown payment method', paymentMethod);
             alert('Payment method not recognized. Please contact support.');
           }
         } else {
+          log.error('PAYMENT', 'Booking creation failed', data);
           alert(`Booking creation failed: ${data.message || 'Unknown error'}`);
         }
       })
       .catch(err => {
-        console.error('Payment error:', err);
+        log.error('PAYMENT', 'Payment processing error', err);
         alert('Payment processing failed. Please check your connection and try again.');
       });
     
@@ -744,36 +862,36 @@
   
   // --- Clear booking from both pages
   window.clearBooking = function() {
-    console.log('[CLEAR BOOKING] Function called');
+    log.info('CHECKOUT', 'clearBooking function called');
     
     if (confirm('Are you sure you want to clear all booking details? This cannot be undone.')) {
       try {
-        console.log('[CLEAR BOOKING] User confirmed - starting clear process');
+        log.info('CHECKOUT', 'User confirmed clearing booking');
         
         // Remove booking data from localStorage
         localStorage.removeItem('bintiBooking');
-        console.log('[CLEAR BOOKING] Booking data removed from localStorage');
+        log.info('CHECKOUT', 'Booking data removed from localStorage');
         
         // Remove package data as well
         localStorage.removeItem('bintiSelectedPackage');
-        console.log('[CLEAR BOOKING] Package data removed from localStorage');
+        log.info('CHECKOUT', 'Package data removed from localStorage');
         
         // Reset form fields if on bookings page
         const bookingForm = q('#booking-form');
         if (bookingForm) {
-          console.log('[CLEAR BOOKING] Resetting booking form');
+          log.info('CHECKOUT', 'Resetting booking form');
           bookingForm.reset();
           // Clear all form inputs
           qa('input, select, textarea').forEach(field => {
             field.value = '';
           });
-          console.log('[CLEAR BOOKING] Booking form fields cleared');
+          log.info('CHECKOUT', 'Booking form fields cleared');
         }
         
         // Reset checkout form if on checkout page
         const termsCheckbox = q('#accept-terms');
         if (termsCheckbox) {
-          console.log('[CLEAR BOOKING] Resetting checkout form');
+          log.info('CHECKOUT', 'Resetting checkout form');
           termsCheckbox.checked = false;
           const mpesaPhoneInput = q('#mpesa-phone');
           if (mpesaPhoneInput) mpesaPhoneInput.value = '';
@@ -786,21 +904,21 @@
           if (window.updatePaymentButtonState) {
             window.updatePaymentButtonState();
           }
-          console.log('[CLEAR BOOKING] Checkout form cleared');
+          log.info('CHECKOUT', 'Checkout form cleared');
         }
         
-        console.log('[CLEAR BOOKING] All data cleared - redirecting to bookings.html');
+        log.info('CHECKOUT', 'All data cleared - redirecting to bookings.html');
         alert('Booking cleared successfully. Redirecting to booking form...');
         // Small delay to ensure logs are written before redirect
         setTimeout(() => {
           window.location.href = 'bookings.html';
         }, 100);
       } catch (error) {
-        console.error('[CLEAR BOOKING] ERROR:', error);
+        log.error('CHECKOUT', 'Error clearing booking', error);
         alert('Error clearing booking: ' + error.message);
       }
     } else {
-      console.log('[CLEAR BOOKING] User cancelled operation');
+      log.info('CHECKOUT', 'User cancelled clear operation');
     }
   };
 
@@ -810,31 +928,34 @@
     const payButton = q('#pay-now-btn');
     
     if (!termsCheckbox || !payButton) {
-      console.log('Checkout page elements not found - this is not checkout page');
+      log.info('CHECKOUT', 'Not on checkout page');
       return;
     }
     
-    console.log('=== CHECKOUT PAGE INITIALIZATION STARTED ===');
+    log.info('CHECKOUT', 'Initializing checkout page');
     
     // Initialize button state and payment amounts
-    console.log('Calling updatePaymentButtonState()');
+    log.info('CHECKOUT', 'Calling updatePaymentButtonState()');
     window.updatePaymentButtonState();
     
-    console.log('Calling updatePaymentAmounts()');
+    log.info('CHECKOUT', 'Calling updatePaymentAmounts()');
     window.updatePaymentAmounts();
     
-    console.log('Initial state - Terms checked:', termsCheckbox.checked, 'Button disabled:', payButton.disabled);
+    log.info('CHECKOUT', 'Initial checkout state', {
+      termsChecked: termsCheckbox.checked,
+      buttonDisabled: payButton.disabled
+    });
     
     // Add change listener to terms checkbox
     termsCheckbox.addEventListener('change', () => {
-      console.log('Terms checkbox changed to:', termsCheckbox.checked);
+      log.info('CHECKOUT', 'Terms checkbox changed', { checked: termsCheckbox.checked });
       window.updatePaymentButtonState();
     });
     
     // Show/hide M-Pesa phone field based on payment method selection
     document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
-        console.log('Payment method changed to:', e.target.value);
+        log.info('CHECKOUT', 'Payment method changed', { method: e.target.value });
         const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
         if (e.target.value === 'mpesa') {
           mpesaPhoneSection.style.display = 'block';
@@ -960,10 +1081,40 @@
   // --- Contact Form Handler
   onReady(() => {
     const contactForm = q('#contact-form');
-    if (!contactForm) return; // Not on contact page
+    if (!contactForm) {
+      log.info('CONTACT', 'Not on contact page');
+      return;
+    }
+    
+    log.info('CONTACT', 'Initializing contact form');
+    
+    // Pre-fill subject from URL parameter if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const subjectParam = urlParams.get('subject');
+    if (subjectParam) {
+      log.info('CONTACT', 'URL subject parameter found', { subject: subjectParam });
+      const subjectSelect = q('#subject', contactForm);
+      if (subjectSelect) {
+        // Check if the option exists in the dropdown
+        const optionExists = Array.from(subjectSelect.options).some(opt => opt.value === subjectParam);
+        if (optionExists) {
+          subjectSelect.value = subjectParam;
+          log.info('CONTACT', 'Subject pre-filled from URL', { subject: subjectParam });
+        } else {
+          log.warn('CONTACT', 'Subject option not found in dropdown', { subject: subjectParam });
+        }
+      }
+      
+      // Auto-scroll to form for better UX
+      setTimeout(() => {
+        contactForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        log.info('CONTACT', 'Auto-scrolled to form');
+      }, 100);
+    }
     
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      log.info('CONTACT', 'Contact form submitted');
       
       const formMessage = q('#form-message');
       const submitBtn = contactForm.querySelector('button[type="submit"]');
@@ -977,14 +1128,24 @@
         const subject = q('#subject', contactForm).value;
         const message = q('#message', contactForm).value.trim();
         
+        log.info('CONTACT', 'Form data collected', { name, email, phone, subject });
+        
         // Validate required fields
         if (!name || !email || !subject || !message) {
+          const missingFields = [];
+          if (!name) missingFields.push('name');
+          if (!email) missingFields.push('email');
+          if (!subject) missingFields.push('subject');
+          if (!message) missingFields.push('message');
+          log.error('CONTACT', 'Validation failed - missing fields', missingFields);
           throw new Error('Please fill in all required fields.');
         }
         
         // Show loading state
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
+        
+        log.info('CONTACT', 'Sending contact form to backend');
         
         // Send to backend
         const response = await fetch(`${API_BASE_URL}/contact`, {
@@ -993,9 +1154,14 @@
           body: JSON.stringify({ name, email, phone, subject, message })
         });
         
+        log.info('CONTACT', `Backend response received with status ${response.status}`);
+        
         const result = await response.json();
         
+        log.info('CONTACT', 'Backend response', result);
+        
         if (result.success) {
+          log.info('CONTACT', 'Message sent successfully');
           // Show success message
           formMessage.style.display = 'block';
           formMessage.style.backgroundColor = '#d4edda';
@@ -1009,10 +1175,11 @@
           // Scroll to message
           formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
+          log.error('CONTACT', 'Backend returned error', result);
           throw new Error(result.message || 'Failed to send message.');
         }
       } catch (err) {
-        console.error('Contact form error:', err);
+        log.error('CONTACT', 'Contact form error', err);
         
         // Show error message
         formMessage.style.display = 'block';
@@ -1030,6 +1197,6 @@
       }
     });
     
-    console.log('Contact form initialized');
+    log.info('CONTACT', 'Contact form event listeners attached');
   });
 })();
