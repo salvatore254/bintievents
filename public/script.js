@@ -12,12 +12,21 @@
    - Real-time zone identification as user types location
    - Checkout loader (reads booking with breakdown data from localStorage)
    - loadPesapalIframe(bookingId) helper (secure iframe from backend)
+   
+   IMPROVEMENTS (v2):
+   - Timeout handling (10s default on all API calls)
+   - Better error handling and user feedback
+   - Kenya phone validation (+254, 0, or 254 prefix)
+   - Auto-clear booking after successful payment
+   - Loading states on async operations
+   - localStorage quota safe handling
+   - Enhanced error messages
 */
 
 (function () {
-  // --- Configuration: API Base URL
-  // This allows frontend to be hosted on a different server than the backend
+  // --- Configuration: API Base URL & Timeouts
   const API_BASE_URL = window.API_BASE_URL || "/api";
+  const API_TIMEOUT = 10000; // 10 seconds for all API calls
   
   // --- Logging utility for debugging
   const log = {
@@ -41,8 +50,50 @@
   // Make logger global for debugging in console
   window.BintiLog = log;
   
+  // --- API Utility with Timeout & Error Handling
+  const apiCall = async (url, options = {}) => {
+    const timeout = options.timeout || API_TIMEOUT;
+    const method = options.method || 'GET';
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      log.info('API', `${method} ${url}`, { timeout });
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        log.error('API', `HTTP ${response.status} from ${url}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      log.info('API', `Success: ${method} ${url}`, data);
+      return data;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        log.error('API', `Timeout (${timeout}ms) on ${method} ${url}`);
+        throw new Error('Request timed out. Please check your connection and try again.');
+      }
+      
+      log.error('API', `Error on ${method} ${url}`, error);
+      throw error;
+    }
+  };
+  
+  window.BintiApi = { call: apiCall }; // Expose for debugging
+  
   // Log initial setup
-  log.info('INIT', 'Binti Events script loaded', { API_BASE_URL });
+  log.info('INIT', 'Binti Events script loaded', { API_BASE_URL, API_TIMEOUT });
   log.info('INIT', 'Environment info', {
     currentOrigin: window.location.origin,
     currentPath: window.location.pathname,
@@ -54,6 +105,73 @@
   function q(sel, ctx=document){ return ctx.querySelector(sel); }
   function qa(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
 
+  // --- Initialize AOS (Animate On Scroll)
+  onReady(() => {
+    if (typeof AOS !== 'undefined') {
+      log.info('INIT', 'Initializing AOS animations');
+      AOS.init({ 
+        duration: 800, 
+        offset: 100,
+        once: true 
+      });
+    } else {
+      log.warn('INIT', 'AOS library not loaded');
+    }
+  });
+
+  // --- Kenya Phone Validation Utility
+  const validateKenyaPhone = (phone) => {
+    if (!phone) return false;
+    // Accept: 0712345678, +254712345678, 254712345678
+    // Must be 9-13 digits and start with 0, +254, or 254
+    const cleaned = phone.replace(/\s+/g, '');
+    return /^(?:0|\+254|254)[17]\d{8}$/.test(cleaned);
+  };
+  
+  const formatPhoneDisplay = (phone) => {
+    const cleaned = phone.replace(/\s+/g, '');
+    if (cleaned.startsWith('0')) return cleaned;
+    if (cleaned.startsWith('+254')) return '0' + cleaned.slice(4);
+    if (cleaned.startsWith('254')) return '0' + cleaned.slice(3);
+    return cleaned;
+  };
+  
+  // --- localStorage Safe Utility (with quota handling)
+  const safeSetItem = (key, value) => {
+    try {
+      const serialized = JSON.stringify(value);
+      localStorage.setItem(key, serialized);
+      log.info('STORAGE', `Saved ${key} (${serialized.length} bytes)`);
+      return true;
+    } catch (err) {
+      if (err.name === 'QuotaExceededError') {
+        log.error('STORAGE', 'localStorage quota exceeded', err);
+        // Try to clear old data
+        try {
+          localStorage.removeItem('bintiBookingDraft');
+          localStorage.setItem(key, JSON.stringify(value));
+          log.info('STORAGE', 'Retried after clearing draft');
+          return true;
+        } catch (retryErr) {
+          log.error('STORAGE', 'Failed to save even after cleanup', retryErr);
+          return false;
+        }
+      }
+      log.error('STORAGE', `Failed to save ${key}`, err);
+      return false;
+    }
+  };
+  
+  const safeGetItem = (key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      log.error('STORAGE', `Failed to parse ${key}`, err);
+      return null;
+    }
+  };
+  
   // --- mobile nav
   onReady(() => {
     const hamburger = q('#hamburger');
@@ -96,9 +214,12 @@
         if (ds.color) draft.cheeseColor = ds.color;
         if (ds.sections) draft.aframeSections = ds.sections;
         if (ds.service) draft.service = ds.service;
-        // save draft
-        try { localStorage.setItem('bintiBookingDraft', JSON.stringify(draft)); }
-        catch (err) { console.warn('Could not save draft', err); }
+        
+        // save draft with safe storage
+        if (!safeSetItem('bintiBookingDraft', draft)) {
+          alert('Could not save selection. Please try again.');
+          return;
+        }
 
         // visual feedback then redirect
         const orig = btn.textContent;
@@ -267,15 +388,12 @@
       const calcUrl = `${API_BASE_URL}/bookings/calculate`;
       log.info('BOOKING', 'Calling calculation API', { url: calcUrl });
       
-      fetch(calcUrl, {
+      apiCall(calcUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        timeout: API_TIMEOUT
       })
-        .then(res => {
-          log.info('BOOKING', `API response received with status ${res.status}`);
-          return res.json();
-        })
         .then(data => {
           log.info('BOOKING', 'Calculation response', data);
           
@@ -377,17 +495,17 @@
             breakdown: breakdown,
             selectedPackage: selectedPackage ? selectedPackage.name : null
           };
-          try { 
-            localStorage.setItem('bintiBooking', JSON.stringify(bookingSave));
-            log.info('BOOKING', 'Booking saved to localStorage', bookingSave);
-          } catch (e) { 
-            log.error('BOOKING', 'Failed to save booking to localStorage', e);
+          if (!safeSetItem('bintiBooking', bookingSave)) {
+            log.warn('BOOKING', 'Could not save booking to localStorage - quota may be exceeded');
           }
         })
         .catch(err => {
           log.error('BOOKING', 'Calculation API error', err);
-          if (summaryBox) summaryBox.innerHTML = '<p style="color: #d9534f;"><strong>Error:</strong> Could not calculate booking. Please try again.</p>';
-        });
+          if (summaryBox) {
+            const errorMsg = err.message || 'Could not calculate booking price';
+            summaryBox.innerHTML = `<p style="color: #d9534f;"><strong>Error:</strong> ${errorMsg}</p>`;
+          }
+        });;
       } catch (err) {
         log.error('BOOKING', 'updateSummary error', err);
         if (summaryBox) summaryBox.innerHTML = '<p style="color: #d9534f;"><strong>Error:</strong> Form processing error. Please refresh and try again.</p>';
@@ -408,15 +526,12 @@
           const zoneUrl = `${API_BASE_URL}/bookings/identify-zone`;
           log.info('BOOKING', 'Calling zone identification API', { url: zoneUrl, location: venueEl.value });
           
-          fetch(zoneUrl, {
+          apiCall(zoneUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ location: venueEl.value })
+            body: JSON.stringify({ location: venueEl.value }),
+            timeout: API_TIMEOUT
           })
-            .then(res => {
-              log.info('BOOKING', `Zone API response status: ${res.status}`);
-              return res.json();
-            })
             .then(data => {
               log.info('BOOKING', 'Zone identification response', data);
               if (data.success) {
@@ -509,6 +624,14 @@
         const hasPhone = phoneInput.value && phoneInput.value.trim();
         const hasEmail = emailInput.value && emailInput.value.trim();
         const hasTentType = tentTypeEl && tentTypeEl.value;
+        
+        // Validate Kenya phone format
+        if (hasPhone && !validateKenyaPhone(hasPhone)) {
+          log.error('BOOKING', 'Invalid phone format', { phone: hasPhone });
+          alert('Please enter a valid Kenyan phone number (e.g., 0712345678, +254712345678)');
+          phoneInput.focus();
+          return;
+        }
         
         if (!hasFullName || !hasPhone || !hasEmail || !hasTentType) {
           alert('Please complete your name, phone, email and tent selection before proceeding.');
@@ -617,7 +740,7 @@
     log.info('CHECKOUT', 'Order summary rendered', { total: booking.total });
   });
 
-  // --- M-Pesa payment trigger
+  // --- M-Pesa payment trigger with improved UX
   window.triggerMpesaPayment = function(bookingId, phone, amount, mpesaPhone) {
     // Use M-Pesa phone if provided, otherwise use contact phone
     const paymentPhone = mpesaPhone || phone;
@@ -673,23 +796,32 @@
           </div>
         `;
         document.body.appendChild(successModal);
+        // Auto-clear booking data after successful payment
+        log.info('PAYMENT', 'Payment confirmed - clearing booking data');
         localStorage.removeItem('bintiBooking');
+        localStorage.removeItem('bintiBookingDraft');
+        localStorage.removeItem('bintiSelectedPackage');
       } else {
         alert('Please verify your payment status. If you completed the payment, your booking will be confirmed shortly.');
       }
     }, 5000);
   };
 
-  // --- Pesapal iframe helper
+  // --- Pesapal iframe helper with proper error handling
   window.loadPesapalIframe = function(bookingId) {
     const container = q('#pesapal-container') || q('#pesapalFrameContainer') || document.body;
     if (!container) return;
-    container.innerHTML = '<div class="message-container"><p>Loading secure payment window…</p></div>';
+    
+    container.innerHTML = '<div class="message-container"><p><i class="fas fa-spinner fa-spin"></i> Loading secure payment window…</p></div>';
     
     // Fetch the secure iframe URL from backend
-    fetch(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`)
-      .then(res => res.json())
+    apiCall(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`, {
+      timeout: API_TIMEOUT
+    })
       .then(data => {
+        if (!data.iframeUrl) {
+          throw new Error('Invalid response from server');
+        }
         const iframe = document.createElement('iframe');
         iframe.width = '100%';
         iframe.height = '650';
@@ -697,10 +829,11 @@
         iframe.src = data.iframeUrl;
         container.innerHTML = '';
         container.appendChild(iframe);
+        log.info('PAYMENT', 'Pesapal iframe loaded successfully');
       })
       .catch(err => {
-        console.error('Failed to load Pesapal iframe:', err);
-        container.innerHTML = '<p style="color: red;">Failed to load payment window. Please try again.</p>';
+        log.error('PAYMENT', 'Failed to load Pesapal iframe', err);
+        container.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${err.message || 'Failed to load payment window. Please try again.'}</p>`;
       });
   };
 
@@ -726,7 +859,7 @@
     // Terms accepted - proceed with payment
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
     const paymentAmount = q('input[name="payment-amount"]:checked')?.value || 'deposit';
-    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+    const booking = safeGetItem('bintiBooking') || {};
     
     log.info('PAYMENT', 'Payment form values', { paymentMethod, paymentAmount, booking });
     
@@ -755,10 +888,11 @@
         q('#mpesa-phone')?.focus();
         return false;
       }
-      // Basic phone validation
-      if (!/^\+?[0-9]{10,15}$/.test(mpesaPhone)) {
+      
+      // Use Kenya-specific validation
+      if (!validateKenyaPhone(mpesaPhone)) {
         log.error('PAYMENT', 'M-Pesa phone invalid format', mpesaPhone);
-        alert('Please enter a valid phone number (e.g., +254712345678 or 0712345678).');
+        alert('Please enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)');
         q('#mpesa-phone')?.focus();
         return false;
       }
@@ -770,7 +904,7 @@
       fullname: booking.fullname,
       phone: booking.phone,
       email: booking.email,
-      mpesaPhone: mpesaPhone,
+      mpesaPhone: mpesaPhone ? formatPhoneDisplay(mpesaPhone) : '',
       bookingDetails: {
         tentType: booking.tentType,
         stretchSize: booking.stretchSize,
@@ -797,19 +931,23 @@
     
     log.info('PAYMENT', 'Sending payment confirmation to backend', paymentData);
     
+    // Show loading state
+    const payButton = q('#pay-now-btn');
+    if (payButton) {
+      payButton.disabled = true;
+      payButton.textContent = 'Processing...';
+    }
+    
     // Send to backend to create booking and initiate payment
     const confirmUrl = `${API_BASE_URL}/bookings/confirm`;
     log.info('PAYMENT', 'Calling booking confirm API', { url: confirmUrl });
     
-    fetch(confirmUrl, {
+    apiCall(confirmUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paymentData)
+      body: JSON.stringify(paymentData),
+      timeout: API_TIMEOUT
     })
-      .then(res => {
-        log.info('PAYMENT', `Booking confirm API response status: ${res.status}`);
-        return res.json();
-      })
       .then(data => {
         log.info('PAYMENT', 'Backend confirm response', data);
         
@@ -835,7 +973,14 @@
       })
       .catch(err => {
         log.error('PAYMENT', 'Payment processing error', err);
-        alert('Payment processing failed. Please check your connection and try again.');
+        alert(`Payment processing failed: ${err.message}`);
+      })
+      .finally(() => {
+        // Reset button state
+        if (payButton) {
+          payButton.disabled = false;
+          payButton.textContent = 'Proceed to Payment';
+        }
       });
     
     return true;
@@ -1217,17 +1362,15 @@
         log.info('CONTACT', 'Sending contact form to backend', { url: contactUrl });
         
         // Send to backend
-        const response = await fetch(contactUrl, {
+        const response = await apiCall(contactUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, subject, message })
+          body: JSON.stringify({ name, email, phone, subject, message }),
+          timeout: API_TIMEOUT
         });
         
-        log.info('CONTACT', `Contact API response received with status ${response.status}`);
-        
-        const result = await response.json();
-        
-        log.info('CONTACT', 'Backend response', result);
+        log.info('CONTACT', 'Backend response', response);
+        const result = response;
         
         if (result.success) {
           log.info('CONTACT', 'Message sent successfully');
