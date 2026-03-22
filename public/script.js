@@ -724,7 +724,6 @@
       payButton.disabled = false;
       payButton.style.opacity = '1';
       payButton.style.cursor = 'pointer';
-      payButton.style.pointerEvents = 'auto';
       // Change icon to unlocked
       if (icon) {
         icon.className = 'fas fa-unlock';
@@ -735,7 +734,6 @@
       payButton.disabled = true;
       payButton.style.opacity = '0.5';
       payButton.style.cursor = 'not-allowed';
-      payButton.style.pointerEvents = 'none';
       // Change icon to locked
       if (icon) {
         icon.className = 'fas fa-lock';
