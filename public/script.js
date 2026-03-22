@@ -222,6 +222,7 @@
         dancefloor: values.dancefloor ? 'yes' : 'no',
         stagepodium: values.stagepodium ? 'yes' : 'no',
         welcomesigns: values.welcomesigns ? 'yes' : 'no',
+        decor: values.decor ? 'yes' : 'no',
         location: values.venue,
         sections: values.sections
       };
@@ -474,13 +475,25 @@
     // Submit handler
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      // Validate minimal fields
-      if (!q('#fullname').value || !q('#phone').value || !q('#email').value || !tentTypeEl.value) {
+      
+      // Validate minimal fields with proper null checks
+      const fullNameInput = q('#fullname');
+      const phoneInput = q('#phone');
+      const emailInput = q('#email');
+      
+      const hasFullName = fullNameInput && fullNameInput.value.trim();
+      const hasPhone = phoneInput && phoneInput.value.trim();
+      const hasEmail = emailInput && emailInput.value.trim();
+      const hasTentType = tentTypeEl && tentTypeEl.value;
+      
+      if (!hasFullName || !hasPhone || !hasEmail || !hasTentType) {
         alert('Please complete your name, phone, email and tent selection before proceeding.');
+        log.error('BOOKING', 'Form validation failed', { hasFullName, hasPhone, hasEmail, hasTentType });
         return;
       }
 
       // booking saved already in updateSummary() to localStorage key 'bintiBooking'
+      log.info('BOOKING', 'Form submitted successfully, redirecting to checkout');
       window.location.href = 'checkout.html';
     });
 
