@@ -207,6 +207,29 @@
           <small style="color: #666; display: block; margin-top: 10px; line-height: 1.5;"><i class="fas fa-info-circle" style="color: #25D366;"></i> Make sure you use the phone number where you have M-Pesa registered</small>
         </div>
 
+        <!-- Payment Amount Selection -->
+        <div style="padding: 20px; background: rgba(120, 81, 169, 0.05); border-radius: 12px; margin-bottom: 24px; border: 2px solid rgba(120, 81, 169, 0.2);">
+          <h4 style="color: #4A7A6B; margin: 0 0 16px 0; font-size: 1.05rem; font-weight: 600;"><i class="fas fa-money-bill-wave" style="color: #7851A9; margin-right: 8px;"></i> Payment Amount</h4>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Deposit Option -->
+            <div style="display: flex; align-items: center; padding: 12px; background: #fff; border-radius: 8px; border: 2px solid #E5D5F0; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('payment-deposit').click()">
+              <input type="radio" id="payment-deposit" name="payment-amount" value="deposit" checked style="margin-right: 12px; cursor: pointer; width: 18px; height: 18px;">
+              <div style="flex: 1;">
+                <label for="payment-deposit" style="cursor: pointer; font-weight: 600; color: #4A7A6B; display: block;">Pay Deposit (80%)</label>
+                <p style="margin: 4px 0 0 0; color: #666; font-size: 0.9rem;"><span id="deposit-amount">KES 0</span> - Balance due upon completion</p>
+              </div>
+            </div>
+            <!-- Full Amount Option -->
+            <div style="display: flex; align-items: center; padding: 12px; background: #fff; border-radius: 8px; border: 2px solid #E5D5F0; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('payment-full').click()">
+              <input type="radio" id="payment-full" name="payment-amount" value="full" style="margin-right: 12px; cursor: pointer; width: 18px; height: 18px;">
+              <div style="flex: 1;">
+                <label for="payment-full" style="cursor: pointer; font-weight: 600; color: #4A7A6B; display: block;">Pay Full Amount (100%)</label>
+                <p style="margin: 4px 0 0 0; color: #666; font-size: 0.9rem;"><span id="full-amount">KES 0</span> - Complete payment now</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Terms and Conditions Acceptance -->
         <div class="terms-acceptance" style="padding: 24px; background: rgba(244, 228, 208, 0.2); border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #D4AF37;">
           <div style="display: flex; align-items: flex-start; gap: 12px;">

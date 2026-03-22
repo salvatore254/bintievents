@@ -551,9 +551,16 @@
     
     // Terms accepted - proceed with payment
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
+    const paymentAmount = q('input[name="payment-amount"]:checked')?.value || 'deposit';
     const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
     
+    // Calculate payment amount
+    const totalAmount = booking.total || 0;
+    const depositAmount = Math.round(totalAmount * 0.8);
+    const amountToPay = paymentAmount === 'deposit' ? depositAmount : totalAmount;
+    
     console.log('Payment method selected:', paymentMethod);
+    console.log('Payment amount selected:', paymentAmount, 'Amount to pay:', amountToPay);
     
     if (!booking.fullname || !booking.phone || !booking.email) {
       alert('Booking information is incomplete. Please go back and complete your booking details.');
@@ -577,7 +584,7 @@
       }
     }
     
-    // Create payment request with terms acceptance
+    // Create payment request with terms acceptance and payment amount choice
     const paymentData = {
       fullname: booking.fullname,
       phone: booking.phone,
@@ -593,7 +600,11 @@
       },
       termsAccepted: true,
       termsAcceptedAt: new Date().toISOString(),
-      paymentMethod: paymentMethod
+      paymentMethod: paymentMethod,
+      paymentAmount: paymentAmount,
+      amountToPay: amountToPay,
+      depositAmount: depositAmount,
+      remainingAmount: totalAmount - depositAmount
     };
     
     // Send to backend to create booking and initiate payment
@@ -607,8 +618,8 @@
         if (data.success) {
           // Successfully created booking
           if (paymentMethod === 'mpesa') {
-            // Trigger M-Pesa STK push with M-Pesa phone
-            window.triggerMpesaPayment(data.bookingId, booking.phone, booking.total, mpesaPhone);
+            // Trigger M-Pesa STK push with calculated amount
+            window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone);
           } else if (paymentMethod === 'pesapal') {
             // Load Pesapal iframe
             window.loadPesapalIframe(data.bookingId);
@@ -625,6 +636,22 @@
       });
     
     return true;
+  };
+
+  // --- Update payment amounts based on total (80% deposit, 100% full)
+  window.updatePaymentAmounts = function() {
+    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
+    const total = booking.total || 0;
+    const deposit = Math.round(total * 0.8);
+    const full = total;
+    
+    const depositEl = q('#deposit-amount');
+    const fullEl = q('#full-amount');
+    
+    if (depositEl) depositEl.textContent = 'KES ' + deposit.toLocaleString();
+    if (fullEl) fullEl.textContent = 'KES ' + full.toLocaleString();
+    
+    console.log('Payment amounts updated - Deposit:', deposit, 'Full:', full);
   };
 
   // --- Update payment button state based on terms checkbox and M-Pesa phone
@@ -676,34 +703,47 @@
   
   // --- Clear booking from both pages
   window.clearBooking = function() {
+    console.log('clearBooking function called');
+    
     if (confirm('Are you sure you want to clear all booking details? This cannot be undone.')) {
-      // Remove booking data from localStorage
-      localStorage.removeItem('bintiBooking');
-      
-      // Reset form fields if on bookings page
-      const bookingForm = q('#booking-form');
-      if (bookingForm) {
-        bookingForm.reset();
-        // Clear all form inputs
-        qa('input, select, textarea').forEach(field => {
-          field.value = '';
-        });
-        console.log('Booking form cleared');
+      try {
+        // Remove booking data from localStorage
+        localStorage.removeItem('bintiBooking');
+        console.log('Booking data removed from localStorage');
+        
+        // Reset form fields if on bookings page
+        const bookingForm = q('#booking-form');
+        if (bookingForm) {
+          bookingForm.reset();
+          // Clear all form inputs
+          qa('input, select, textarea').forEach(field => {
+            field.value = '';
+          });
+          console.log('Booking form cleared');
+        }
+        
+        // Reset checkout form if on checkout page
+        const termsCheckbox = q('#accept-terms');
+        if (termsCheckbox) {
+          termsCheckbox.checked = false;
+          const mpesaPhoneInput = q('#mpesa-phone');
+          if (mpesaPhoneInput) mpesaPhoneInput.value = '';
+          // Reset button state
+          if (window.updatePaymentButtonState) {
+            window.updatePaymentButtonState();
+          }
+          console.log('Checkout form cleared');
+        }
+        
+        console.log('About to redirect to bookings.html');
+        alert('Booking cleared successfully. Redirecting to booking form...');
+        window.location.href = 'bookings.html';
+      } catch (error) {
+        console.error('Error clearing booking:', error);
+        alert('Error clearing booking. Please try again.');
       }
-      
-      // Reset checkout form if on checkout page
-      const termsCheckbox = q('#accept-terms');
-      if (termsCheckbox) {
-        termsCheckbox.checked = false;
-        const mpesaPhoneInput = q('#mpesa-phone');
-        if (mpesaPhoneInput) mpesaPhoneInput.value = '';
-        // Reset button state
-        if (window.updatePaymentButtonState) window.updatePaymentButtonState();
-        console.log('Checkout form cleared');
-      }
-      
-      alert('Booking cleared successfully. Redirecting to booking form...');
-      window.location.href = 'bookings.html';
+    } else {
+      console.log('User cancelled clear booking operation');
     }
   };
 
@@ -806,15 +846,21 @@
         console.log('Pay button clicked');
         window.proceedToPayment();
       });
+      console.log('Pay button listener attached');
+    } else {
+      console.log('Pay button not found on page');
     }
     
     // Attach click handler to "Clear Booking" button
     const clearBookingBtn = q('#clear-booking-btn');
     if (clearBookingBtn) {
       clearBookingBtn.addEventListener('click', () => {
-        console.log('Clear booking button clicked');
+        console.log('Clear booking button clicked - calling clearBooking function');
         window.clearBooking();
       });
+      console.log('Clear booking button listener attached successfully');
+    } else {
+      console.log('Clear booking button not found on page');
     }
     
     console.log('Checkout page initialized - all listeners attached');
