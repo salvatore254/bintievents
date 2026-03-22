@@ -15,10 +15,7 @@
   <script>
     // Set API_BASE_URL for frontend to communicate with backend
     // This allows frontend and backend to be hosted on different domains
-    window.API_BASE_URL = window.API_BASE_URL || (
-      process.env.REACT_APP_API_URL ||           // If using Create React App
-      window.location.origin + '/api'             // Default: same origin
-    );
+    window.API_BASE_URL = window.API_BASE_URL || (window.location.origin + '/api');
     console.log('API Base URL:', window.API_BASE_URL);
   </script>
 </head>

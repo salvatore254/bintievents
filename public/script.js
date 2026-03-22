@@ -41,7 +41,13 @@
   // Make logger global for debugging in console
   window.BintiLog = log;
   
+  // Log initial setup
   log.info('INIT', 'Binti Events script loaded', { API_BASE_URL });
+  log.info('INIT', 'Environment info', {
+    currentOrigin: window.location.origin,
+    currentPath: window.location.pathname,
+    currentProtocol: window.location.protocol
+  });
   
   // --- helpers
   function onReady(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
@@ -244,9 +250,10 @@
       }
 
       // Call backend calculate endpoint
-      log.info('BOOKING', `Calling ${API_BASE_URL}/bookings/calculate`);
+      const calcUrl = `${API_BASE_URL}/bookings/calculate`;
+      log.info('BOOKING', 'Calling calculation API', { url: calcUrl });
       
-      fetch(`${API_BASE_URL}/bookings/calculate`, {
+      fetch(calcUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -380,13 +387,20 @@
         }
 
         zoneIdentifyTimeout = setTimeout(() => {
-          fetch(`${API_BASE_URL}/bookings/identify-zone`, {
+          const zoneUrl = `${API_BASE_URL}/bookings/identify-zone`;
+          log.info('BOOKING', 'Calling zone identification API', { url: zoneUrl, location: venueEl.value });
+          
+          fetch(zoneUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ location: venueEl.value })
           })
-            .then(res => res.json())
+            .then(res => {
+              log.info('BOOKING', `Zone API response status: ${res.status}`);
+              return res.json();
+            })
             .then(data => {
+              log.info('BOOKING', 'Zone identification response', data);
               if (data.success) {
                 const info = data;
                 let infoHtml = `<strong>Zone: ${info.zoneName}</strong><br>`;
@@ -398,9 +412,14 @@
                 }
                 zoneInfoBox.innerHTML = infoHtml;
                 zoneInfoBox.style.display = 'block';
+              } else {
+                log.warn('BOOKING', 'Zone identification failed', data);
               }
             })
-            .catch(() => { zoneInfoBox.style.display = 'none'; });
+            .catch(err => {
+              log.error('BOOKING', 'Zone identification API error', err);
+              zoneInfoBox.style.display = 'none';
+            });
         }, 300);
       });
     }
@@ -733,13 +752,16 @@
     log.info('PAYMENT', 'Sending payment confirmation to backend', paymentData);
     
     // Send to backend to create booking and initiate payment
-    fetch(`${API_BASE_URL}/bookings/confirm`, {
+    const confirmUrl = `${API_BASE_URL}/bookings/confirm`;
+    log.info('PAYMENT', 'Calling booking confirm API', { url: confirmUrl });
+    
+    fetch(confirmUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(paymentData)
     })
       .then(res => {
-        log.info('PAYMENT', `Backend response status: ${res.status}`);
+        log.info('PAYMENT', `Booking confirm API response status: ${res.status}`);
         return res.json();
       })
       .then(data => {
@@ -1145,16 +1167,17 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
         
-        log.info('CONTACT', 'Sending contact form to backend');
+        const contactUrl = `${API_BASE_URL}/contact`;
+        log.info('CONTACT', 'Sending contact form to backend', { url: contactUrl });
         
         // Send to backend
-        const response = await fetch(`${API_BASE_URL}/contact`, {
+        const response = await fetch(contactUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, phone, subject, message })
         });
         
-        log.info('CONTACT', `Backend response received with status ${response.status}`);
+        log.info('CONTACT', `Contact API response received with status ${response.status}`);
         
         const result = await response.json();
         
