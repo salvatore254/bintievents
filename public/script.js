@@ -87,6 +87,22 @@
     let draft = null;
     try { if (draftRaw) draft = JSON.parse(draftRaw); } catch (e) { console.warn('Invalid draft', e); }
 
+    // --- Load selected package if user came from package page
+    const packageRaw = localStorage.getItem('bintiSelectedPackage');
+    let selectedPackage = null;
+    try { if (packageRaw) selectedPackage = JSON.parse(packageRaw); } catch (e) { console.warn('Invalid package', e); }
+
+    // Display selected package if it exists
+    if (selectedPackage && selectedPackage.name) {
+      const packageSection = q('#package-section');
+      const packageName = q('#selected-package-name');
+      if (packageSection && packageName) {
+        packageSection.style.display = 'block';
+        packageName.textContent = selectedPackage.name;
+        console.log('Selected package loaded:', selectedPackage.name);
+      }
+    }
+
     // Elements we'll use
     const tentTypeEl = q('#tent-type');
     const stretchSizeEl = q('#stretch-size');
@@ -267,7 +283,8 @@
             phone: q('#phone') ? q('#phone').value : '',
             email: q('#email') ? q('#email').value : '',
             total: total,
-            breakdown: breakdown
+            breakdown: breakdown,
+            selectedPackage: selectedPackage ? selectedPackage.name : null
           };
           try { localStorage.setItem('bintiBooking', JSON.stringify(bookingSave)); } catch (e) { console.warn(e); }
         })
@@ -757,8 +774,9 @@
       return;
     }
     
-    // Initialize button state
+    // Initialize button state and payment amounts
     window.updatePaymentButtonState();
+    window.updatePaymentAmounts();
     
     // Add change listener to terms checkbox
     termsCheckbox.addEventListener('change', () => {
@@ -842,8 +860,24 @@
     // Attach click handler to "Proceed to Payment" button
     const paymentButton = q('#pay-now-btn');
     if (paymentButton) {
-      paymentButton.addEventListener('click', () => {
+      paymentButton.addEventListener('click', (e) => {
         console.log('Pay button clicked');
+        // Prevent default and check disabled state before proceeding
+        if (paymentButton.disabled) {
+          console.log('Payment button is disabled - blocking click');
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Please accept the Terms and Conditions before proceeding with payment.');
+          return false;
+        }
+        // Also validate terms checkbox directly
+        if (!termsCheckbox.checked) {
+          console.log('Terms not accepted - blocking payment');
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Please accept the Terms and Conditions before proceeding with payment.');
+          return false;
+        }
         window.proceedToPayment();
       });
       console.log('Pay button listener attached');
