@@ -488,25 +488,36 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       
-      // Validate minimal fields with proper null checks
-      const fullNameInput = q('#fullname');
-      const phoneInput = q('#phone');
-      const emailInput = q('#email');
-      
-      const hasFullName = fullNameInput && fullNameInput.value.trim();
-      const hasPhone = phoneInput && phoneInput.value.trim();
-      const hasEmail = emailInput && emailInput.value.trim();
-      const hasTentType = tentTypeEl && tentTypeEl.value;
-      
-      if (!hasFullName || !hasPhone || !hasEmail || !hasTentType) {
-        alert('Please complete your name, phone, email and tent selection before proceeding.');
-        log.error('BOOKING', 'Form validation failed', { hasFullName, hasPhone, hasEmail, hasTentType });
-        return;
-      }
+      try {
+        // Validate minimal fields with proper null checks
+        const fullNameInput = q('#fullname');
+        const phoneInput = q('#phone');
+        const emailInput = q('#email');
+        
+        if (!fullNameInput || !phoneInput || !emailInput) {
+          log.error('BOOKING', 'Required form inputs not found');
+          alert('Form validation error. Please refresh the page and try again.');
+          return;
+        }
+        
+        const hasFullName = fullNameInput.value && fullNameInput.value.trim();
+        const hasPhone = phoneInput.value && phoneInput.value.trim();
+        const hasEmail = emailInput.value && emailInput.value.trim();
+        const hasTentType = tentTypeEl && tentTypeEl.value;
+        
+        if (!hasFullName || !hasPhone || !hasEmail || !hasTentType) {
+          alert('Please complete your name, phone, email and tent selection before proceeding.');
+          log.error('BOOKING', 'Form validation failed', { hasFullName, hasPhone, hasEmail, hasTentType });
+          return;
+        }
 
-      // booking saved already in updateSummary() to localStorage key 'bintiBooking'
-      log.info('BOOKING', 'Form submitted successfully, redirecting to checkout');
-      window.location.href = 'checkout.html';
+        // booking saved already in updateSummary() to localStorage key 'bintiBooking'
+        log.info('BOOKING', 'Form submitted successfully, redirecting to checkout');
+        window.location.href = 'checkout.html?t=' + Date.now(); // Cache bust
+      } catch (err) {
+        log.error('BOOKING', 'Form submission error', err);
+        alert('An error occurred. Please try again.');
+      }
     });
 
     // initial summary populate
@@ -555,6 +566,10 @@
       const b = booking.breakdown;
       if (b.tent && b.tent.cost) html += `<p><strong>Tent cost:</strong> KES ${b.tent.cost.toLocaleString()}</p>`;
       if (b.lighting && b.lighting > 0) html += `<p><strong>Ambient Lighting:</strong> KES ${b.lighting.toLocaleString()}</p>`;
+      if (b.pasound && b.pasound > 0) html += `<p><strong>PA Sound System:</strong> KES ${b.pasound.toLocaleString()}</p>`;
+      if (b.dancefloor && b.dancefloor > 0) html += `<p><strong>Dance Floor:</strong> KES ${b.dancefloor.toLocaleString()}</p>`;
+      if (b.stagepodium && b.stagepodium > 0) html += `<p><strong>Stage & Podium:</strong> KES ${b.stagepodium.toLocaleString()}</p>`;
+      if (b.welcomesigns && b.welcomesigns > 0) html += `<p><strong>Welcome Signs:</strong> KES ${b.welcomesigns.toLocaleString()}</p>`;
       if (b.transport && b.transport.cost) {
         html += `<p><strong>Transport:</strong> KES ${b.transport.cost.toLocaleString()}`;
         if (b.transport.serviceArea === 'nairobi') {
@@ -565,6 +580,7 @@
         }
         html += `</p>`;
       }
+      if (b.decor === 'Upon Inquiry') html += `<p><strong>Decor:</strong> Upon Inquiry</p>`;
       // Site Visit is no longer part of add-ons - users request via contact form
     } else {
       log.warn('CHECKOUT', 'No breakdown data - using fallback calculation');
