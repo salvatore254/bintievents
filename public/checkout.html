@@ -325,69 +325,6 @@
 
   <a class="whatsapp-float" href="https://wa.me/+254728307327" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
   <script src="script.js" defer></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const payNowBtn = document.getElementById('pay-now-btn');
-      const mpesaOption = document.getElementById('mpesa-option');
-      const pesapalOption = document.getElementById('pesapal-option');
-      const pesapalContainer = document.getElementById('pesapal-container');
-
-      if (payNowBtn) {
-        payNowBtn.addEventListener('click', () => {
-          const method = document.querySelector('input[name="payment-method"]:checked')?.value;
-          
-          if (method === 'mpesa') {
-            payNowBtn.disabled = true;
-            payNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending STK Push…';
-            
-            const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
-            const amount = booking.total || 0;
-            const phone = booking.phone || '';
-            
-            fetch('/api/payments/mpesa', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                phone: phone.replace(/\D/g, ''),
-                amount: amount,
-                accountRef: 'BINTI-' + Date.now()
-              })
-            })
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) {
-                  alert('STK Push sent to ' + phone + '\nPlease check your phone to complete payment.');
-                } else {
-                  alert('Error: ' + (data.message || 'Payment failed'));
-                }
-                payNowBtn.disabled = false;
-                payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Payment';
-              })
-              .catch(err => {
-                alert('Error: Could not process payment');
-                payNowBtn.disabled = false;
-                payNowBtn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Payment';
-              });
-          } else if (method === 'pesapal') {
-            pesapalContainer.style.display = 'block';
-            const orderRef = 'BINTI-' + Date.now();
-            if (typeof loadPesapalIframe === 'function') loadPesapalIframe(orderRef);
-          }
-        });
-      }
-
-      // Payment method selection styling
-      document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-          document.querySelectorAll('.payment-option').forEach(opt => {
-            opt.classList.remove('active');
-          });
-          e.target.closest('.payment-option').classList.add('active');
-        });
-      });
-    });
-  </script>
 </body>
 </html>
 

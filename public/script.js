@@ -770,17 +770,24 @@
     const payButton = q('#pay-now-btn');
     
     if (!termsCheckbox || !payButton) {
-      console.log('Checkout page elements not found');
+      console.log('Checkout page elements not found - this is not checkout page');
       return;
     }
     
+    console.log('=== CHECKOUT PAGE INITIALIZATION STARTED ===');
+    
     // Initialize button state and payment amounts
+    console.log('Calling updatePaymentButtonState()');
     window.updatePaymentButtonState();
+    
+    console.log('Calling updatePaymentAmounts()');
     window.updatePaymentAmounts();
+    
+    console.log('Initial state - Terms checked:', termsCheckbox.checked, 'Button disabled:', payButton.disabled);
     
     // Add change listener to terms checkbox
     termsCheckbox.addEventListener('change', () => {
-      console.log('Terms checkbox changed');
+      console.log('Terms checkbox changed to:', termsCheckbox.checked);
       window.updatePaymentButtonState();
     });
     
