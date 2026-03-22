@@ -657,18 +657,44 @@
 
   // --- Update payment amounts based on total (80% deposit, 100% full)
   window.updatePaymentAmounts = function() {
-    const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
-    const total = booking.total || 0;
-    const deposit = Math.round(total * 0.8);
-    const full = total;
-    
-    const depositEl = q('#deposit-amount');
-    const fullEl = q('#full-amount');
-    
-    if (depositEl) depositEl.textContent = 'KES ' + deposit.toLocaleString();
-    if (fullEl) fullEl.textContent = 'KES ' + full.toLocaleString();
-    
-    console.log('Payment amounts updated - Deposit:', deposit, 'Full:', full);
+    console.log('[UPDATE AMOUNTS] Function called');
+    try {
+      const bookingRaw = localStorage.getItem('bintiBooking');
+      console.log('[UPDATE AMOUNTS] Raw booking data from localStorage:', bookingRaw);
+      
+      const booking = JSON.parse(bookingRaw || '{}');
+      const total = booking.total || 0;
+      console.log('[UPDATE AMOUNTS] Total amount from booking:', total);
+      
+      const deposit = Math.round(total * 0.8);
+      const full = total;
+      
+      console.log('[UPDATE AMOUNTS] Calculated values - Deposit (80%):', deposit, 'Full (100%):', full);
+      
+      const depositEl = q('#deposit-amount');
+      const fullEl = q('#full-amount');
+      
+      console.log('[UPDATE AMOUNTS] Found elements - depositEl:', !!depositEl, 'fullEl:', !!fullEl);
+      
+      if (depositEl) {
+        const newText = 'KES ' + deposit.toLocaleString();
+        depositEl.textContent = newText;
+        console.log('[UPDATE AMOUNTS] Updated #deposit-amount to:', newText);
+      } else {
+        console.warn('[UPDATE AMOUNTS] WARNING: #deposit-amount element not found!');
+      }
+      
+      if (fullEl) {
+        const newText = 'KES ' + full.toLocaleString();
+        fullEl.textContent = newText;
+        console.log('[UPDATE AMOUNTS] Updated #full-amount to:', newText);
+      } else {
+        console.warn('[UPDATE AMOUNTS] WARNING: #full-amount element not found!');
+      }
+      
+    } catch (err) {
+      console.error('[UPDATE AMOUNTS] ERROR:', err);
+    }
   };
 
   // --- Update payment button state based on terms checkbox and M-Pesa phone
@@ -720,47 +746,63 @@
   
   // --- Clear booking from both pages
   window.clearBooking = function() {
-    console.log('clearBooking function called');
+    console.log('[CLEAR BOOKING] Function called');
     
     if (confirm('Are you sure you want to clear all booking details? This cannot be undone.')) {
       try {
+        console.log('[CLEAR BOOKING] User confirmed - starting clear process');
+        
         // Remove booking data from localStorage
         localStorage.removeItem('bintiBooking');
-        console.log('Booking data removed from localStorage');
+        console.log('[CLEAR BOOKING] Booking data removed from localStorage');
+        
+        // Remove package data as well
+        localStorage.removeItem('bintiSelectedPackage');
+        console.log('[CLEAR BOOKING] Package data removed from localStorage');
         
         // Reset form fields if on bookings page
         const bookingForm = q('#booking-form');
         if (bookingForm) {
+          console.log('[CLEAR BOOKING] Resetting booking form');
           bookingForm.reset();
           // Clear all form inputs
           qa('input, select, textarea').forEach(field => {
             field.value = '';
           });
-          console.log('Booking form cleared');
+          console.log('[CLEAR BOOKING] Booking form fields cleared');
         }
         
         // Reset checkout form if on checkout page
         const termsCheckbox = q('#accept-terms');
         if (termsCheckbox) {
+          console.log('[CLEAR BOOKING] Resetting checkout form');
           termsCheckbox.checked = false;
           const mpesaPhoneInput = q('#mpesa-phone');
           if (mpesaPhoneInput) mpesaPhoneInput.value = '';
+          // Reset deposit/full amounts display
+          const depositEl = q('#deposit-amount');
+          const fullEl = q('#full-amount');
+          if (depositEl) depositEl.textContent = 'KES 0';
+          if (fullEl) fullEl.textContent = 'KES 0';
           // Reset button state
           if (window.updatePaymentButtonState) {
             window.updatePaymentButtonState();
           }
-          console.log('Checkout form cleared');
+          console.log('[CLEAR BOOKING] Checkout form cleared');
         }
         
-        console.log('About to redirect to bookings.html');
+        console.log('[CLEAR BOOKING] All data cleared - redirecting to bookings.html');
         alert('Booking cleared successfully. Redirecting to booking form...');
-        window.location.href = 'bookings.html';
+        // Small delay to ensure logs are written before redirect
+        setTimeout(() => {
+          window.location.href = 'bookings.html';
+        }, 100);
       } catch (error) {
-        console.error('Error clearing booking:', error);
-        alert('Error clearing booking. Please try again.');
+        console.error('[CLEAR BOOKING] ERROR:', error);
+        alert('Error clearing booking: ' + error.message);
       }
     } else {
-      console.log('User cancelled clear booking operation');
+      console.log('[CLEAR BOOKING] User cancelled operation');
     }
   };
 
@@ -811,6 +853,8 @@
         }
         // Update button state when payment method changes
         window.updatePaymentButtonState();
+        // Also update payment amounts display when method changes
+        window.updatePaymentAmounts();
       });
     });
 
@@ -895,13 +939,21 @@
     // Attach click handler to "Clear Booking" button
     const clearBookingBtn = q('#clear-booking-btn');
     if (clearBookingBtn) {
-      clearBookingBtn.addEventListener('click', () => {
-        console.log('Clear booking button clicked - calling clearBooking function');
-        window.clearBooking();
+      console.log('[BUTTON SETUP] Attaching listener to #clear-booking-btn');
+      clearBookingBtn.addEventListener('click', (e) => {
+        console.log('[CLEAR BTN CLICKED] Button was clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.clearBooking === 'function') {
+          console.log('[CLEAR BTN CLICKED] Calling window.clearBooking()');
+          window.clearBooking();
+        } else {
+          console.error('[CLEAR BTN CLICKED] window.clearBooking is not a function!');
+        }
       });
-      console.log('Clear booking button listener attached successfully');
+      console.log('[BUTTON SETUP] Listener attached. Button state - disabled:', clearBookingBtn.disabled, 'classes:', clearBookingBtn.className);
     } else {
-      console.log('Clear booking button not found on page');
+      console.error('[BUTTON SETUP] ERROR: #clear-booking-btn not found on page!');
     }
     
     console.log('Checkout page initialized - all listeners attached');
