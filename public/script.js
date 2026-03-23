@@ -37,12 +37,12 @@
     },
     error: (category, message, error) => {
       const timestamp = new Date().toLocaleTimeString();
-      const prefix = `[${timestamp}] [${category}] ❌`;
+      const prefix = `[${timestamp}] [${category}] `;
       console.error(prefix, message, error || '');
     },
     warn: (category, message, data) => {
       const timestamp = new Date().toLocaleTimeString();
-      const prefix = `[${timestamp}] [${category}] ⚠️`;
+      const prefix = `[${timestamp}] [${category}] `;
       console.warn(prefix, message, data || '');
     }
   };
@@ -99,6 +99,34 @@
     currentPath: window.location.pathname,
     currentProtocol: window.location.protocol
   });
+
+  // ============================================
+  // UTILITY FUNCTIONS - Reduce Code Redundancy
+  // ============================================
+  
+  // Check if required form fields are filled
+  const getFormValidationState = () => {
+    const fullnameInput = document.getElementById('fullname');
+    const phoneInput = document.getElementById('phone');
+    const emailInput = document.getElementById('email');
+    return {
+      hasFullname: fullnameInput && fullnameInput.value && fullnameInput.value.trim(),
+      hasPhone: phoneInput && phoneInput.value && phoneInput.value.trim(),
+      hasEmail: emailInput && emailInput.value && emailInput.value.trim()
+    };
+  };
+
+  // Clear all booking-related localStorage
+  const clearAllBookingData = () => {
+    localStorage.removeItem('bintiBooking');
+    localStorage.removeItem('bintiBookingDraft');
+    localStorage.removeItem('bintiSelectedPackage');
+    log.info('BOOKING', 'All booking data cleared from localStorage');
+  };
+
+  // Expose utilities globally for use in functions
+  window._getFormValidationState = getFormValidationState;
+  window._clearAllBookingData = clearAllBookingData;
   
   // --- helpers
   function onReady(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
@@ -251,18 +279,39 @@
     // --- Load selected package if user came from package page
     const packageRaw = localStorage.getItem('bintiSelectedPackage');
     let selectedPackage = null;
+    let isPackageFlow = false; // Track which flow user is in
     try { if (packageRaw) selectedPackage = JSON.parse(packageRaw); } catch (e) { log.error('BOOKING', 'Invalid package JSON', e); }
     if (selectedPackage) log.info('BOOKING', 'Selected package loaded', selectedPackage);
 
-    // Display selected package if it exists
+    // Determine booking flow: package-only vs tent-only
     if (selectedPackage && selectedPackage.name) {
+      isPackageFlow = true;
       const packageSection = q('#package-section');
-      const packageName = q('#selected-package-name');
-      if (packageSection && packageName) {
+      const tentSection = q('#tent-section');
+      const addonsSection = q('.form-section:has(#ambient-lighting)'); // Find add-ons section
+      
+      if (packageSection) {
         packageSection.style.display = 'block';
-        packageName.textContent = selectedPackage.name;
-        log.info('BOOKING', 'Package section displayed', selectedPackage.name);
+        const packageName = q('#selected-package-name');
+        if (packageName) packageName.textContent = selectedPackage.name;
+        log.info('BOOKING', 'Package flow enabled - package section displayed', selectedPackage.name);
       }
+      
+      // Hide tent section for package flow
+      if (tentSection) tentSection.style.display = 'none';
+      
+      // Show add-ons section for package customization (optional)
+      if (addonsSection) addonsSection.style.display = 'block';
+    } else {
+      // Tent-only flow - hide package section
+      isPackageFlow = false;
+      const packageSection = q('#package-section');
+      const tentSection = q('#tent-section');
+      
+      if (packageSection) packageSection.style.display = 'none';
+      if (tentSection) tentSection.style.display = 'none'; // Hidden initially, shows when details filled
+      
+      log.info('BOOKING', 'Tent flow enabled - user will select tents');
     }
 
     // Elements we'll use
@@ -278,8 +327,125 @@
     const stagepodiumEl = q('#stage-podium');
     const welcomesignsEl = q('#welcome-signs');
     const venueEl = q('#venue');
+    const eventDateEl = q('#event-date');
+    const setupTimeEl = q('#setup-time');
     const summaryBox = q('#booking-summary');
     const siteVisitBtn = q('#site-visit-btn');
+    const tentConfigsContainer = q('#tent-configurations');
+    const addTentConfigBtn = q('#add-tent-config-btn');
+
+    // Log element references for debugging
+    log.info('BOOKING', 'Form elements found', {
+      hasEventDateEl: !!eventDateEl,
+      hasSetupTimeEl: !!setupTimeEl,
+      eventDateValue: eventDateEl ? eventDateEl.value : 'N/A',
+      setupTimeValue: setupTimeEl ? setupTimeEl.value : 'N/A'
+    });
+
+    // Track multiple tent configurations
+    let tentConfigs = [];
+    let nextConfigId = 1;
+
+    function getTentConfigDisplay(config) {
+      if (config.type === 'stretch') {
+        return `${config.size} Stretch`;
+      } else if (config.type === 'cheese') {
+        return `Cheese${config.color ? ' (' + config.color + ')' : ''}`;
+      } else if (config.type === 'aframe') {
+        return `A-frame (${config.sections || 1} section${config.sections > 1 ? 's' : ''})`;
+      } else if (config.type === 'bline') {
+        return 'B-line';
+      }
+      return 'Tent';
+    }
+
+    function renderTentConfigs() {
+      if (!tentConfigsContainer) return;
+      
+      if (tentConfigs.length === 0) {
+        tentConfigsContainer.innerHTML = '';
+        if (addTentConfigBtn) addTentConfigBtn.style.display = 'none';
+        return;
+      }
+      
+      let html = '<div style="margin-top: 15px;">';
+      tentConfigs.forEach((config, idx) => {
+        html += `<div style="background: #f5f5f5; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">`;
+        html += `<span style="font-weight: 600; color: #333;">Tent ${idx + 1}: ${getTentConfigDisplay(config)}</span>`;
+        html += `<button type="button" class="remove-tent-config-btn" data-id="${config.id}" style="background: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Remove</button>`;
+        html += `</div>`;
+      });
+      html += '</div>';
+      
+      tentConfigsContainer.innerHTML = html;
+      
+      // Add event listeners to remove buttons
+      const removeButtons = tentConfigsContainer.querySelectorAll('.remove-tent-config-btn');
+      removeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const configId = parseInt(btn.getAttribute('data-id'));
+          tentConfigs = tentConfigs.filter(c => c.id !== configId);
+          renderTentConfigs();
+          updateSummary();
+        });
+      });
+      
+      // Update add button text and visibility
+      if (addTentConfigBtn) {
+        if (tentConfigs.length >= 4) {
+          addTentConfigBtn.style.display = 'none';
+        } else if (tentConfigs.length > 0) {
+          addTentConfigBtn.innerHTML = '<i class="fas fa-plus"></i> Add Another Tent';
+        }
+      }
+    }
+
+    function addTentConfig() {
+      const tentType = tentTypeEl ? tentTypeEl.value : '';
+      
+      if (!tentType) {
+        alert('Please select a tent type first');
+        return;
+      }
+      
+      // Switch to tent flow when adding first tent
+      if (tentConfigs.length === 0) {
+        isPackageFlow = false;
+        log.info('BOOKING', 'Switched from package flow to tent flow - first tent being added');
+      }
+      
+      const config = {
+        id: nextConfigId++,
+        type: tentType
+      };
+      
+      // Get the specific details based on tent type
+      if (tentType === 'stretch') {
+        const size = stretchSizeEl ? stretchSizeEl.value : '';
+        if (!size) {
+          alert('Please select a stretch tent size');
+          return;
+        }
+        config.size = size;
+      } else if (tentType === 'cheese') {
+        const color = cheeseColorEl ? cheeseColorEl.value : '';
+        if (!color) {
+          alert('Please select a cheese tent color');
+          return;
+        }
+        config.color = color;
+      } else if (tentType === 'aframe') {
+        config.sections = aframeSectionsEl ? aframeSectionsEl.value : '1';
+      }
+      // bline has no options, just add it
+      
+      tentConfigs.push(config);
+      renderTentConfigs();
+      showConditional(); // Update button visibility
+      log.info('BOOKING', 'Tent config added', config);
+      updateSummary();
+    }
 
     function showConditional() {
       const val = tentTypeEl.value;
@@ -303,6 +469,11 @@
         aframeOptions.style.display = val === 'aframe' ? 'block' : 'none';
         aframeOptions.setAttribute('aria-hidden', val !== 'aframe');
       }
+      
+      // Show add button when tent type is selected and we have less than 4 tents
+      if (addTentConfigBtn) {
+        addTentConfigBtn.style.display = (val && tentConfigs.length < 4) ? 'block' : 'none';
+      }
     }
 
     function parseSizeArea(size) {
@@ -310,6 +481,40 @@
       const parts = size.split('x').map(p => parseFloat(p));
       if (parts.length !== 2) return 0;
       return parts[0] * parts[1];
+    }
+
+    // Function to manage tent section visibility based on form details
+    function updateTentSectionVisibility() {
+      const tentSection = q('#tent-section');
+      const packageSection = q('#package-section');
+      const fullnameInput = q('#fullname');
+      const phoneInput = q('#phone');
+      const emailInput = q('#email');
+      
+      if (!tentSection) return;
+      
+      // If a package is selected, keep tent section hidden
+      if (packageSection && packageSection.style.display !== 'none') {
+        tentSection.style.display = 'none';
+        return;
+      }
+      
+      // Check if all details are filled
+      const hasFullname = fullnameInput && fullnameInput.value && fullnameInput.value.trim();
+      const hasPhone = phoneInput && phoneInput.value && phoneInput.value.trim();
+      const hasEmail = emailInput && emailInput.value && emailInput.value.trim();
+      
+      // Show tent section only when all details are filled
+      if (hasFullname && hasPhone && hasEmail) {
+        tentSection.style.display = 'block';
+        log.info('BOOKING', 'Tent section shown - all details filled');
+      } else {
+        tentSection.style.display = 'none';
+        // Clear tent selection when hiding tent section
+        if (tentTypeEl) tentTypeEl.value = '';
+        showConditional();
+        log.info('BOOKING', 'Tent section hidden - incomplete details');
+      }
     }
 
     // Zone info display helper
@@ -321,6 +526,7 @@
       try {
         const values = {
           tentType: tentTypeEl ? tentTypeEl.value : '',
+          tentConfigs: tentConfigs,
           stretchSize: stretchSizeEl ? stretchSizeEl.value : '',
           cheeseColor: cheeseColorEl ? cheeseColorEl.value : '',
           aframeSections: aframeSectionsEl ? aframeSectionsEl.value : '1',
@@ -332,24 +538,39 @@
           stagepodium: stagepodiumEl && stagepodiumEl.checked ? true : false,
           welcomesigns: welcomesignsEl && welcomesignsEl.checked ? true : false,
           venue: venueEl ? venueEl.value : '',
+          eventDate: eventDateEl ? eventDateEl.value : '',
+          setupTime: setupTimeEl ? setupTimeEl.value : '',
           sections: aframeSectionsEl ? aframeSectionsEl.value : '1'
         };
 
         log.info('BOOKING', 'Form values updated', values);
-
-      // GUARD: Don't send API request if minimum required fields are missing
-      if (!values.tentType) {
-        log.warn('BOOKING', 'No tent type selected - skipping API call');
-        if (summaryBox) {
-          summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
-            <i class="fas fa-arrow-left"></i> Select a tent type to see live pricing
-          </p>`;
+        
+        // Explicit logging for date/time fields
+        if (!values.eventDate) log.warn('BOOKING', 'Event date is EMPTY in updateSummary');
+        if (!values.setupTime) log.warn('BOOKING', 'Setup time is EMPTY in updateSummary');
+        if (values.eventDate && values.setupTime) {
+          log.info('BOOKING', '✓ Date and time captured successfully', { eventDate: values.eventDate, setupTime: values.setupTime });
         }
-        return;
+
+      // GUARD: Different validation based on booking flow
+      if (isPackageFlow) {
+        // Package flow: Just show package info without needing tent configs
+        log.info('BOOKING', 'Package flow - skipping tent requirement check');
+      } else {
+        // Tent flow: Need at least one tent configuration
+        if (tentConfigs.length === 0) {
+          log.warn('BOOKING', 'No tent configurations selected - skipping API call');
+          if (summaryBox) {
+            summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
+              <i class="fas fa-arrow-left"></i> Select and add a tent to see live pricing
+            </p>`;
+          }
+          return;
+        }
       }
 
-      // GUARD: For stretch tents, ensure size is selected
-      if (values.tentType === 'stretch' && !values.stretchSize) {
+      // GUARD: For stretch tents, ensure size is selected (only for tent flow without package)
+      if (!isPackageFlow && values.tentType === 'stretch' && !values.stretchSize) {
         log.warn('BOOKING', 'Stretch tent selected but size not chosen - skipping API call');
         if (summaryBox) {
           summaryBox.innerHTML = `<p style="color: #999; text-align: center; padding: 20px;">
@@ -364,16 +585,18 @@
         log.warn('BOOKING', 'Transport checked but venue not entered - skipping API call');
         if (summaryBox) {
           summaryBox.innerHTML = `<p style="color: #d9534f; padding: 15px; border-radius: 4px; background: #ffe6e6;">
-            <strong>⚠️ Location Required:</strong> Please enter your venue location for transport pricing.
+            <strong> Location Required:</strong> Please enter your venue location for transport pricing.
           </p>`;
         }
         return;
       }
 
-      // Payload construction
+      // Payload construction - supports all flow types
       const payload = {
-        tentType: values.tentType,
-        tentSize: values.stretchSize,
+        bookingFlow: isPackageFlow ? 'package' : 'tent', // Can be enhanced to 'package-plus-tents' later
+        // Always send tentConfigs - backend will calculate only if present
+        tentConfigs: tentConfigs, 
+        // Always send package info - backend will calculate only if present
         lighting: values.lighting ? 'yes' : 'no',
         transport: values.transport ? 'yes' : 'no',
         pasound: values.pasound ? 'yes' : 'no',
@@ -382,7 +605,11 @@
         welcomesigns: values.welcomesigns ? 'yes' : 'no',
         decor: values.decor ? 'yes' : 'no',
         location: values.venue,
-        sections: values.sections
+        sections: values.sections,
+        eventDate: values.eventDate,
+        setupTime: values.setupTime,
+        packageName: selectedPackage ? selectedPackage.name : null,
+        packageBasePrice: selectedPackage ? selectedPackage.basePrice : 0
       };
 
       log.info('BOOKING', 'Sending calculation payload to backend', payload);
@@ -403,7 +630,7 @@
           if (!data.success) {
             const error = data.message || 'Calculation error';
             log.error('BOOKING', 'Calculation failed', error);
-            if (summaryBox) summaryBox.innerHTML = `<p style="color: #d9534f;"><strong>⚠️ Error:</strong> ${error}</p>`;
+            if (summaryBox) summaryBox.innerHTML = `<p style="color: #d9534f;"><strong> Error:</strong> ${error}</p>`;
             return;
           }
 
@@ -413,21 +640,29 @@
           let html = '';
           const total = data.total;
 
-          // Tent
-          if (breakdown.tent) {
-            const tentInfo = breakdown.tent;
-            if (tentInfo.type === 'stretch') {
-              html += `<p><strong>Tent:</strong> Stretch (${values.stretchSize})</p>`;
-            } else if (tentInfo.type === 'aframe') {
-              html += `<p><strong>Tent:</strong> A-frame (${tentInfo.sections} section${tentInfo.sections > 1 ? 's' : ''})</p>`;
-            } else if (tentInfo.type === 'cheese') {
-              html += `<p><strong>Tent:</strong> Cheese${values.cheeseColor ? ' (Color: '+values.cheeseColor+')' : ''}</p>`;
-            } else {
-              html += `<p><strong>Tent:</strong> ${tentInfo.type}</p>`;
+          // Show selected package if applicable
+          if (selectedPackage && selectedPackage.name) {
+            html += `<p style="background: rgba(212, 175, 55, 0.15); padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;"><strong>📦 Package:</strong> ${selectedPackage.name}</p>`;
+          }
+
+          // Event date and setup time
+          if (values.eventDate) {
+            html += `<p><strong>Event Date:</strong> ${values.eventDate}</p>`;
+          }
+          if (values.setupTime) {
+            html += `<p><strong>Setup Time:</strong> ${values.setupTime}</p>`;
+          }
+
+          // Tent - show all selected tent configurations
+          if (values.tentConfigs && values.tentConfigs.length > 0) {
+            const configurations = values.tentConfigs.map(cfg => getTentConfigDisplay(cfg)).join(' + ');
+            html += `<p><strong>Tent:</strong> ${configurations}</p>`;
+            
+            if (breakdown.tent) {
+              html += `<p><strong>Tent cost:</strong> KES ${breakdown.tent.cost.toLocaleString()}</p>`;
             }
-            html += `<p><strong>Tent cost:</strong> KES ${tentInfo.cost.toLocaleString()}</p>`;
-          } else {
-            html += `<p style="color: #ccc;"><em>🔔 Please select a tent type to see pricing</em></p>`;
+          } else if (!selectedPackage) {
+            html += `<p style="color: #ccc;"><em>🔔 Please select and add a tent to see pricing</em></p>`;
           }
 
           // Lighting
@@ -472,17 +707,20 @@
             html += `<p><strong>Welcome Signs:</strong> KES 3,000</p>`;
           }
 
-          html += `<hr><p><strong>Total (calculated):</strong> KES ${total.toLocaleString()}</p>`;
-          html += `<p class="muted">Note: Decor and special arrangements are handled on inquiry.</p>`;
+          html += `<hr style="margin: 16px 0;">`;
+          html += `<div style="background: linear-gradient(135deg, rgba(120, 81, 169, 0.1), rgba(212, 175, 55, 0.1)); padding: 16px; border-radius: 8px; border: 1px solid rgba(120, 81, 169, 0.2);">`;
+          html += `<p style="margin: 0; font-size: 0.95rem; color: #5A4A5F;">Estimated Total</p>`;
+          html += `<p style="margin: 8px 0 0 0; font-size: 1.3rem; font-weight: 700; color: #7851A9;">KES ${total.toLocaleString()}</p>`;
+          html += `</div>`;
+          html += `<p class="muted" style="font-size: 0.85rem; color: #999; margin-top: 10px;">Note: Decor and special arrangements are handled on inquiry.</p>`;
 
           if (summaryBox) summaryBox.innerHTML = html;
 
           // Save current booking partial into localStorage for checkout use
           const bookingSave = {
-            tentType: values.tentType,
-            stretchSize: values.stretchSize,
-            cheeseColor: values.cheeseColor,
-            aframeSections: values.aframeSections,
+            bookingFlow: isPackageFlow ? 'package' : 'tent',
+            tentConfigs: tentConfigs, // Always save tent configs if they exist
+            tentConfigurations: tentConfigs && tentConfigs.length > 0 ? tentConfigs.map(cfg => getTentConfigDisplay(cfg)).join(' + ') : '',
             lighting: values.lighting,
             transport: values.transport,
             decor: values.decor,
@@ -491,15 +729,26 @@
             stagepodium: values.stagepodium,
             welcomesigns: values.welcomesigns,
             venue: values.venue,
+            eventDate: values.eventDate,
+            setupTime: values.setupTime,
             fullname: q('#fullname') ? q('#fullname').value : '',
             phone: q('#phone') ? q('#phone').value : '',
             email: q('#email') ? q('#email').value : '',
             total: total,
             breakdown: breakdown,
-            selectedPackage: selectedPackage ? selectedPackage.name : null
+            selectedPackage: selectedPackage ? selectedPackage.name : null,
+            selectedPackageData: selectedPackage || null
           };
           if (!safeSetItem('bintiBooking', bookingSave)) {
             log.warn('BOOKING', 'Could not save booking to localStorage - quota may be exceeded');
+          } else {
+            log.info('BOOKING', 'Booking saved to localStorage with date/time', {
+              eventDate: bookingSave.eventDate,
+              setupTime: bookingSave.setupTime,
+              fullname: bookingSave.fullname,
+              phone: bookingSave.phone,
+              total: bookingSave.total
+            });
           }
         })
         .catch(err => {
@@ -579,11 +828,37 @@
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, q('#fullname'), q('#phone'), q('#email')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
     });
+
+    // Add event listener for "Add Another Tent Size" button
+    if (addTentConfigBtn) {
+      addTentConfigBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addTentConfig();
+      });
+    }
+
+    // Add separate listeners for form details to control tent section visibility
+    const fullnameEl = q('#fullname');
+    const phoneEl = q('#phone');
+    const emailEl = q('#email');
+    
+      if (fullnameEl) {
+        fullnameEl.addEventListener('change', updateTentSectionVisibility);
+        fullnameEl.addEventListener('input', updateTentSectionVisibility);
+      }
+      if (phoneEl) {
+        phoneEl.addEventListener('change', updateTentSectionVisibility);
+        phoneEl.addEventListener('input', updateTentSectionVisibility);
+      }
+      if (emailEl) {
+        emailEl.addEventListener('change', updateTentSectionVisibility);
+        emailEl.addEventListener('input', updateTentSectionVisibility);
+      }
 
     // Site visit button: redirect to contact form
     if (siteVisitBtn) {
@@ -597,9 +872,32 @@
     // initial display states
     showConditional();
 
+    // Customize package button: show tent section when clicked
+    const customizeBtn = q('#customize-package-btn');
+    if (customizeBtn) {
+      customizeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Allow adding tents to package (don't switch flows)
+        log.info('BOOKING', 'User clicked customize tent - allowing package + tent combination');
+        const tentSection = q('#tent-section');
+        if (tentSection) {
+          tentSection.style.display = 'block';
+          tentSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          log.info('BOOKING', 'Customize tent section revealed');
+        }
+      });
+    }
+
     // Prefill from draft if present
     if (draft) {
-      if (draft.tentType) tentTypeEl.value = draft.tentType;
+      if (draft.tentConfigs && Array.isArray(draft.tentConfigs)) {
+        tentConfigs = draft.tentConfigs.map(cfg => ({ ...cfg }));
+        nextConfigId = (Math.max(...tentConfigs.map(c => c.id || 0)) || 0) + 1;
+        renderTentConfigs();
+      } else if (draft.tentType) {
+        // Old format support
+        tentTypeEl.value = draft.tentType;
+      }
       if (draft.stretchSize && stretchSizeEl) stretchSizeEl.value = draft.stretchSize;
       if (draft.cheeseColor && cheeseColorEl) cheeseColorEl.value = draft.cheeseColor;
       if (draft.aframeSections && aframeSectionsEl) aframeSectionsEl.value = draft.aframeSections;
@@ -609,7 +907,7 @@
       setTimeout(() => updateSummary(), 100);
     }
 
-    // Submit handler
+    // Submit handler - validate based on flow type
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       
@@ -625,23 +923,44 @@
           return;
         }
         
-        const hasFullName = fullNameInput.value && fullNameInput.value.trim();
-        const hasPhone = phoneInput.value && phoneInput.value.trim();
-        const hasEmail = emailInput.value && emailInput.value.trim();
-        const hasTentType = tentTypeEl && tentTypeEl.value;
+        // Get validation state using helper function
+        const validation = window._getFormValidationState();
         
         // Validate Kenya phone format
-        if (hasPhone && !validateKenyaPhone(hasPhone)) {
-          log.error('BOOKING', 'Invalid phone format', { phone: hasPhone });
+        if (validation.hasPhone && !validateKenyaPhone(validation.hasPhone)) {
+          log.error('BOOKING', 'Invalid phone format', { phone: validation.hasPhone });
           alert('Please enter a valid Kenyan phone number (e.g., 0712345678, +254712345678)');
-          phoneInput.focus();
+          if (phoneInput) phoneInput.focus();
           return;
         }
         
-        if (!hasFullName || !hasPhone || !hasEmail || !hasTentType) {
-          alert('Please complete your name, phone, email and tent selection before proceeding.');
-          log.error('BOOKING', 'Form validation failed', { hasFullName, hasPhone, hasEmail, hasTentType });
+        // Check event date and time (required for both flows)
+        const hasEventDate = eventDateEl && eventDateEl.value;
+        const hasSetupTime = setupTimeEl && setupTimeEl.value;
+        if (!hasEventDate || !hasSetupTime) {
+          alert('Please select event date and setup time before proceeding.');
+          log.error('BOOKING', 'Form validation failed - missing date/time', { hasEventDate, hasSetupTime });
           return;
+        }
+
+        // Validation differs based on flow type
+        if (isPackageFlow) {
+          // Package flow: only need name, phone, email
+          if (!validation.hasFullname || !validation.hasPhone || !validation.hasEmail) {
+            alert('Please complete your name, phone, and email before proceeding.');
+            log.error('BOOKING', 'Form validation failed (package flow)', validation);
+            return;
+          }
+          log.info('BOOKING', 'Package flow validation passed');
+        } else {
+          // Tent flow: need name, phone, email + at least one tent
+          const hasTentConfigs = tentConfigs && tentConfigs.length > 0;
+          if (!validation.hasFullname || !validation.hasPhone || !validation.hasEmail || !hasTentConfigs) {
+            alert('Please complete your name, phone, email and add at least one tent before proceeding.');
+            log.error('BOOKING', 'Form validation failed (tent flow)', { ...validation, hasTentConfigs });
+            return;
+          }
+          log.info('BOOKING', 'Tent flow validation passed');
         }
 
         // booking saved already in updateSummary() to localStorage key 'bintiBooking'
@@ -678,20 +997,58 @@
     try { 
       booking = JSON.parse(raw);
       log.info('CHECKOUT', 'Booking loaded from localStorage', booking);
+      log.info('CHECKOUT', 'Date/Time data in booking', {
+        eventDate: booking.eventDate,
+        setupTime: booking.setupTime,
+        hasEventDate: !!booking.eventDate,
+        hasSetupTime: !!booking.setupTime
+      });
     } catch (e) { 
       log.error('CHECKOUT', 'Failed to parse booking JSON', e);
     }
     
     let html = '';
+    
+    // Show selected package if applicable
+    if (booking.selectedPackage) {
+      html += `<p style="background: rgba(212, 175, 55, 0.15); padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;"><strong> Package:</strong> ${booking.selectedPackage}</p>`;
+    }
+    
     html += `<p><strong>Name:</strong> ${booking.fullname || '—'}</p>`;
     html += `<p><strong>Phone:</strong> ${booking.phone || '—'}</p>`;
     html += `<p><strong>Email:</strong> ${booking.email || '—'}</p>`;
     html += `<p><strong>Venue:</strong> ${booking.venue || '—'}</p>`;
-    html += `<p><strong>Tent:</strong> ${booking.tentType || '—'}`;
-    if (booking.tentType === 'stretch' && booking.stretchSize) html += ` (${booking.stretchSize})`;
-    if (booking.tentType === 'cheese' && booking.cheeseColor) html += ` (Color: ${booking.cheeseColor})`;
-    if (booking.tentType === 'aframe') html += ` (${booking.aframeSections || 1} section(s))`;
-    html += `</p>`;
+    
+    // Event Date - with better formatting
+    const eventDateDisplay = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-KE') : '—';
+    log.info('CHECKOUT', 'Event Date Processing', { 
+      rawValue: booking.eventDate, 
+      displayValue: eventDateDisplay,
+      isEmpty: !booking.eventDate 
+    });
+    html += `<p style="background: rgba(212, 175, 55, 0.1); padding: 8px 12px; border-radius: 4px; margin: 8px 0;"><i class="fas fa-calendar-alt" style="color: #D4AF37; margin-right: 8px;"></i><strong>Event Date:</strong> ${eventDateDisplay}</p>`;
+    
+    // Setup Time - with better formatting
+    const setupTimeDisplay = booking.setupTime || '—';
+    log.info('CHECKOUT', 'Setup Time Processing', { 
+      rawValue: booking.setupTime,
+      displayValue: setupTimeDisplay,
+      isEmpty: !booking.setupTime 
+    });
+    html += `<p style="background: rgba(120, 81, 169, 0.1); padding: 8px 12px; border-radius: 4px; margin: 8px 0;"><i class="fas fa-clock" style="color: #7851A9; margin-right: 8px;"></i><strong>Setup Time:</strong> ${setupTimeDisplay}</p>`;
+    
+    // Display tent configurations
+    if (booking.tentConfigurations) {
+      html += `<p><strong>Tent:</strong> ${booking.tentConfigurations}</p>`;
+    } else if (booking.tentType) {
+      // Old format fallback
+      html += `<p><strong>Tent:</strong> ${booking.tentType}`;
+      if (booking.tentType === 'stretch' && booking.stretchSize) html += ` (${booking.stretchSize})`;
+      if (booking.tentType === 'cheese' && booking.cheeseColor) html += ` (Color: ${booking.cheeseColor})`;
+      if (booking.tentType === 'aframe') html += ` (${booking.aframeSections || 1} section(s))`;
+      html += `</p>`;
+    }
+    
     
     // Use breakdown data if available (new system with TransportService)
     if (booking.breakdown) {
@@ -730,7 +1087,11 @@
     if (booking.stagepodium) html += `<p><strong>Stage & Podium:</strong> KES 15,000</p>`;
     if (booking.welcomesigns) html += `<p><strong>Welcome Signs:</strong> KES 3,000</p>`;
 
-    html += `<hr><p><strong>Final total (calculated):</strong> KES ${ (booking.total || 0).toLocaleString() }</p>`;
+    html += `<hr style="margin: 16px 0;">`;
+    html += `<div style="background: linear-gradient(135deg, rgba(120, 81, 169, 0.1), rgba(212, 175, 55, 0.1)); padding: 16px; border-radius: 8px; border: 1px solid rgba(120, 81, 169, 0.2);">`;
+    html += `<p style="margin: 0; font-size: 0.95rem; color: #5A4A5F;">Final Total</p>`;
+    html += `<p style="margin: 8px 0 0 0; font-size: 1.3rem; font-weight: 700; color: #7851A9;">KES ${(booking.total || 0).toLocaleString()}</p>`;
+    html += `</div>`;
     orderSummary.innerHTML = html;
 
     // Update checkout summary details
@@ -745,71 +1106,166 @@
     log.info('CHECKOUT', 'Order summary rendered', { total: booking.total });
   });
 
-  // --- M-Pesa payment trigger with improved UX
-  window.triggerMpesaPayment = function(bookingId, phone, amount, mpesaPhone) {
-    // Use M-Pesa phone if provided, otherwise use contact phone
+  // --- M-Pesa payment trigger with actual backend integration
+  window.triggerMpesaPayment = function(bookingId, phone, amount, mpesaPhone, bookingData) {
     const paymentPhone = mpesaPhone || phone;
-    const message = `M-Pesa payment initiated for booking #${bookingId.substring(0, 8)}...\n\nAmount: KES ${amount.toLocaleString()}\nPhone: ${paymentPhone}\n\nA payment prompt will be sent to your M-Pesa registered phone number. Please enter your M-Pesa PIN to complete the payment.`;
+    const booking = bookingData || safeGetItem('bintiBooking') || {};
     
-    // Show payment instruction modal
+    // Create payment status modal
     const modal = document.createElement('div');
-    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    modal.id = 'payment-status-modal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000;';
     modal.innerHTML = `
-      <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-        <div style="background: linear-gradient(135deg, #25D366, #00b842); padding: 30px; border-radius: 12px; margin-bottom: 24px;">
-          <span style="font-size: 3.5em; font-weight: bold; color: white;">M</span>
-          <p style="color: white; margin: 12px 0 0 0; font-size: 1.1em;">M-Pesa Payment</p>
+      <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+        <div style="background: linear-gradient(135deg, #25D366, #00b842); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 10px; right: 10px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; animation: pulse 2s infinite;"></div>
+          <div style="position: relative; z-index: 1;">
+            <div class="loader" style="width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; margin: 0 auto 16px; animation: spin 1s linear infinite;"></div>
+            <p style="color: white; margin: 0; font-size: 1.1em; font-weight: 600;">Initiating Payment</p>
+          </div>
         </div>
         <p style="margin: 20px 0; font-size: 1.05em; color: #333; line-height: 1.6;">
           <strong>Amount:</strong> KES ${amount.toLocaleString()}<br>
           <strong>Phone:</strong> ${paymentPhone}
         </p>
-        <p style="color: #666; margin: 20px 0; background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid #25D366;">
-          A payment prompt will be sent to your M-Pesa registered phone number. Please enter your M-Pesa PIN to complete the payment.
+        <p style="color: #666; margin: 20px 0; background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid #25D366; line-height: 1.5;">
+          <i class="fas fa-info-circle" style="color: #25D366; margin-right: 8px;"></i> 
+          A payment prompt will be sent to your M-Pesa registered phone. Enter your PIN to complete.
         </p>
-        <p style="color: #666; margin: 20px 0;"><i class="fas fa-spinner fa-spin"></i> Waiting for payment confirmation...</p>
+        <p style="color: #999; margin: 20px 0; font-size: 0.9em;"><i class="fas fa-lock" style="color: #25D366;"></i> Your payment is secure and encrypted</p>
         <small style="color: #999;">Do not close this window until payment is complete.</small>
       </div>
       <style>
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 50% { opacity: 0.3; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       </style>
     `;
     document.body.appendChild(modal);
     
-    // In production, backend would send actual STK push to phone
-    // For now, simulate after 5 seconds
-    setTimeout(() => {
-      const confirmed = confirm('Did you complete the M-Pesa payment?');
-      modal.remove();
-      if (confirmed) {
-        const successMsg = 'Thank you! Your payment has been received. Your booking is confirmed. You will receive a confirmation email shortly.';
-        const successModal = document.createElement('div');
-        successModal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
-        successModal.innerHTML = `
-          <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-            <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 30px; border-radius: 12px; margin-bottom: 24px;">
-              <i class="fas fa-check-circle" style="font-size: 3em; color: white;"></i>
-              <p style="color: white; margin: 12px 0 0 0; font-size: 1.1em;">Payment Successful</p>
+    log.info('PAYMENT', 'Initiating M-Pesa STK push via backend', { phone: paymentPhone, amount });
+    
+    // Send STK push request to backend
+    const mpesaPaymentData = {
+      phone: paymentPhone,
+      amount: amount,
+      accountRef: booking.id || bookingId || 'BOOKING_' + Date.now(),
+      description: `Binti Events Booking - ${booking.fullname || 'Guest'}`,
+      // Include booking details for confirmation email
+      fullName: booking.fullname || booking.fullName || 'Guest',
+      email: booking.email || '',
+      phone: booking.phone || '',
+      venue: booking.venue || '',
+      eventDate: booking.eventDate || '',
+      setupTime: booking.setupTime || '',
+      tentType: booking.tentType || 'Package + Tent',
+      bookingType: booking.bookingType || booking.tentType || 'Package + Tent'
+    };
+    
+    apiCall(`${API_BASE_URL}/payments/mpesa`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mpesaPaymentData),
+      timeout: API_TIMEOUT
+    })
+      .then(data => {
+        log.info('PAYMENT', 'STK push initiated successfully', data);
+        
+        // Update modal to show waiting for M-Pesa response
+        modal.innerHTML = `
+          <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+            <div style="background: linear-gradient(135deg, #25D366, #00b842); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px; position: relative; overflow: hidden;">
+              <div style="position: absolute; top: 10px; right: 10px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; animation: pulse 2s infinite;"></div>
+              <div style="position: relative; z-index: 1;">
+                <div class="loader" style="width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; margin: 0 auto 16px; animation: spin 1s linear infinite;"></div>
+                <p style="color: white; margin: 0; font-size: 1.1em; font-weight: 600;">Waiting for M-Pesa</p>
+              </div>
             </div>
-            <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">${successMsg}</p>
-            <button onclick="window.location.href='index.html'" style="background: #28a745; color: white; border: none; padding: 12px 28px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">
-              Back to Home
-            </button>
+            <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">
+              STK push sent to <strong>${paymentPhone}</strong>
+            </p>
+            <p style="color: #666; margin: 20px 0; background: #f8f9fa; padding: 16px; border-radius: 8px; border-left: 4px solid #25D366; line-height: 1.5;">
+              <i class="fas fa-mobile-alt" style="color: #25D366; margin-right: 8px;"></i> 
+              Check your M-Pesa prompt on your phone. Enter your PIN to complete payment.
+            </p>
+            <p style="color: #999; font-size: 0.9em;">Waiting for payment confirmation...</p>
           </div>
+          <style>
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 50% { opacity: 0.3; } 100% { transform: scale(1.5); opacity: 0; } }
+            @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+          </style>
         `;
-        document.body.appendChild(successModal);
-        // Auto-clear booking data after successful payment
-        log.info('PAYMENT', 'Payment confirmed - clearing booking data');
-        localStorage.removeItem('bintiBooking');
-        localStorage.removeItem('bintiBookingDraft');
-        localStorage.removeItem('bintiSelectedPackage');
-      } else {
-        alert('Please verify your payment status. If you completed the payment, your booking will be confirmed shortly.');
-      }
-    }, 5000);
+        
+        // TODO: In production, implement polling or webhook to check payment status
+        // For now, show a timeout after 2 minutes
+        const timeoutMs = 120000; // 2 minutes
+        const startTime = Date.now();
+        
+        const checkStatusInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          if (elapsed > timeoutMs) {
+            clearInterval(checkStatusInterval);
+            // Show timeout message
+            modal.innerHTML = `
+              <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+                <div style="background: linear-gradient(135deg, #ffc107, #ff9800); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px;">
+                  <i class="fas fa-clock" style="font-size: 3.5em; color: white; display: block; margin-bottom: 16px;"></i>
+                  <p style="color: white; margin: 0; font-size: 1.3em; font-weight: 700;">Payment Timeout</p>
+                </div>
+                <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">
+                  We didn't receive a response from M-Pesa within 2 minutes.
+                </p>
+                <p style="color: #666; font-size: 0.95em; margin: 20px 0; background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">
+                  <i class="fas fa-info-circle" style="margin-right: 6px;"></i> If you completed the payment, it may still be processing. Check your M-Pesa account or try again.
+                </p>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                  <button onclick="document.getElementById('payment-status-modal').remove();" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-check" style="margin-right: 6px;"></i> Continue
+                  </button>
+                  <button onclick="document.getElementById('payment-status-modal').remove(); window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-redo" style="margin-right: 6px;"></i> Try Again
+                  </button>
+                </div>
+              </div>
+              <style>
+                @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+              </style>
+            `;
+          }
+        }, 1000);
+      })
+      .catch(error => {
+        log.error('PAYMENT', 'STK push failed', error);
+        clearInterval(checkStatusInterval);
+        
+        modal.innerHTML = `
+          <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
+            <div style="background: linear-gradient(135deg, #dc3545, #c82333); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px;">
+              <i class="fas fa-times-circle" style="font-size: 3.5em; color: white; display: block; margin-bottom: 16px; animation: shake 0.6s ease-out;"></i>
+              <p style="color: white; margin: 0; font-size: 1.3em; font-weight: 700;">Payment Failed</p>
+            </div>
+            <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">
+              We couldn't send the M-Pesa prompt to your phone.
+            </p>
+            <p style="color: #666; font-size: 0.95em; margin: 20px 0; background: #fdf2f1; padding: 12px; border-radius: 6px; border-left: 4px solid #dc3545;">
+              <i class="fas fa-info-circle" style="margin-right: 6px;"></i> ${error.message || 'Please check your phone number and try again.'}
+            </p>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+              <button onclick="document.getElementById('payment-status-modal').remove(); window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                <i class="fas fa-redo" style="margin-right: 6px;"></i> Try Again
+              </button>
+              <button onclick="window.location.href='checkout.html'" style="flex: 1; background: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Back
+              </button>
+            </div>
+          </div>
+          <style>
+            @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+            @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+          </style>
+        `;
+      });
   };
 
   // --- Pesapal iframe helper with proper error handling
@@ -909,7 +1365,21 @@
       fullname: booking.fullname,
       phone: booking.phone,
       email: booking.email,
+      venue: booking.venue,
+      tentType: booking.tentType || 'none',
+      tentConfigs: booking.tentConfigs || [],
+      packageName: booking.selectedPackage || booking.packageName,
+      packageBasePrice: booking.packageBasePrice || 0,
       mpesaPhone: mpesaPhone ? formatPhoneDisplay(mpesaPhone) : '',
+      eventDate: booking.eventDate,
+      setupTime: booking.setupTime,
+      lighting: booking.lighting,
+      transport: booking.transport,
+      decor: booking.decor,
+      pasound: booking.pasound,
+      dancefloor: booking.dancefloor,
+      stagepodium: booking.stagepodium,
+      welcomesigns: booking.welcomesigns,
       bookingDetails: {
         tentType: booking.tentType,
         stretchSize: booking.stretchSize,
@@ -961,8 +1431,8 @@
           // Successfully created booking
           if (paymentMethod === 'mpesa') {
             log.info('PAYMENT', 'Initiating M-Pesa payment');
-            // Trigger M-Pesa STK push with calculated amount
-            window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone);
+            // Trigger M-Pesa STK push with calculated amount and booking details
+            window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone, booking);
           } else if (paymentMethod === 'pesapal') {
             log.info('PAYMENT', 'Loading Pesapal iframe');
             // Load Pesapal iframe
@@ -993,43 +1463,43 @@
 
   // --- Update payment amounts based on total (80% deposit, 100% full)
   window.updatePaymentAmounts = function() {
-    console.log('[UPDATE AMOUNTS] Function called');
+    log.info('PAYMENT', 'updatePaymentAmounts called');
     try {
       const bookingRaw = localStorage.getItem('bintiBooking');
-      console.log('[UPDATE AMOUNTS] Raw booking data from localStorage:', bookingRaw);
+      log.info('PAYMENT', 'Raw booking data from localStorage:', bookingRaw);
       
       const booking = JSON.parse(bookingRaw || '{}');
       const total = booking.total || 0;
-      console.log('[UPDATE AMOUNTS] Total amount from booking:', total);
+      log.info('PAYMENT', 'Total amount from booking:', total);
       
       const deposit = Math.round(total * 0.8);
       const full = total;
       
-      console.log('[UPDATE AMOUNTS] Calculated values - Deposit (80%):', deposit, 'Full (100%):', full);
+      log.info('PAYMENT', 'Calculated values - Deposit (80%):', deposit, 'Full (100%):', full);
       
       const depositEl = q('#deposit-amount');
       const fullEl = q('#full-amount');
       
-      console.log('[UPDATE AMOUNTS] Found elements - depositEl:', !!depositEl, 'fullEl:', !!fullEl);
+      log.info('PAYMENT', 'Found elements - depositEl:', !!depositEl, 'fullEl:', !!fullEl);
       
       if (depositEl) {
         const newText = 'KES ' + deposit.toLocaleString();
         depositEl.textContent = newText;
-        console.log('[UPDATE AMOUNTS] Updated #deposit-amount to:', newText);
+        log.info('PAYMENT', 'Updated #deposit-amount to:', newText);
       } else {
-        console.warn('[UPDATE AMOUNTS] WARNING: #deposit-amount element not found!');
+        log.warn('PAYMENT', 'WARNING: #deposit-amount element not found!');
       }
       
       if (fullEl) {
         const newText = 'KES ' + full.toLocaleString();
         fullEl.textContent = newText;
-        console.log('[UPDATE AMOUNTS] Updated #full-amount to:', newText);
+        log.info('PAYMENT', 'Updated #full-amount to:', newText);
       } else {
-        console.warn('[UPDATE AMOUNTS] WARNING: #full-amount element not found!');
+        log.warn('PAYMENT', 'WARNING: #full-amount element not found!');
       }
       
     } catch (err) {
-      console.error('[UPDATE AMOUNTS] ERROR:', err);
+      log.error('PAYMENT', 'ERROR in updatePaymentAmounts:', err);
     }
   };
 
@@ -1039,19 +1509,30 @@
     const payButton = q('#pay-now-btn');
     
     if (!termsCheckbox || !payButton) {
-      console.log('Button state elements not found');
+      log.warn('CHECKOUT', 'Button state elements not found', {
+        hasCheckbox: !!termsCheckbox,
+        hasButton: !!payButton
+      });
       return;
     }
     
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
     const mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
     
-    console.log('Updating button state - Terms checked:', termsCheckbox.checked, 'Payment method:', paymentMethod, 'M-Pesa phone:', mpesaPhone);
-    
     // Check if all conditions are met for enabling button
     const termsAccepted = termsCheckbox.checked;
     const mpesaPhoneFilled = paymentMethod === 'mpesa' ? mpesaPhone.length > 0 : true;
     const shouldEnable = termsAccepted && mpesaPhoneFilled;
+    
+    log.info('CHECKOUT', 'Button state check', {
+      checkboxElement: termsCheckbox.id,
+      checkboxChecked: termsAccepted,
+      checkboxDOMChecked: termsCheckbox.checked,
+      paymentMethod,
+      mpesaPhone: mpesaPhone ? `***${mpesaPhone.slice(-4)}` : 'not provided',
+      mpesaPhoneFilled,
+      shouldEnable
+    });
     
     const icon = payButton.querySelector('i');
     
@@ -1064,7 +1545,7 @@
       if (icon) {
         icon.className = 'fas fa-unlock';
       }
-      console.log('Button enabled - all conditions met');
+      log.info('CHECKOUT', '✓ Button ENABLED - all conditions met');
     } else {
       // Disable button
       payButton.disabled = true;
@@ -1074,8 +1555,28 @@
       if (icon) {
         icon.className = 'fas fa-lock';
       }
-      console.log('Button disabled - conditions not met');
+      log.warn('CHECKOUT', '✗ Button DISABLED - missing:', {
+        termsAccepted: termsAccepted ? '✓' : '✗ NOT CHECKED',
+        mpesaPhoneFilled: mpesaPhoneFilled ? '✓' : '✗ NO PHONE'
+      });
     }
+  };
+
+  // Debug helper: Check terms checkbox state directly
+  window.checkTermsState = function() {
+    const checkbox = q('#accept-terms');
+    if (!checkbox) {
+      console.log('❌ Terms checkbox not found in DOM');
+      return;
+    }
+    console.log('===== TERMS CHECKBOX STATE =====');
+    console.log('Element ID:', checkbox.id);
+    console.log('Checked:', checkbox.checked);
+    console.log('Type:', checkbox.type);
+    console.log('Value:', checkbox.value);
+    console.log('Visible:', checkbox.offsetParent !== null);
+    console.log('Disabled:', checkbox.disabled);
+    console.log('================================');
   };
   
   // --- Clear booking from both pages
@@ -1164,30 +1665,68 @@
       buttonDisabled: payButton.disabled
     });
     
+    // Show M-Pesa modal if M-Pesa is pre-selected (on initial page load)
+    const mpesaOption = document.getElementById('mpesa-option');
+    if (mpesaOption && mpesaOption.checked) {
+      const mpesaModal = document.getElementById('mpesa-phone-modal');
+      if (mpesaModal) {
+        setTimeout(() => {
+          mpesaModal.style.display = 'flex';
+          document.getElementById('mpesa-phone')?.focus();
+        }, 500);
+      }
+    }
+    
     // Add change listener to terms checkbox
     termsCheckbox.addEventListener('change', () => {
-      log.info('CHECKOUT', 'Terms checkbox changed', { checked: termsCheckbox.checked });
+      log.info('CHECKOUT', 'Terms checkbox changed event fired', { 
+        checked: termsCheckbox.checked,
+        DOMElement: termsCheckbox,
+        checkboxAttribute: termsCheckbox.getAttribute('checked')
+      });
       window.updatePaymentButtonState();
     });
     
-    // Show/hide M-Pesa phone field based on payment method selection
+    // Also add click listener as fallback (some browsers may not fire change reliably)
+    termsCheckbox.addEventListener('click', () => {
+      log.info('CHECKOUT', 'Terms checkbox clicked event', { 
+        checked: termsCheckbox.checked,
+        offsetParent: termsCheckbox.offsetParent
+      });
+      // Immediate check of checkbox state
+      setTimeout(() => {
+        log.info('CHECKOUT', 'After 50ms timeout - checkbox state', { 
+          checked: termsCheckbox.checked,
+          value: termsCheckbox.value,
+          disabled: termsCheckbox.disabled
+        });
+        window.updatePaymentButtonState();
+      }, 50);
+    });
+    
+    // Show/hide M-Pesa phone modal based on payment method selection
     document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         log.info('CHECKOUT', 'Payment method changed', { method: e.target.value });
-        const mpesaPhoneSection = document.getElementById('mpesa-phone-section');
+        
         if (e.target.value === 'mpesa') {
-          mpesaPhoneSection.style.display = 'block';
-          // Focus on M-Pesa phone input
-          setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
+          // Show modal when M-Pesa is selected
+          const modal = document.getElementById('mpesa-phone-modal');
+          if (modal) {
+            modal.style.display = 'flex';
+            // Focus on input
+            setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
+          }
         } else {
-          mpesaPhoneSection.style.display = 'none';
-          // Clear error when switching away from M-Pesa
-          const mpesaError = document.getElementById('mpesa-phone-error');
-          if (mpesaError) mpesaError.style.display = 'none';
-          // Clear M-Pesa phone value when switching away
+          // Close modal and clear when switching away
+          const modal = document.getElementById('mpesa-phone-modal');
+          if (modal) modal.style.display = 'none';
           const mpesaPhoneInput = document.getElementById('mpesa-phone');
           if (mpesaPhoneInput) mpesaPhoneInput.value = '';
+          const mpesaError = document.getElementById('mpesa-phone-error');
+          if (mpesaError) mpesaError.style.display = 'none';
         }
+        
         // Update button state when payment method changes
         window.updatePaymentButtonState();
         // Also update payment amounts display when method changes
@@ -1195,64 +1734,74 @@
       });
     });
 
-    // M-Pesa phone input listeners
+    // M-Pesa modal handlers
     const mpesaPhoneInput = document.getElementById('mpesa-phone');
-    if (mpesaPhoneInput) {
-      mpesaPhoneInput.addEventListener('input', () => {
-        console.log('M-Pesa phone input changed');
-        const mpesaError = document.getElementById('mpesa-phone-error');
-        if (mpesaError) mpesaError.style.display = 'none';
-        // Update button state when phone input changes
-        window.updatePaymentButtonState();
-      });
-      
-      // Validate on blur
-      mpesaPhoneInput.addEventListener('blur', () => {
-        const value = mpesaPhoneInput.value.trim();
+    const mpesaConfirmBtn = document.getElementById('mpesa-confirm-btn');
+    const mpesaCancelBtn = document.getElementById('mpesa-cancel-btn');
+    const mpesaModal = document.getElementById('mpesa-phone-modal');
+    
+    if (mpesaConfirmBtn) {
+      mpesaConfirmBtn.addEventListener('click', () => {
+        const phone = mpesaPhoneInput?.value?.trim() || '';
         const mpesaError = document.getElementById('mpesa-phone-error');
         const mpesaErrorText = document.getElementById('mpesa-phone-error-text');
         
-        if (value && !/^\+?[0-9]{10,15}$/.test(value)) {
-          if (mpesaErrorText) {
-            mpesaErrorText.textContent = 'Invalid format. Use: +254712345678, 0712345678, or 254712345678';
-          }
+        // Validate phone format
+        if (!phone || !/^\+?[0-9]{10,15}$/.test(phone)) {
+          if (mpesaErrorText) mpesaErrorText.textContent = 'Invalid format. Use: +254712345678';
           if (mpesaError) mpesaError.style.display = 'block';
+          return;
         }
+        
+        // Valid phone - hide error, close modal, update button state
+        if (mpesaError) mpesaError.style.display = 'none';
+        if (mpesaModal) mpesaModal.style.display = 'none';
+        log.info('CHECKOUT', 'M-Pesa phone confirmed', { phone: `***${phone.slice(-4)}` });
+        window.updatePaymentButtonState();
       });
     }
-
-    // Use contact phone button - populate from booking details
-    const useContactPhoneBtn = document.getElementById('use-contact-phone');
-    if (useContactPhoneBtn) {
-      useContactPhoneBtn.addEventListener('click', () => {
-        try {
-          const booking = JSON.parse(localStorage.getItem('bintiBooking') || '{}');
-          if (booking.phone) {
-            document.getElementById('mpesa-phone').value = booking.phone;
-            alert('Phone number populated: ' + booking.phone);
-            // Clear error when populated
-            const mpesaError = document.getElementById('mpesa-phone-error');
-            if (mpesaError) mpesaError.style.display = 'none';
-            // Trigger button state update
-            window.updatePaymentButtonState();
-          } else {
-            alert('No contact phone number found. Please enter your M-Pesa phone number manually.');
-          }
-        } catch (e) {
-          console.error('Error loading phone number:', e);
-          alert('Error loading phone number. Please enter manually.');
+    
+    if (mpesaCancelBtn) {
+      mpesaCancelBtn.addEventListener('click', () => {
+        // Deselect M-Pesa and hide modal
+        document.getElementById('pesapal-option').checked = true;
+        if (mpesaModal) mpesaModal.style.display = 'none';
+        mpesaPhoneInput.value = '';
+        const mpesaError = document.getElementById('mpesa-phone-error');
+        if (mpesaError) mpesaError.style.display = 'none';
+        // Trigger payment method change
+        document.getElementById('pesapal-option').dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+    
+    // Allow Enter key to confirm in modal
+    if (mpesaPhoneInput) {
+      mpesaPhoneInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          mpesaConfirmBtn?.click();
         }
       });
     }
     
+    // Close modal when clicking outside (on backdrop)
+    if (mpesaModal) {
+      mpesaModal.addEventListener('click', (e) => {
+        if (e.target === mpesaModal) {
+          mpesaCancelBtn?.click();
+        }
+      });
+    }
+
+
+
     // Attach click handler to "Proceed to Payment" button
     const paymentButton = q('#pay-now-btn');
     if (paymentButton) {
       paymentButton.addEventListener('click', (e) => {
-        console.log('Pay button clicked');
+        log.info('CHECKOUT', 'Pay button clicked');
         // Prevent default and check disabled state before proceeding
         if (paymentButton.disabled) {
-          console.log('Payment button is disabled - blocking click');
+          log.warn('CHECKOUT', 'Payment button is disabled - blocking click');
           e.preventDefault();
           e.stopPropagation();
           alert('Please accept the Terms and Conditions before proceeding with payment.');
@@ -1260,7 +1809,7 @@
         }
         // Also validate terms checkbox directly
         if (!termsCheckbox.checked) {
-          console.log('Terms not accepted - blocking payment');
+          log.warn('CHECKOUT', 'Terms not accepted - blocking payment');
           e.preventDefault();
           e.stopPropagation();
           alert('Please accept the Terms and Conditions before proceeding with payment.');
@@ -1268,32 +1817,32 @@
         }
         window.proceedToPayment();
       });
-      console.log('Pay button listener attached');
+      log.info('CHECKOUT', 'Pay button listener attached');
     } else {
-      console.log('Pay button not found on page');
+      log.warn('CHECKOUT', 'Pay button not found on page');
     }
     
     // Attach click handler to "Clear Booking" button
     const clearBookingBtn = q('#clear-booking-btn');
     if (clearBookingBtn) {
-      console.log('[BUTTON SETUP] Attaching listener to #clear-booking-btn');
+      log.info('CHECKOUT', 'Attaching listener to #clear-booking-btn');
       clearBookingBtn.addEventListener('click', (e) => {
-        console.log('[CLEAR BTN CLICKED] Button was clicked!');
+        log.info('CHECKOUT', 'Clear button clicked');
         e.preventDefault();
         e.stopPropagation();
         if (typeof window.clearBooking === 'function') {
-          console.log('[CLEAR BTN CLICKED] Calling window.clearBooking()');
+          log.info('CHECKOUT', 'Calling window.clearBooking()');
           window.clearBooking();
         } else {
-          console.error('[CLEAR BTN CLICKED] window.clearBooking is not a function!');
+          log.error('CHECKOUT', 'window.clearBooking is not a function!');
         }
       });
-      console.log('[BUTTON SETUP] Listener attached. Button state - disabled:', clearBookingBtn.disabled, 'classes:', clearBookingBtn.className);
+      log.info('CHECKOUT', 'Listener attached to clear button. Button state - disabled:', clearBookingBtn.disabled);
     } else {
-      console.error('[BUTTON SETUP] ERROR: #clear-booking-btn not found on page!');
+      log.error('CHECKOUT', 'ERROR: #clear-booking-btn not found on page!');
     }
     
-    console.log('Checkout page initialized - all listeners attached');
+    log.info('CHECKOUT', 'Checkout page initialized - all listeners attached');
   });
 
   // --- Contact Form Handler

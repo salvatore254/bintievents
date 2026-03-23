@@ -99,16 +99,24 @@
 
           <!-- Selected Package Display -->
           <div id="package-section" class="form-section" style="display: none; background: linear-gradient(135deg, rgba(120, 81, 169, 0.1), rgba(212, 175, 55, 0.1)); border: 2px solid rgba(120, 81, 169, 0.3); border-radius: 8px; padding: 20px;">
-            <h3 style="color: #7851A9; margin-top: 0;"><i class="fas fa-gift"></i> Selected Package</h3>
+            <h3 style="color: #7851A9; margin-top: 0;"><i class="fas fa-gift"></i> Your Selected Package</h3>
             <div style="background: #fff; padding: 16px; border-radius: 8px; border-left: 4px solid #D4AF37;">
               <p style="margin: 0 0 8px 0; color: #5A4A5F;"><strong>Package:</strong> <span id="selected-package-name" style="color: #7851A9; font-size: 1.1rem; font-weight: 600;"></span></p>
-              <p style="margin: 0; color: #5A4A5F; font-size: 0.9rem;"><i class="fas fa-info-circle" style="color: #7851A9; margin-right: 6px;"></i>Customize your tent and add-ons below, or <a href="privatepackages.html" style="color: #7851A9; text-decoration: underline;">change your package</a></p>
+              <p style="margin: 8px 0 0 0; color: #5A4A5F; font-size: 0.9rem;"><i class="fas fa-info-circle" style="color: #7851A9; margin-right: 6px;"></i>This package comes with pre-selected tent and add-ons.</p>
+              <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="customize-package-btn" class="btn-secondary" style="background: #7851A9; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                  <i class="fas fa-edit"></i> Customize Tent & Add-ons
+                </button>
+                <a href="privatepackages.html" class="btn-secondary" style="background: #999; color: white; padding: 8px 16px; border-radius: 6px; border: none; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center;">
+                  <i class="fas fa-exchange-alt"></i> Change Package
+                </a>
+              </div>
             </div>
           </div>
 
-          <!-- Tent Selection Section -->
-          <div class="form-section">
-            <h3><i class="fas fa-campground"></i> Tent Selection</h3>
+          <!-- Tent Selection Section - Hidden by default, shows when user wants to customize -->
+          <div id="tent-section" class="form-section" style="display: none;">
+            <h3><i class="fas fa-campground"></i> Customize Tent</h3>
 
             <div class="form-group">
               <label for="tent-type">Choose Tent Type *</label>
@@ -123,6 +131,16 @@
                 <i class="fas fa-chevron-down"></i>
               </div>
             </div>
+
+            <!-- Tent Configurations List -->
+            <div id="tent-configurations" style="margin-top: 20px;">
+              <!-- Tent configs will be added here dynamically -->
+            </div>
+
+            <!-- Button to add tent config -->
+            <button type="button" id="add-tent-config-btn" class="btn-secondary" style="background: #7851A9; color: white; padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; margin-top: 10px; display: none;">
+              <i class="fas fa-plus"></i> Add This Tent
+            </button>
 
             <!-- Stretch Tent Options -->
             <div id="stretch-options" class="conditional-section">
@@ -166,6 +184,16 @@
                     <span class="color-dot" style="background: #FFD700;"></span>
                     <span>Yellow</span>
                   </label>
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="red">
+                    <span class="color-dot" style="background: #DC143C;"></span>
+                    <span>Red</span>
+                  </label>
+                  <label class="color-option">
+                    <input type="radio" name="cheese_color_picker" value="black">
+                    <span class="color-dot" style="background: #000000; border: 2px solid #ccc;"></span>
+                    <span>Black</span>
+                  </label>
                 </div>
                 <select id="cheese-color" name="cheese_color" style="display:none;">
                   <option value="">-- Select color --</option>
@@ -173,6 +201,8 @@
                   <option value="blue">Blue</option>
                   <option value="pink">Pink</option>
                   <option value="yellow">Yellow</option>
+                  <option value="red">Red</option>
+                  <option value="black">Black</option>
                 </select>
               </div>
             </div>
@@ -191,6 +221,8 @@
                 </div>
               </div>
             </div>
+
+            <!-- B-Line has fixed pricing, no options needed -->
           </div>
 
           <!-- Add-ons Section -->
@@ -287,14 +319,26 @@
             </div>
           </div>
 
-          <!-- Venue Section -->
+          <!-- Set Up Location & Date/Time Section -->
           <div class="form-section">
-            <h3><i class="fas fa-map-marker-alt"></i> Venue Location</h3>
+            <h3><i class="fas fa-calendar-alt"></i> Set Up Location & Date</h3>
             
             <div class="form-group">
-              <label for="venue">Event Venue *</label>
+              <label for="venue">Event Venue/Location *</label>
               <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa" required>
               <small>Type your location for accurate transport pricing</small>
+            </div>
+
+            <div class="form-group">
+              <label for="event-date">Event Date *</label>
+              <input id="event-date" name="event_date" type="date" required>
+              <small>Select the date for your event</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setup-time">Setup Time *</label>
+              <input id="setup-time" name="setup_time" type="time" required>
+              <small>What time should we set up?</small>
             </div>
           </div>
 
