@@ -486,6 +486,7 @@
     // Function to manage tent section visibility based on form details
     function updateTentSectionVisibility() {
       const tentSection = q('#tent-section');
+      const tentSectionNotice = q('#tent-section-notice');
       const packageSection = q('#package-section');
       const fullnameInput = q('#fullname');
       const phoneInput = q('#phone');
@@ -504,16 +505,19 @@
       const hasPhone = phoneInput && phoneInput.value && phoneInput.value.trim();
       const hasEmail = emailInput && emailInput.value && emailInput.value.trim();
       
-      // Show tent section only when all details are filled
+      // Always show tent section in tent-flow mode, but with notice when details incomplete
+      tentSection.style.display = 'block';
+      
       if (hasFullname && hasPhone && hasEmail) {
-        tentSection.style.display = 'block';
-        log.info('BOOKING', 'Tent section shown - all details filled');
+        // All details filled - enable tent selection and hide notice
+        if (tentSectionNotice) tentSectionNotice.style.display = 'none';
+        if (tentTypeEl) tentTypeEl.disabled = false;
+        log.info('BOOKING', 'Tent section enabled - all details filled');
       } else {
-        tentSection.style.display = 'none';
-        // Clear tent selection when hiding tent section
-        if (tentTypeEl) tentTypeEl.value = '';
-        showConditional();
-        log.info('BOOKING', 'Tent section hidden - incomplete details');
+        // Details missing - show notice and disable tent selection
+        if (tentSectionNotice) tentSectionNotice.style.display = 'block';
+        if (tentTypeEl) tentTypeEl.disabled = true;
+        log.info('BOOKING', 'Tent section disabled - incomplete details');
       }
     }
 
@@ -906,6 +910,9 @@
       // IMPORTANT: Refresh summary after pre-fill so it displays correct data
       setTimeout(() => updateSummary(), 100);
     }
+
+    // Also call updateTentSectionVisibility initially to show tent section if form fields are filled
+    updateTentSectionVisibility();
 
     // Submit handler - validate based on flow type
     form.addEventListener('submit', (e) => {
@@ -1312,55 +1319,59 @@
     
     // If button is disabled, don't allow proceed
     if (q('#pay-now-btn')?.disabled) {
-      log.warn('PAYMENT', 'Payment button is disabled - terms not accepted');
-      alert('Please accept the Terms and Conditions before proceeding with payment.');
+      log.warn('PAYMENT', 'Payment button is disabled - validation failed');
       return false;
     }
     
-    // Terms accepted - proceed with payment
+    // Get payment method FIRST
+    const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
+    
+    // If M-Pesa is selected, show the M-Pesa phone modal and wait for user input
+    if (paymentMethod === 'mpesa') {
+      const mpesaModal = document.getElementById('mpesa-phone-modal');
+      const mpesaPhoneInput = document.getElementById('mpesa-phone');
+      
+      if (mpesaModal) {
+        // Show the modal for user to enter/confirm phone number
+        mpesaModal.style.display = 'flex';
+        if (mpesaPhoneInput) {
+          mpesaPhoneInput.focus();
+        }
+        log.info('PAYMENT', 'M-Pesa phone modal shown - waiting for user input');
+        return false; // Don't proceed until modal is confirmed
+      }
+    }
+    
+    // For non-M-Pesa payment methods, or M-Pesa if modal not available, proceed directly
+    window.proceedToPaymentAfterModal();
+    return false;
+  };
+
+  /**
+   * Proceed with payment after M-Pesa phone modal has been confirmed
+   * This function does the actual payment processing
+   */
+  window.proceedToPaymentAfterModal = function() {
+    log.info('PAYMENT', 'proceedToPaymentAfterModal called');
+    
     const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
     const paymentAmount = q('input[name="payment-amount"]:checked')?.value || 'deposit';
     const booking = safeGetItem('bintiBooking') || {};
-    
-    log.info('PAYMENT', 'Payment form values', { paymentMethod, paymentAmount, booking });
     
     // Calculate payment amount
     const totalAmount = booking.total || 0;
     const depositAmount = Math.round(totalAmount * 0.8);
     const amountToPay = paymentAmount === 'deposit' ? depositAmount : totalAmount;
     
-    log.info('PAYMENT', 'Amount calculation', { totalAmount, depositAmount, amountToPay });
+    log.info('PAYMENT', 'Proceeding with payment after modal', { paymentMethod, amountToPay });
     
-    if (!booking.fullname || !booking.phone || !booking.email) {
-      log.error('PAYMENT', 'Booking information incomplete', booking);
-      alert('Booking information is incomplete. Please go back and complete your booking details.');
-      return false;
-    }
-
-    // Validate M-Pesa phone if M-Pesa is selected
+    // Get M-Pesa phone from input (already validated)
     let mpesaPhone = '';
     if (paymentMethod === 'mpesa') {
       mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
-      log.info('PAYMENT', 'M-Pesa phone validation', { mpesaPhone });
-      
-      if (!mpesaPhone) {
-        log.warn('PAYMENT', 'M-Pesa phone empty');
-        alert('Please enter your M-Pesa registered phone number.');
-        q('#mpesa-phone')?.focus();
-        return false;
-      }
-      
-      // Use Kenya-specific validation
-      if (!validateKenyaPhone(mpesaPhone)) {
-        log.error('PAYMENT', 'M-Pesa phone invalid format', mpesaPhone);
-        alert('Please enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)');
-        q('#mpesa-phone')?.focus();
-        return false;
-      }
-      log.info('PAYMENT', 'M-Pesa phone valid');
     }
     
-    // Create payment request with terms acceptance and payment amount choice
+    // Create payment request
     const paymentData = {
       fullname: booking.fullname,
       phone: booking.phone,
@@ -1503,7 +1514,8 @@
     }
   };
 
-  // --- Update payment button state based on terms checkbox and M-Pesa phone
+  // --- Update payment button state based on terms checkbox only
+  // M-Pesa phone validation happens in the modal after button is clicked
   window.updatePaymentButtonState = function() {
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
@@ -1516,27 +1528,18 @@
       return;
     }
     
-    const paymentMethod = q('input[name="payment-method"]:checked')?.value || 'mpesa';
-    const mpesaPhone = q('#mpesa-phone')?.value?.trim() || '';
-    
-    // Check if all conditions are met for enabling button
+    // Button is enabled only if terms are accepted
     const termsAccepted = termsCheckbox.checked;
-    const mpesaPhoneFilled = paymentMethod === 'mpesa' ? mpesaPhone.length > 0 : true;
-    const shouldEnable = termsAccepted && mpesaPhoneFilled;
     
     log.info('CHECKOUT', 'Button state check', {
       checkboxElement: termsCheckbox.id,
       checkboxChecked: termsAccepted,
-      checkboxDOMChecked: termsCheckbox.checked,
-      paymentMethod,
-      mpesaPhone: mpesaPhone ? `***${mpesaPhone.slice(-4)}` : 'not provided',
-      mpesaPhoneFilled,
-      shouldEnable
+      shouldEnable: termsAccepted
     });
     
     const icon = payButton.querySelector('i');
     
-    if (shouldEnable) {
+    if (termsAccepted) {
       // Enable button
       payButton.disabled = false;
       payButton.style.opacity = '1';
@@ -1545,7 +1548,7 @@
       if (icon) {
         icon.className = 'fas fa-unlock';
       }
-      log.info('CHECKOUT', '✓ Button ENABLED - all conditions met');
+      log.info('CHECKOUT', '✓ Button ENABLED - terms accepted');
     } else {
       // Disable button
       payButton.disabled = true;
@@ -1555,10 +1558,7 @@
       if (icon) {
         icon.className = 'fas fa-lock';
       }
-      log.warn('CHECKOUT', '✗ Button DISABLED - missing:', {
-        termsAccepted: termsAccepted ? '✓' : '✗ NOT CHECKED',
-        mpesaPhoneFilled: mpesaPhoneFilled ? '✓' : '✗ NO PHONE'
-      });
+      log.warn('CHECKOUT', '✗ Button DISABLED - terms not accepted');
     }
   };
 
@@ -1665,17 +1665,7 @@
       buttonDisabled: payButton.disabled
     });
     
-    // Show M-Pesa modal if M-Pesa is pre-selected (on initial page load)
-    const mpesaOption = document.getElementById('mpesa-option');
-    if (mpesaOption && mpesaOption.checked) {
-      const mpesaModal = document.getElementById('mpesa-phone-modal');
-      if (mpesaModal) {
-        setTimeout(() => {
-          mpesaModal.style.display = 'flex';
-          document.getElementById('mpesa-phone')?.focus();
-        }, 500);
-      }
-    }
+    // Don't show M-Pesa modal on page load - only show when user clicks "Proceed to Payment"
     
     // Add change listener to terms checkbox
     termsCheckbox.addEventListener('change', () => {
@@ -1704,21 +1694,13 @@
       }, 50);
     });
     
-    // Show/hide M-Pesa phone modal based on payment method selection
+    // Handle payment method changes - just update button state, don't show modal
     document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         log.info('CHECKOUT', 'Payment method changed', { method: e.target.value });
         
-        if (e.target.value === 'mpesa') {
-          // Show modal when M-Pesa is selected
-          const modal = document.getElementById('mpesa-phone-modal');
-          if (modal) {
-            modal.style.display = 'flex';
-            // Focus on input
-            setTimeout(() => document.getElementById('mpesa-phone')?.focus(), 100);
-          }
-        } else {
-          // Close modal and clear when switching away
+        // When switching away from M-Pesa, clear the modal and phone input
+        if (e.target.value !== 'mpesa') {
           const modal = document.getElementById('mpesa-phone-modal');
           if (modal) modal.style.display = 'none';
           const mpesaPhoneInput = document.getElementById('mpesa-phone');
@@ -1753,24 +1735,27 @@
           return;
         }
         
-        // Valid phone - hide error, close modal, update button state
+        // Valid phone - hide error, close modal, and proceed with payment
         if (mpesaError) mpesaError.style.display = 'none';
         if (mpesaModal) mpesaModal.style.display = 'none';
         log.info('CHECKOUT', 'M-Pesa phone confirmed', { phone: `***${phone.slice(-4)}` });
         window.updatePaymentButtonState();
+        
+        // Now proceed with the payment after modal is closed
+        setTimeout(() => {
+          window.proceedToPaymentAfterModal();
+        }, 100);
       });
     }
     
     if (mpesaCancelBtn) {
       mpesaCancelBtn.addEventListener('click', () => {
-        // Deselect M-Pesa and hide modal
-        document.getElementById('pesapal-option').checked = true;
+        // Hide modal and let user change payment method or try again
         if (mpesaModal) mpesaModal.style.display = 'none';
         mpesaPhoneInput.value = '';
         const mpesaError = document.getElementById('mpesa-phone-error');
         if (mpesaError) mpesaError.style.display = 'none';
-        // Trigger payment method change
-        document.getElementById('pesapal-option').dispatchEvent(new Event('change', { bubbles: true }));
+        log.info('CHECKOUT', 'M-Pesa phone modal cancelled');
       });
     }
     
