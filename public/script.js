@@ -329,10 +329,52 @@
     const venueEl = q('#venue');
     const eventDateEl = q('#event-date');
     const setupTimeEl = q('#setup-time');
+    const additionalInfoEl = q('#additional-info');
     const summaryBox = q('#booking-summary');
     const siteVisitBtn = q('#site-visit-btn');
     const tentConfigsContainer = q('#tent-configurations');
     const addTentConfigBtn = q('#add-tent-config-btn');
+
+    // Character counter setup for additional info
+    const charCountEl = q('#char-count');
+    const MAX_CHARS = 500;
+    
+    if (additionalInfoEl && charCountEl) {
+      // Initialize counter display
+      charCountEl.textContent = `0/${MAX_CHARS}`;
+      charCountEl.className = 'char-counter normal';
+      
+      // Add input event listener for real-time counting
+      additionalInfoEl.addEventListener('input', () => {
+        const currentLength = additionalInfoEl.value.length;
+        
+        // Prevent exceeding max length
+        if (currentLength > MAX_CHARS) {
+          additionalInfoEl.value = additionalInfoEl.value.substring(0, MAX_CHARS);
+          return;
+        }
+        
+        // Update counter display
+        charCountEl.textContent = `${currentLength}/${MAX_CHARS}`;
+        
+        // Change color based on character count
+        if (currentLength <= 250) {
+          // Normal state - up to 250 chars
+          charCountEl.className = 'char-counter normal';
+        } else if (currentLength <= 400) {
+          // Warning state - 250-400 chars (gold)
+          charCountEl.className = 'char-counter warning';
+        } else {
+          // Danger state - 400-500 chars (rose/pink)
+          charCountEl.className = 'char-counter danger';
+        }
+        
+        // Trigger summary update on input
+        updateSummary();
+      });
+      
+      log.info('BOOKING', 'Character counter initialized for additional info', { MAX_CHARS });
+    }
 
     // Log element references for debugging
     log.info('BOOKING', 'Form elements found', {
@@ -1713,6 +1755,18 @@
       radio.addEventListener('change', (e) => {
         log.info('CHECKOUT', 'Payment method changed', { method: e.target.value });
         
+        // Update visual state - remove active class from all payment options
+        document.querySelectorAll('.payment-option').forEach(option => {
+          option.classList.remove('active');
+        });
+        
+        // Add active class to the selected payment option
+        const selectedPaymentOption = e.target.closest('.payment-option');
+        if (selectedPaymentOption) {
+          selectedPaymentOption.classList.add('active');
+          log.info('CHECKOUT', 'Updated visual state for payment method', { element: e.target.value });
+        }
+        
         // When switching away from M-Pesa, clear the modal and phone input
         if (e.target.value !== 'mpesa') {
           const modal = document.getElementById('mpesa-phone-modal');
@@ -1964,4 +2018,89 @@
     
     log.info('CONTACT', 'Contact form event listeners attached');
   });
+
+  // --- Pesapal iframe loader
+  window.loadPesapalIframe = function(bookingId) {
+    const container = document.getElementById('pesapal-container');
+    if (!container) {
+      log.error('PAYMENT', 'Pesapal container not found (#pesapal-container)');
+      alert('Error: Payment container not found on page');
+      return;
+    }
+    
+    // Show loading state
+    container.style.display = 'block';
+    container.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #0066CC;"></i><p>Loading secure payment window…</p></div>';
+    
+    // Get booking data from localStorage
+    const booking = safeGetItem('bintiBooking') || {};
+    const paymentAmount = document.querySelector('input[name="payment-amount"]:checked')?.value || 'deposit';
+    const totalAmount = booking.total || 0;
+    const depositAmount = Math.round(totalAmount * 0.8);
+    const amountToPay = paymentAmount === 'deposit' ? depositAmount : totalAmount;
+    
+    // Prepare payment data for Pesapal
+    const pesapalPaymentData = {
+      amount: amountToPay,
+      email: booking.email,
+      phone: booking.phone,
+      firstName: booking.fullname ? booking.fullname.split(' ')[0] : 'Customer',
+      lastName: booking.fullname ? booking.fullname.split(' ').slice(1).join(' ') : 'Name',
+      orderRef: bookingId || booking.id || 'BOOKING_' + Date.now(),
+      description: `Binti Events Booking - ${booking.fullname || 'Guest'}`
+    };
+    
+    log.info('PAYMENT', 'Creating Pesapal payment order', { 
+      amount: pesapalPaymentData.amount,
+      orderRef: pesapalPaymentData.orderRef
+    });
+    
+    // Call Pesapal payment creation endpoint
+    apiCall(`${API_BASE_URL}/payments/pesapal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pesapalPaymentData),
+      timeout: API_TIMEOUT
+    })
+      .then(data => {
+        log.info('PAYMENT', 'Pesapal order created', data);
+        
+        if (!data.success || !data.iframe_url) {
+          throw new Error(data.message || 'Failed to create payment order');
+        }
+        
+        // Create and load the iframe
+        const iframe = document.createElement('iframe');
+        iframe.id = 'pesapal-payment-iframe';
+        iframe.width = '100%';
+        iframe.height = '700';
+        iframe.frameBorder = '0';
+        iframe.src = data.iframe_url;
+        iframe.style.marginTop = '20px';
+        
+        container.innerHTML = '';
+        container.appendChild(iframe);
+        
+        // Scroll to payment
+        setTimeout(() => {
+          container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+        
+        log.info('PAYMENT', 'Pesapal iframe loaded successfully');
+      })
+      .catch(err => {
+        log.error('PAYMENT', 'Pesapal iframe loading failed', err);
+        container.innerHTML = `
+          <div style="padding: 40px; background: #f8d7da; border-radius: 8px; border-left: 4px solid #f5c6cb;">
+            <p style="color: #721c24; font-weight: 600; margin: 0 0 12px 0;">
+              <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i> Payment Error
+            </p>
+            <p style="color: #721c24; margin: 0;">${err.message || 'Failed to load payment window. Please try again.'}</p>
+            <button type="button" onclick="window.location.reload()" style="margin-top: 16px; padding: 10px 20px; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              Try Again
+            </button>
+          </div>
+        `;
+      });
+  };
 })();
