@@ -544,7 +544,8 @@
           venue: venueEl ? venueEl.value : '',
           eventDate: eventDateEl ? eventDateEl.value : '',
           setupTime: setupTimeEl ? setupTimeEl.value : '',
-          sections: aframeSectionsEl ? aframeSectionsEl.value : '1'
+          sections: aframeSectionsEl ? aframeSectionsEl.value : '1',
+          additionalInfo: q('#additional-info') ? q('#additional-info').value.trim() : ''
         };
 
         log.info('BOOKING', 'Form values updated', values);
@@ -724,6 +725,10 @@
           const bookingSave = {
             bookingFlow: isPackageFlow ? 'package' : 'tent',
             tentConfigs: tentConfigs, // Always save tent configs if they exist
+            tentType: values.tentType,
+            stretchSize: values.stretchSize,
+            cheeseColor: values.cheeseColor,
+            aframeSections: values.aframeSections,
             tentConfigurations: tentConfigs && tentConfigs.length > 0 ? tentConfigs.map(cfg => getTentConfigDisplay(cfg)).join(' + ') : '',
             lighting: values.lighting,
             transport: values.transport,
@@ -733,8 +738,11 @@
             stagepodium: values.stagepodium,
             welcomesigns: values.welcomesigns,
             venue: values.venue,
+            location: values.venue, // Duplicate for backend compatibility
             eventDate: values.eventDate,
             setupTime: values.setupTime,
+            sections: values.sections, // Add sections field
+            additionalInfo: values.additionalInfo,
             fullname: q('#fullname') ? q('#fullname').value : '',
             phone: q('#phone') ? q('#phone').value : '',
             email: q('#email') ? q('#email').value : '',
@@ -1161,7 +1169,7 @@
       // Include booking details for confirmation email
       fullName: booking.fullname || booking.fullName || 'Guest',
       email: booking.email || '',
-      phone: booking.phone || '',
+      contactPhone: booking.phone || '',
       venue: booking.venue || '',
       eventDate: booking.eventDate || '',
       setupTime: booking.setupTime || '',
@@ -1377,6 +1385,7 @@
       phone: booking.phone,
       email: booking.email,
       venue: booking.venue,
+      location: booking.location || booking.venue, // Backend compatibility
       tentType: booking.tentType || 'none',
       tentConfigs: booking.tentConfigs || [],
       packageName: booking.selectedPackage || booking.packageName,
@@ -1384,6 +1393,7 @@
       mpesaPhone: mpesaPhone ? formatPhoneDisplay(mpesaPhone) : '',
       eventDate: booking.eventDate,
       setupTime: booking.setupTime,
+      sections: booking.sections || booking.aframeSections, // Include sections
       lighting: booking.lighting,
       transport: booking.transport,
       decor: booking.decor,
@@ -1391,12 +1401,15 @@
       dancefloor: booking.dancefloor,
       stagepodium: booking.stagepodium,
       welcomesigns: booking.welcomesigns,
+      additionalInfo: booking.additionalInfo || '',
       bookingDetails: {
         tentType: booking.tentType,
         stretchSize: booking.stretchSize,
         cheeseColor: booking.cheeseColor,
         aframeSections: booking.aframeSections,
         venue: booking.venue,
+        location: booking.location || booking.venue,
+        sections: booking.sections || booking.aframeSections,
         lighting: booking.lighting,
         transport: booking.transport,
         decor: booking.decor,
@@ -1404,7 +1417,8 @@
         dancefloor: booking.dancefloor,
         stagepodium: booking.stagepodium,
         welcomesigns: booking.welcomesigns,
-        total: booking.total
+        total: booking.total,
+        additionalInfo: booking.additionalInfo || ''
       },
       termsAccepted: true,
       termsAcceptedAt: new Date().toISOString(),
