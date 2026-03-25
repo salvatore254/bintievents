@@ -68,8 +68,11 @@
       <nav class="main-nav">
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
-          <li><a href="bookings.html">Bookings</a></li>
-          <li><a href="checkout.html" class="active">Checkout</a></li>
+          <li><a href="privatepackages.html">Private Packages</a></li>
+          <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
         </ul>
       </nav>
       <button id="hamburger" class="hamburger">
@@ -237,8 +240,29 @@
       </div>
     </div>
 
-    <!-- Pesapal Container (hidden by default) -->
-    <div id="pesapal-container" class="iframe-container" style="display: none; margin-top: 30px;"></div>
+    <!-- Pesapal Modal (hidden by default) -->
+    <div id="pesapal-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+      <div style="background: white; border-radius: 16px; width: 100%; max-width: 900px; height: auto; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);">
+        <!-- Modal Header -->
+        <div style="padding: 20px; border-bottom: 1px solid #E5D5F0; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="margin: 0 0 4px 0; color: #4A7A6B; font-size: 1.3rem; font-weight: 600;">
+              <i class="fas fa-credit-card" style="color: #0066CC; margin-right: 10px;"></i> Pesapal Payment
+            </h3>
+            <p style="margin: 0; color: #888; font-size: 0.9rem;">Complete your secure payment</p>
+          </div>
+          <button type="button" id="pesapal-modal-close" onclick="document.getElementById('pesapal-modal').style.display='none';" style="background: none; border: none; font-size: 1.8rem; color: #999; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <!-- Modal Body (iframe container) -->
+        <div id="pesapal-container" style="flex: 1; overflow: auto; padding: 20px;">
+          <div class="message-container" style="text-align: center; padding: 40px 20px;">
+            <p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- M-Pesa Phone Modal -->
     <div id="mpesa-phone-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center;">

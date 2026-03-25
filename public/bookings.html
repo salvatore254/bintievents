@@ -29,9 +29,10 @@
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
           <li><a href="about.html">About</a></li>
-          <li><a href="tents.html">Tents</a></li>
           <li><a href="privatepackages.html">Private Packages</a></li>
           <li><a href="corporatepackages.html">Corporate Packages</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="blog.html">Blog</a></li>
           <li><a href="gallery.html">Gallery</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
@@ -324,14 +325,30 @@
             </div>
           </div>
 
+          <!-- Additional Information Section (Optional) -->
+          <div class="form-section additional-info-section">
+            <h3><i class="fas fa-lightbulb"></i> Additional Information <span class="optional-label">(Optional)</span></h3>
+            <p class="section-description">Have special requests, specific vision details, or additional notes about your event? Share them here and our team will take them into consideration.</p>
+            
+            <div class="form-group">
+              <label for="additional-info"><i class="fas fa-pen-fancy"></i> Your Notes</label>
+              <textarea id="additional-info" name="additional_info" placeholder="E.g., We have a color scheme in mind... We want a specific layout... We have accessibility needs... We're planning intimate gathering with close family..."></textarea>
+              
+              <div class="char-counter-info">
+                <span class="char-counter" id="char-count">0/500</span>
+                <span class="char-info"><i class="fas fa-check-circle"></i> Characters remaining</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Set Up Location & Date/Time Section -->
           <div class="form-section">
             <h3><i class="fas fa-calendar-alt"></i> Set Up Location & Date</h3>
             
             <div class="form-group">
-              <label for="venue">Event Venue/Location *</label>
+              <label for="venue">Event Venue/Location * <span style="color: #d9534f; font-weight: bold; font-size: 1.1em;">Required for Transport</span></label>
               <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa" required>
-              <small>Type your location for accurate transport pricing</small>
+              <small><i class="fas fa-map-pin"></i> Type your location for accurate transport pricing (used for location/zone identification)</small>
             </div>
 
             <div class="form-group">
@@ -448,6 +465,36 @@
         document.getElementById('cheese-color').dispatchEvent(event);
       });
     });
+
+    // Character limit for additional information field
+    const additionalInfoField = document.getElementById('additional-info');
+    const maxChars = 500;
+
+    if (additionalInfoField) {
+      // Enforce character limit on input
+      additionalInfoField.addEventListener('input', (e) => {
+        if (e.target.value.length > maxChars) {
+          e.target.value = e.target.value.substring(0, maxChars);
+        }
+      });
+
+      // Update character count display
+      additionalInfoField.addEventListener('input', (e) => {
+        const charCount = e.target.value.length;
+        const smallText = additionalInfoField.parentElement.querySelector('small');
+        if (smallText) {
+          smallText.innerHTML = `<i class="fas fa-info-circle"></i> ${charCount} / ${maxChars} characters`;
+          // Change color as user approaches limit
+          if (charCount > 400) {
+            smallText.style.color = '#C85B7B';
+          } else if (charCount > 350) {
+            smallText.style.color = '#D4AF37';
+          } else {
+            smallText.style.color = '#8A6B7C';
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>

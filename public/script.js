@@ -1327,10 +1327,14 @@
 
   // --- Pesapal iframe helper with proper error handling
   window.loadPesapalIframe = function(bookingId) {
-    const container = q('#pesapal-container') || q('#pesapalFrameContainer') || document.body;
-    if (!container) return;
+    const modal = q('#pesapal-modal');
+    const container = q('#pesapal-container');
+    if (!modal || !container) return;
     
-    container.innerHTML = '<div class="message-container"><p><i class="fas fa-spinner fa-spin"></i> Loading secure payment window…</p></div>';
+    // Show the modal
+    modal.style.display = 'flex';
+    
+    container.innerHTML = '<div class="message-container" style="text-align: center; padding: 40px 20px;"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p></div>';
     
     // Fetch the secure iframe URL from backend
     apiCall(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`, {
@@ -1342,16 +1346,16 @@
         }
         const iframe = document.createElement('iframe');
         iframe.width = '100%';
-        iframe.height = '650';
+        iframe.height = '600';
         iframe.frameBorder = '0';
         iframe.src = data.iframeUrl;
         container.innerHTML = '';
         container.appendChild(iframe);
-        log.info('PAYMENT', 'Pesapal iframe loaded successfully');
+        log.info('PAYMENT', 'Pesapal iframe loaded successfully in modal');
       })
       .catch(err => {
         log.error('PAYMENT', 'Failed to load Pesapal iframe', err);
-        container.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${err.message || 'Failed to load payment window. Please try again.'}</p>`;
+        container.innerHTML = `<div style="text-align: center; padding: 40px 20px;"><p style="color: #d32f2f; font-size: 1rem;"><i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i><strong>Error:</strong> ${err.message || 'Failed to load payment window. Please try again.'}</p><button type="button" onclick="document.getElementById('pesapal-modal').style.display='none';" style="background: #7851A9; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 20px; font-weight: 600;">Close</button></div>`;
       });
   };
 
@@ -1390,10 +1394,20 @@
         log.info('PAYMENT', 'M-Pesa phone modal shown - waiting for user input');
         return false; // Don't proceed until modal is confirmed
       }
+    } else if (paymentMethod === 'pesapal') {
+      // If Pesapal is selected, show the Pesapal modal (shows loading, then iframe)
+      const pesapalModal = document.getElementById('pesapal-modal');
+      if (pesapalModal) {
+        // Show the modal with loading state
+        pesapalModal.style.display = 'flex';
+        log.info('PAYMENT', 'Pesapal modal shown - processing booking and loading iframe');
+        // Proceed with payment while modal is displaying
+        window.proceedToPaymentAfterModal();
+        return false;
+      }
     }
     
-    // For non-M-Pesa payment methods, or M-Pesa if modal not available, proceed directly
-    window.proceedToPaymentAfterModal();
+    // Fallback: proceed directly if no modal was shown
     return false;
   };
 
@@ -1852,15 +1866,9 @@
     if (paymentButton) {
       paymentButton.addEventListener('click', (e) => {
         log.info('CHECKOUT', 'Pay button clicked');
-        // Prevent default and check disabled state before proceeding
-        if (paymentButton.disabled) {
-          log.warn('CHECKOUT', 'Payment button is disabled - blocking click');
-          e.preventDefault();
-          e.stopPropagation();
-          alert('Please accept the Terms and Conditions before proceeding with payment.');
-          return false;
-        }
-        // Also validate terms checkbox directly
+        
+        // If button is properly disabled in DOM, this shouldn't even fire
+        // But as a safety check, verify terms are accepted
         if (!termsCheckbox.checked) {
           log.warn('CHECKOUT', 'Terms not accepted - blocking payment');
           e.preventDefault();
@@ -1868,6 +1876,8 @@
           alert('Please accept the Terms and Conditions before proceeding with payment.');
           return false;
         }
+        
+        // Call the payment handler
         window.proceedToPayment();
       });
       log.info('CHECKOUT', 'Pay button listener attached');
@@ -2020,87 +2030,4 @@
   });
 
   // --- Pesapal iframe loader
-  window.loadPesapalIframe = function(bookingId) {
-    const container = document.getElementById('pesapal-container');
-    if (!container) {
-      log.error('PAYMENT', 'Pesapal container not found (#pesapal-container)');
-      alert('Error: Payment container not found on page');
-      return;
-    }
-    
-    // Show loading state
-    container.style.display = 'block';
-    container.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #0066CC;"></i><p>Loading secure payment window…</p></div>';
-    
-    // Get booking data from localStorage
-    const booking = safeGetItem('bintiBooking') || {};
-    const paymentAmount = document.querySelector('input[name="payment-amount"]:checked')?.value || 'deposit';
-    const totalAmount = booking.total || 0;
-    const depositAmount = Math.round(totalAmount * 0.8);
-    const amountToPay = paymentAmount === 'deposit' ? depositAmount : totalAmount;
-    
-    // Prepare payment data for Pesapal
-    const pesapalPaymentData = {
-      amount: amountToPay,
-      email: booking.email,
-      phone: booking.phone,
-      firstName: booking.fullname ? booking.fullname.split(' ')[0] : 'Customer',
-      lastName: booking.fullname ? booking.fullname.split(' ').slice(1).join(' ') : 'Name',
-      orderRef: bookingId || booking.id || 'BOOKING_' + Date.now(),
-      description: `Binti Events Booking - ${booking.fullname || 'Guest'}`
-    };
-    
-    log.info('PAYMENT', 'Creating Pesapal payment order', { 
-      amount: pesapalPaymentData.amount,
-      orderRef: pesapalPaymentData.orderRef
-    });
-    
-    // Call Pesapal payment creation endpoint
-    apiCall(`${API_BASE_URL}/payments/pesapal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pesapalPaymentData),
-      timeout: API_TIMEOUT
-    })
-      .then(data => {
-        log.info('PAYMENT', 'Pesapal order created', data);
-        
-        if (!data.success || !data.iframe_url) {
-          throw new Error(data.message || 'Failed to create payment order');
-        }
-        
-        // Create and load the iframe
-        const iframe = document.createElement('iframe');
-        iframe.id = 'pesapal-payment-iframe';
-        iframe.width = '100%';
-        iframe.height = '700';
-        iframe.frameBorder = '0';
-        iframe.src = data.iframe_url;
-        iframe.style.marginTop = '20px';
-        
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        
-        // Scroll to payment
-        setTimeout(() => {
-          container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
-        
-        log.info('PAYMENT', 'Pesapal iframe loaded successfully');
-      })
-      .catch(err => {
-        log.error('PAYMENT', 'Pesapal iframe loading failed', err);
-        container.innerHTML = `
-          <div style="padding: 40px; background: #f8d7da; border-radius: 8px; border-left: 4px solid #f5c6cb;">
-            <p style="color: #721c24; font-weight: 600; margin: 0 0 12px 0;">
-              <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i> Payment Error
-            </p>
-            <p style="color: #721c24; margin: 0;">${err.message || 'Failed to load payment window. Please try again.'}</p>
-            <button type="button" onclick="window.location.reload()" style="margin-top: 16px; padding: 10px 20px; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              Try Again
-            </button>
-          </div>
-        `;
-      });
-  };
 })();
