@@ -19,8 +19,8 @@
       // Local development: backend is on port 5000
       window.API_BASE_URL = 'http://localhost:5000/api';
     } else {
-      // Production: use same origin (proxied through Vercel)
-      window.API_BASE_URL = window.location.origin + '/api';
+      // Production: use Railway backend URL
+      window.API_BASE_URL = 'https://binti-backend-production.up.railway.app/api';
     }
     console.log('API Base URL:', window.API_BASE_URL);
   </script>

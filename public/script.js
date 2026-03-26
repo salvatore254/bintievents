@@ -709,7 +709,7 @@
               html += `<p><strong>Tent cost:</strong> KES ${breakdown.tent.cost.toLocaleString()}</p>`;
             }
           } else if (!selectedPackage) {
-            html += `<p style="color: #ccc;"><em>🔔 Please select and add a tent to see pricing</em></p>`;
+            html += `<p style="color: #ccc;"><em> Please select and add a tent to see pricing</em></p>`;
           }
 
           // Lighting
