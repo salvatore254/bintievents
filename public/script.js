@@ -964,7 +964,7 @@
       transportVenueEl.addEventListener('input', updateSummary);
     }
     
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
@@ -1102,12 +1102,11 @@
           return;
         }
         
-        // Check event date and time (required for both flows)
-        const hasEventDate = eventDateEl && eventDateEl.value;
+        // Check setup time (required for both flows)
         const hasSetupTime = setupTimeEl && setupTimeEl.value;
-        if (!hasEventDate || !hasSetupTime) {
-          alert('Please select event date and setup time before proceeding.');
-          log.error('BOOKING', 'Form validation failed - missing date/time', { hasEventDate, hasSetupTime });
+        if (!hasSetupTime) {
+          alert('Please select setup time before proceeding.');
+          log.error('BOOKING', 'Form validation failed - missing setup time', { hasSetupTime });
           return;
         }
 
