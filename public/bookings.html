@@ -297,17 +297,6 @@
               </label>
 
               <label class="addon-card">
-                <input type="checkbox" id="transport">
-                <div class="addon-content">
-                  <div class="addon-icon"><i class="fas fa-truck"></i></div>
-                  <div class="addon-text">
-                    <strong>Transport</strong>
-                    <span class="transport-dynamic">Dynamic</span>
-                  </div>
-                </div>
-              </label>
-
-              <label class="addon-card">
                 <input type="checkbox" id="decor">
                 <div class="addon-content">
                   <div class="addon-icon"><i class="fas fa-sparkles"></i></div>
@@ -327,6 +316,37 @@
                   </div>
                 </div>
               </button>
+            </div>
+          </div>
+
+          <!-- Transport Options Section -->
+          <div class="form-section">
+            <h3><i class="fas fa-truck"></i> Transport Arrangement</h3>
+            <p class="section-description">Do you have your own transport for guests, or would you like us to arrange it?</p>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <div style="display: flex; gap: 30px; align-items: flex-start;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;">
+                  <input type="radio" name="transport_arrangement" id="transport-own" value="own" style="width: 18px; height: 18px; cursor: pointer;">
+                  <span style="font-weight: 500; color: #2C2C2C;">I have my own transport</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;">
+                  <input type="radio" name="transport_arrangement" id="transport-arrange" value="arrange" style="width: 18px; height: 18px; cursor: pointer;">
+                  <span style="font-weight: 500; color: #2C2C2C;">I need transport arrangement</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Transport Location Section (shown only when "need transport" is selected) -->
+            <div id="transport-location-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+              <div class="form-group">
+                <label for="transport-venue">Pickup Location/Venue *</label>
+                <input id="transport-venue" name="transport_venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa (Karen) OR Kisii" required>
+                <small><i class="fas fa-map-pin"></i> Enter your location so we can calculate accurate transport cost</small>
+              </div>
+              <div id="transport-cost-display" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 12px; display: none;">
+                <p style="margin: 0; color: #5A4A5F; font-size: 0.95rem;"><strong>Estimated Transport Cost:</strong> <span id="transport-cost-amount" style="color: #7851A9; font-weight: 700; font-size: 1.1rem;">KES 0</span></p>
+              </div>
             </div>
           </div>
 
@@ -351,9 +371,9 @@
             <h3><i class="fas fa-calendar-alt"></i> Set Up Location & Date</h3>
             
             <div class="form-group">
-              <label for="venue">Event Venue/Location * <span style="color: #d9534f; font-weight: bold; font-size: 1.1em;">Required for Transport</span></label>
+              <label for="venue">Event Venue/Location *</label>
               <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa" required>
-              <small><i class="fas fa-map-pin"></i> Type your location for accurate transport pricing (used for location/zone identification)</small>
+              <small><i class="fas fa-map-pin"></i> Type your location for accurate pricing</small>
             </div>
 
             <div class="form-group">

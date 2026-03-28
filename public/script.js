@@ -343,7 +343,10 @@
     const cheeseColorEl = q('#cheese-color');
     const aframeSectionsEl = q('#aframe-sections');
     const lightingEl = q('#ambient-lighting');
-    const transportEl = q('#transport');
+    const transportOwnEl = q('#transport-own');
+    const transportArrangeEl = q('#transport-arrange');
+    const transportVenueEl = q('#transport-venue');
+    const transportLocationSectionEl = q('#transport-location-section');
     const decorEl = q('#decor');
     const pasoundEl = q('#pasound');
     const dancefloorEl = q('#dancefloor');
@@ -622,6 +625,10 @@
 
     function updateSummary() {
       try {
+        // Determine transport arrangement status
+        const needsTransport = transportArrangeEl && transportArrangeEl.checked;
+        const transportVenue = (needsTransport && transportVenueEl) ? transportVenueEl.value.trim() : '';
+        
         const values = {
           tentType: tentTypeEl ? tentTypeEl.value : '',
           tentConfigs: tentConfigs,
@@ -629,7 +636,8 @@
           cheeseColor: cheeseColorEl ? cheeseColorEl.value : '',
           aframeSections: aframeSectionsEl ? aframeSectionsEl.value : '1',
           lighting: lightingEl && lightingEl.checked ? true : false,
-          transport: transportEl && transportEl.checked ? true : false,
+          transportArrangement: needsTransport ? 'arrange' : 'own',
+          transportVenue: transportVenue,
           decor: decorEl && decorEl.checked ? true : false,
           pasound: pasoundEl && pasoundEl.checked ? true : false,
           dancefloor: dancefloorEl && dancefloorEl.checked ? true : false,
@@ -679,12 +687,23 @@
         return;
       }
 
-      // GUARD: For transport, ensure location is provided
-      if (values.transport && !values.venue) {
-        log.warn('BOOKING', 'Transport checked but venue not entered - skipping API call');
+      // GUARD: For transport arrangement, ensure venue location is provided
+      if (needsTransport && !transportVenue) {
+        log.warn('BOOKING', 'Transport arrangement needed but venue not entered - skipping API call');
         if (summaryBox) {
           summaryBox.innerHTML = `<p style="color: #d9534f; padding: 15px; border-radius: 4px; background: #ffe6e6;">
-            <strong> Location Required:</strong> Please enter your venue location for transport pricing.
+            <strong>📍 Venue Required:</strong> Enter your venue location to calculate transport cost.
+          </p>`;
+        }
+        return;
+      }
+
+      // GUARD: For non-transport mode, ensure regular venue is provided
+      if (!needsTransport && !values.venue) {
+        log.warn('BOOKING', 'Venue location for event not entered - skipping API call');
+        if (summaryBox) {
+          summaryBox.innerHTML = `<p style="color: #d9534f; padding: 15px; border-radius: 4px; background: #ffe6e6;">
+            <strong>📍 Event Venue Required:</strong> Please enter your event location.
           </p>`;
         }
         return;
@@ -697,7 +716,8 @@
         tentConfigs: tentConfigs, 
         // Always send package info - backend will calculate only if present
         lighting: values.lighting ? 'yes' : 'no',
-        transport: values.transport ? 'yes' : 'no',
+        transportArrangement: values.transportArrangement,
+        transportVenue: values.transportVenue,
         pasound: values.pasound ? 'yes' : 'no',
         dancefloor: values.dancefloor ? 'yes' : 'no',
         stagepodium: values.stagepodium ? 'yes' : 'no',
@@ -769,8 +789,8 @@
             html += `<p><strong>Lighting:</strong> KES ${breakdown.lighting.toLocaleString()}</p>`;
           }
 
-          // Transport with zone info
-          if (breakdown.transport) {
+          // Transport arrangement
+          if (values.transportArrangement === 'arrange' && breakdown.transport) {
             const transport = breakdown.transport;
             html += `<p><strong>Transport:</strong> KES ${transport.cost.toLocaleString()}</p>`;
             const zoneInfo = transport.zoneInfo || {};
@@ -779,6 +799,8 @@
             } else if (transport.serviceArea === 'outside-nairobi') {
               html += `<p style="margin-left: 10px; font-size: 0.85em; color: rgba(255,255,255,0.85);"><em>Region: ${zoneInfo.region}, Distance: ${zoneInfo.distance}</em></p>`;
             }
+          } else if (values.transportArrangement === 'own') {
+            html += `<p><strong>Transport:</strong> Own arrangement (KES 0)</p>`;
           }
 
           // Decor
@@ -825,7 +847,8 @@
             aframeSections: values.aframeSections,
             tentConfigurations: tentConfigs && tentConfigs.length > 0 ? tentConfigs.map(cfg => getTentConfigDisplay(cfg)).join(' + ') : '',
             lighting: values.lighting,
-            transport: values.transport,
+            transportArrangement: values.transportArrangement,
+            transportVenue: values.transportVenue,
             decor: values.decor,
             pasound: values.pasound,
             dancefloor: values.dancefloor,
@@ -922,7 +945,30 @@
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
+    
+    // Transport arrangement toggle - show/hide location section
+    function toggleTransportSection() {
+      if (transportLocationSectionEl) {
+        const needsTransport = transportArrangeEl && transportArrangeEl.checked;
+        transportLocationSectionEl.style.display = needsTransport ? 'block' : 'none';
+        transportVenueEl.required = needsTransport;
+        log.info('BOOKING', 'Transport section toggled', { needsTransport });
+        updateSummary();
+      }
+    }
+    
+    if (transportOwnEl) {
+      transportOwnEl.addEventListener('change', toggleTransportSection);
+    }
+    if (transportArrangeEl) {
+      transportArrangeEl.addEventListener('change', toggleTransportSection);
+    }
+    if (transportVenueEl) {
+      transportVenueEl.addEventListener('change', updateSummary);
+      transportVenueEl.addEventListener('input', updateSummary);
+    }
+    
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
@@ -1008,6 +1054,25 @@
       if (draft.highpeakConfig) {
         const highpeakConfigEl = q('#highpeak-config');
         if (highpeakConfigEl) highpeakConfigEl.value = draft.highpeakConfig;
+      }
+      
+      // Handle transport arrangement
+      if (draft.transportArrangement) {
+        if (draft.transportArrangement === 'arrange' && transportArrangeEl) {
+          transportArrangeEl.checked = true;
+          if (transportVenueEl && draft.transportVenue) {
+            transportVenueEl.value = draft.transportVenue;
+          }
+        } else if (draft.transportArrangement === 'own' && transportOwnEl) {
+          transportOwnEl.checked = true;
+        }
+      } else if (draft.transport) {
+        // Convert old transport boolean to new arrangement system
+        if (draft.transport && transportArrangeEl) {
+          transportArrangeEl.checked = true;
+        } else if (!draft.transport && transportOwnEl) {
+          transportOwnEl.checked = true;
+        }
       }
       
       // call showConditional and update summary
