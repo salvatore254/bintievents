@@ -1114,6 +1114,17 @@
             log.error('BOOKING', 'Form validation failed (tent flow)', { ...validation, hasTentConfigs });
             return;
           }
+          
+          // Validate conditional fields based on selected tents
+          for (const config of tentConfigs) {
+            if (config.type === 'cheese' && (!config.color || config.color === '')) {
+              alert('Please select a color for the cheese tent.');
+              log.error('BOOKING', 'Cheese tent requires color selection');
+              if (cheeseColorEl) cheeseColorEl.focus();
+              return;
+            }
+          }
+          
           log.info('BOOKING', 'Tent flow validation passed');
         }
 
