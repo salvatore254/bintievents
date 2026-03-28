@@ -837,6 +837,7 @@
             venue: values.venue,
             location: values.venue, // Duplicate for backend compatibility
             setupTime: values.setupTime,
+            eventDate: values.eventDate,
             sections: values.sections, // Add sections field
             additionalInfo: values.additionalInfo,
             fullname: q('#fullname') ? q('#fullname').value : '',
@@ -1181,6 +1182,18 @@
     html += `<p><strong>Phone:</strong> ${booking.phone || '—'}</p>`;
     html += `<p><strong>Email:</strong> ${booking.email || '—'}</p>`;
     html += `<p><strong>Venue:</strong> ${booking.venue || '—'}</p>`;
+    
+    // Event Date - format it nicely
+    let eventDateDisplay = '—';
+    if (booking.eventDate) {
+      try {
+        const eventDate = new Date(booking.eventDate);
+        eventDateDisplay = eventDate.toLocaleDateString('en-KE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (e) {
+        eventDateDisplay = booking.eventDate;
+      }
+    }
+    html += `<p style="background: rgba(120, 81, 169, 0.1); padding: 8px 12px; border-radius: 4px; margin: 8px 0;"><i class="fas fa-calendar" style="color: #7851A9; margin-right: 8px;"></i><strong>Event Date:</strong> ${eventDateDisplay}</p>`;
     
     // Setup Time - with better formatting
     const setupTimeDisplay = booking.setupTime || '—';
