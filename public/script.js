@@ -258,6 +258,13 @@
         if (ds.color) draft.cheeseColor = ds.color;
         if (ds.sections) draft.aframeSections = ds.sections;
         if (ds.service) draft.service = ds.service;
+        // Handle B-line, High Peak, Pergola config options
+        if (ds.config) {
+          // Store config based on tent type for proper prefilling
+          if (ds.tent === 'bline') draft.blineConfig = ds.config;
+          else if (ds.tent === 'highpeak') draft.highpeakConfig = ds.config;
+          // Pergola has no config, just add the tent type
+        }
         
         // save draft with safe storage
         if (!safeSetItem('bintiBookingDraft', draft)) {
@@ -914,7 +921,7 @@
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, transportEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, eventDateEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
@@ -981,12 +988,27 @@
         nextConfigId = (Math.max(...tentConfigs.map(c => c.id || 0)) || 0) + 1;
         renderTentConfigs();
       } else if (draft.tentType) {
-        // Old format support
+        // Old format support - set tent type first
         tentTypeEl.value = draft.tentType;
       }
+      
+      // Prefill size/color/sections options
       if (draft.stretchSize && stretchSizeEl) stretchSizeEl.value = draft.stretchSize;
       if (draft.cheeseColor && cheeseColorEl) cheeseColorEl.value = draft.cheeseColor;
       if (draft.aframeSections && aframeSectionsEl) aframeSectionsEl.value = draft.aframeSections;
+      
+      // Handle B-line config (50 or 100 guest)
+      if (draft.blineConfig) {
+        const blineConfigEl = q('#bline-config');
+        if (blineConfigEl) blineConfigEl.value = draft.blineConfig;
+      }
+      
+      // Handle High Peak config (50 or 100 seater)
+      if (draft.highpeakConfig) {
+        const highpeakConfigEl = q('#highpeak-config');
+        if (highpeakConfigEl) highpeakConfigEl.value = draft.highpeakConfig;
+      }
+      
       // call showConditional and update summary
       showConditional();
       // IMPORTANT: Refresh summary after pre-fill so it displays correct data
