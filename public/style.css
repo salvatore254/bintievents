@@ -231,7 +231,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .hero-overlay, .page-hero .hero-overlay { 
   width:100%; 
-  padding:60px 0;
+  padding:40px 0;
   background: linear-gradient(180deg, rgba(74, 47, 107, 0.2), rgba(233, 30, 99, 0.1)); 
 }
 .hero-content { 
@@ -313,7 +313,7 @@ section h2 {
   font-size: 2.5rem;
   color: #4A7A6B;
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   position: relative;
   padding-bottom: 16px;
 }
@@ -332,8 +332,8 @@ section h2::after {
 .cards-grid { 
   display:grid; 
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-  gap: 28px; 
-  margin: 40px 0 60px 0; 
+  gap: 20px; 
+  margin: 28px 0 40px 0; 
 }
 
 /* Generic card */
@@ -353,7 +353,7 @@ section h2::after {
 /* Overlay so text stays visible */
 .card-overlay, .service-card .card-overlay, .tent-card .card-overlay {
   width:100%;
-  padding: 28px;
+  padding: 20px;
   background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(74, 47, 107, 0.5) 40%, rgba(35, 25, 50, 0.75) 100%);
   color:#fff;
 }
@@ -425,23 +425,23 @@ section h2::after {
 
 /* Testimonials */
 .testimonials { 
-  padding: 60px 0; 
+  padding: 40px 0; 
   background: linear-gradient(180deg, #FDFBFF 0%, #E5D5F0 100%);
 }
 .testimonials h2 {
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 .testimonial-list { 
   display:grid; 
   grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); 
-  gap: 28px; 
-  margin-top: 28px; 
+  gap: 20px; 
+  margin-top: 20px; 
 }
 .testimonial-card { 
   background: #fff; 
   color: #5A4A5F; 
   border-radius: 16px; 
-  padding: 32px; 
+  padding: 24px; 
   box-shadow: 0 8px 28px rgba(233, 30, 99, 0.1);
   border-left: 4px solid #7851A9;
   transition: all 0.3s ease;
@@ -464,9 +464,9 @@ section h2::after {
 /* Booking form */
 .booking-form { 
   background: #fff; 
-  padding: 40px; 
+  padding: 30px; 
   border-radius: 16px; 
-  margin: 40px 0; 
+  margin: 28px 0; 
   box-shadow: 0 12px 40px rgba(233, 30, 99, 0.12); 
   color: #5A4A5F; 
 }
@@ -509,7 +509,7 @@ section h2::after {
 
 /* Featured section */
 .featured-services {
-  padding: 60px 0;
+  padding: 40px 0;
 }
 
 /* Subscribe section */
@@ -517,8 +517,8 @@ section h2::after {
   background: linear-gradient(135deg, #7851A9, #2D5A3D);
   color: #fff;
   border-radius: 16px;
-  padding: 60px 40px;
-  margin: 60px 0;
+  padding: 40px 30px;
+  margin: 40px 0;
   text-align: center;
 }
 .subscribe-section h2 {
@@ -862,8 +862,8 @@ section h2::after {
 
 .form-section {
   background: #fff;
-  padding: 28px;
-  margin-bottom: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(233, 30, 99, 0.08);
   transition: all 0.3s ease;
