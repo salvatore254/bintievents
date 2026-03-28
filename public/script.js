@@ -1018,6 +1018,9 @@
 
     // Also call updateTentSectionVisibility initially to show tent section if form fields are filled
     updateTentSectionVisibility();
+    
+    // Initialize conditional sections visibility (hides all by default)
+    showConditional();
 
     // Submit handler - validate based on flow type
     form.addEventListener('submit', (e) => {
