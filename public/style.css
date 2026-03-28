@@ -1767,6 +1767,7 @@ section h2::after {
   line-height: 1.8;
   box-shadow: 0 2px 8px rgba(120, 81, 169, 0.08);
   font-weight: 400;
+  /* v2.0 - Premium gradient styling with improved focus states */
 }
 
 #additional-info::placeholder {

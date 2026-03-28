@@ -171,47 +171,18 @@
             <div id="cheese-options" class="conditional-section">
               <div class="form-group">
                 <label for="cheese-color">Select Color</label>
-                <div class="color-picker">
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="white">
-                    <span class="color-dot" style="background: #ffffff; border: 2px solid #ccc;"></span>
-                    <span>White</span>
-                  </label>
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="blue">
-                    <span class="color-dot" style="background: #007BFF;"></span>
-                    <span>Blue</span>
-                  </label>
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="pink">
-                    <span class="color-dot" style="background: #FF69B4;"></span>
-                    <span>Pink</span>
-                  </label>
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="yellow">
-                    <span class="color-dot" style="background: #FFD700;"></span>
-                    <span>Yellow</span>
-                  </label>
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="red">
-                    <span class="color-dot" style="background: #DC143C;"></span>
-                    <span>Red</span>
-                  </label>
-                  <label class="color-option">
-                    <input type="radio" name="cheese_color_picker" value="black">
-                    <span class="color-dot" style="background: #000000; border: 2px solid #ccc;"></span>
-                    <span>Black</span>
-                  </label>
+                <div class="select-wrapper">
+                  <select id="cheese-color" name="cheese_color" required>
+                    <option value="">-- Choose a color --</option>
+                    <option value="white">White</option>
+                    <option value="blue">Blue</option>
+                    <option value="pink">Pink</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                    <option value="black">Black</option>
+                  </select>
+                  <i class="fas fa-chevron-down"></i>
                 </div>
-                <select id="cheese-color" name="cheese_color" style="display:none;">
-                  <option value="">-- Select color --</option>
-                  <option value="white">White</option>
-                  <option value="blue">Blue</option>
-                  <option value="pink">Pink</option>
-                  <option value="yellow">Yellow</option>
-                  <option value="red">Red</option>
-                  <option value="black">Black</option>
-                </select>
               </div>
             </div>
 
@@ -258,7 +229,12 @@
               </div>
             </div>
 
-            <!-- Pergola has no options, flat pricing -->
+            <!-- Pergola Options -->
+            <div id="pergola-options" class="conditional-section">
+              <div class="form-group">
+                <p style="color: #666; font-size: 0.95rem;"><i class="fas fa-info-circle" style="color: #7851A9; margin-right: 6px;"></i>Pergola tent - KES 15,000 (flat rate)</p>
+              </div>
+            </div>
 
             <!-- B-Line has fixed pricing, no options needed -->
           </div>

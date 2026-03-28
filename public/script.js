@@ -412,7 +412,11 @@
       } else if (config.type === 'aframe') {
         return `A-frame (${config.sections || 1} section${config.sections > 1 ? 's' : ''})`;
       } else if (config.type === 'bline') {
-        return 'B-line';
+        return `B-line (${config.config === '100' ? '100 Guest' : '50 Guest'})`;
+      } else if (config.type === 'highpeak') {
+        return `High Peak (${config.config === '100' ? '100 Seater' : '50 Seater'})`;
+      } else if (config.type === 'pergola') {
+        return 'Pergola';
       }
       return 'Tent';
     }
@@ -495,8 +499,14 @@
         config.color = color;
       } else if (tentType === 'aframe') {
         config.sections = aframeSectionsEl ? aframeSectionsEl.value : '1';
+      } else if (tentType === 'bline') {
+        const blineConfig = q('#bline-config') ? q('#bline-config').value : '50';
+        config.config = blineConfig;
+      } else if (tentType === 'highpeak') {
+        const highpeakConfig = q('#highpeak-config') ? q('#highpeak-config').value : '50';
+        config.config = highpeakConfig;
       }
-      // bline has no options, just add it
+      // pergola has no options, just add it
       
       tentConfigs.push(config);
       renderTentConfigs();
@@ -512,6 +522,9 @@
       const stretchOptions = q('#stretch-options');
       const cheeseOptions = q('#cheese-options');
       const aframeOptions = q('#aframe-options');
+      const blineOptions = q('#bline-options');
+      const highpeakOptions = q('#highpeak-options');
+      const pergolaOptions = q('#pergola-options');
       
       if (stretchOptions) {
         stretchOptions.style.display = val === 'stretch' ? 'block' : 'none';
@@ -526,6 +539,21 @@
       if (aframeOptions) {
         aframeOptions.style.display = val === 'aframe' ? 'block' : 'none';
         aframeOptions.setAttribute('aria-hidden', val !== 'aframe');
+      }
+      
+      if (blineOptions) {
+        blineOptions.style.display = val === 'bline' ? 'block' : 'none';
+        blineOptions.setAttribute('aria-hidden', val !== 'bline');
+      }
+      
+      if (highpeakOptions) {
+        highpeakOptions.style.display = val === 'highpeak' ? 'block' : 'none';
+        highpeakOptions.setAttribute('aria-hidden', val !== 'highpeak');
+      }
+      
+      if (pergolaOptions) {
+        pergolaOptions.style.display = val === 'pergola' ? 'block' : 'none';
+        pergolaOptions.setAttribute('aria-hidden', val !== 'pergola');
       }
       
       // Show add button when tent type is selected and we have less than 4 tents
@@ -883,18 +911,6 @@
     if (venueEl && venueEl.parentNode) {
       venueEl.parentNode.insertBefore(zoneInfoBox, venueEl.nextSibling);
     }
-
-    // Color picker synchronization for cheese tent
-    qa('input[name="cheese_color_picker"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        if (cheeseColorEl) {
-          cheeseColorEl.value = e.target.value;
-          // Trigger updateSummary
-          const event = new Event('change', { bubbles: true });
-          cheeseColorEl.dispatchEvent(event);
-        }
-      });
-    });
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
