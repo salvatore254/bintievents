@@ -614,11 +614,6 @@
       }
     }
 
-    // Zone info display helper
-    const zoneInfoBox = document.createElement('div');
-    zoneInfoBox.id = 'zone-info-display';
-    zoneInfoBox.style.cssText = 'padding: 10px; margin: 10px 0; background: #f0f8ff; border-left: 4px solid #007bff; border-radius: 4px; display: none; font-size: 0.9em;';
-
     function updateSummary() {
       try {
         // Determine transport arrangement status
@@ -693,15 +688,7 @@
       }
 
       // GUARD: For non-transport mode, ensure regular venue is provided
-      if (!needsTransport && !values.venue) {
-        log.warn('BOOKING', 'Venue location for event not entered - skipping API call');
-        if (summaryBox) {
-          summaryBox.innerHTML = `<p style="color: #d9534f; padding: 15px; border-radius: 4px; background: #ffe6e6;">
-            <strong>📍 Event Venue Required:</strong> Please enter your event location.
-          </p>`;
-        }
-        return;
-      }
+      // NOTE: Venue is now informational only, not required for calculation
 
       // Payload construction - supports all flow types
       const payload = {
@@ -881,55 +868,8 @@
       }
     }
 
-    // Real-time zone identification
-    if (venueEl) {
-      let zoneIdentifyTimeout;
-      venueEl.addEventListener('input', () => {
-        clearTimeout(zoneIdentifyTimeout);
-        if (!venueEl.value) {
-          zoneInfoBox.style.display = 'none';
-          return;
-        }
-
-        zoneIdentifyTimeout = setTimeout(() => {
-          const zoneUrl = `${API_BASE_URL}/bookings/identify-zone`;
-          log.info('BOOKING', 'Calling zone identification API', { url: zoneUrl, location: venueEl.value });
-          
-          apiCall(zoneUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ location: venueEl.value }),
-            timeout: API_TIMEOUT
-          })
-            .then(data => {
-              log.info('BOOKING', 'Zone identification response', data);
-              if (data.success) {
-                const info = data;
-                let infoHtml = `<strong>Zone: ${info.zoneName}</strong><br>`;
-                if (info.serviceArea === 'nairobi') {
-                  infoHtml += `Nairobi zone - Transport: KES ${info.transportCost.toLocaleString()}`;
-                } else {
-                  const zoneInfo = info.zoneInfo || {};
-                  infoHtml += `${zoneInfo.region} (${zoneInfo.distance}) - Transport: KES ${info.transportCost.toLocaleString()}`;
-                }
-                zoneInfoBox.innerHTML = infoHtml;
-                zoneInfoBox.style.display = 'block';
-              } else {
-                log.warn('BOOKING', 'Zone identification failed', data);
-              }
-            })
-            .catch(err => {
-              log.error('BOOKING', 'Zone identification API error', err);
-              zoneInfoBox.style.display = 'none';
-            });
-        }, 300);
-      });
-    }
-
-    // Insert zone info display after venue field
-    if (venueEl && venueEl.parentNode) {
-      venueEl.parentNode.insertBefore(zoneInfoBox, venueEl.nextSibling);
-    }
+    // Venue field is informational only - removed zone identification logic
+    // Transport venue is handled separately in the Transport section
 
     // show/hide conditional inputs based on selection
     tentTypeEl.addEventListener('change', () => { showConditional(); updateSummary(); });
@@ -953,7 +893,7 @@
       transportVenueEl.addEventListener('input', updateSummary);
     }
     
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, venueEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
