@@ -1883,15 +1883,8 @@
     log.info('PAYMENT', `${status.toUpperCase()} payment result modal shown`);
   };
 
-  // --- Show confirmation modal (success or failure)
+  // --- Delegate for backwards compatibility
   window.showConfirmationModal = function(status, booking) {
-    // Delegate to the new simplified payment result modal
-    window.showPaymentResultModal(status);
-  };
-
-  // --- Show confirmation modal (success or failure)
-  window.showConfirmationModal = function(status, booking) {
-    // Delegate to the new simplified payment result modal
     window.showPaymentResultModal(status);
   };
 
