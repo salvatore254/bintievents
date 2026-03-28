@@ -1364,18 +1364,10 @@
           </style>
         `;
         
-        // Show the success confirmation modal after 2 seconds (allow payment to be processed)
-        setTimeout(() => {
-          // Close the payment status modal
-          log.info('PAYMENT', 'Step 3: Showing success confirmation modal (modal sequence: 3/3)');
-          if (modal && modal.parentNode) {
-            modal.parentNode.removeChild(modal);
-          }
-          
-          // Show success confirmation modal
-          log.info('PAYMENT', 'Closing STK push modal and displaying success');
-          window.showConfirmationModal('success', booking);
-        }, 2000);
+        // Poll backend for actual payment confirmation instead of showing success immediately
+        // M-Pesa payment takes 15-30 seconds, so we check every 2 seconds until confirmed
+        log.info('PAYMENT', 'Starting payment confirmation polling...');
+        window.pollPaymentStatus(booking.id || bookingId, modal, booking, 60000); // 60 second timeout
       })
       .catch(error => {
         log.error('PAYMENT', 'STK push failed', error);
@@ -1751,127 +1743,156 @@
     }
   };
 
-  // --- Show confirmation modal (success or failure)
-  window.showConfirmationModal = function(status, booking) {
+  // --- Poll backend for actual payment confirmation
+  window.pollPaymentStatus = function(bookingId, stkModal, booking, timeoutMs = 60000) {
+    const startTime = Date.now();
+    const pollInterval = 2000; // Check every 2 seconds
+    
+    const poll = () => {
+      if (Date.now() - startTime > timeoutMs) {
+        // Timeout - close modal and show error
+        log.warn('PAYMENT', 'Payment confirmation polling timed out');
+        if (stkModal && stkModal.parentNode) {
+          stkModal.parentNode.removeChild(stkModal);
+        }
+        window.showPaymentResultModal('failed', 'Payment confirmation timeout. Please check your email or contact support.');
+        return;
+      }
+      
+      // Check payment status from backend
+      fetch(`${API_BASE_URL}/bookings/payment-status/${bookingId}`)
+        .then(res => res.json())
+        .then(data => {
+          log.info('PAYMENT', 'Payment status check', { status: data.status });
+          
+          if (data.status === 'paid') {
+            // Payment confirmed!
+            log.info('PAYMENT', 'Payment confirmed by backend');
+            if (stkModal && stkModal.parentNode) {
+              stkModal.parentNode.removeChild(stkModal);
+            }
+            window.showPaymentResultModal('success');
+          } else if (data.status === 'payment_failed') {
+            // Payment failed
+            log.error('PAYMENT', 'Payment failed according to backend');
+            if (stkModal && stkModal.parentNode) {
+              stkModal.parentNode.removeChild(stkModal);
+            }
+            window.showPaymentResultModal('failed', 'Payment was declined. Please try again.');
+          } else {
+            // Still pending - continue polling
+            setTimeout(poll, pollInterval);
+          }
+        })
+        .catch(err => {
+          log.warn('PAYMENT', 'Error checking payment status', err);
+          setTimeout(poll, pollInterval); // Retry on error
+        });
+    };
+    
+    // Start polling
+    poll();
+  };
+
+  // --- Simplified success/failure modal (no booking details)
+  window.showPaymentResultModal = function(status, errorMessage = '') {
     const modal = q('#confirmation-modal');
     const content = q('#confirmation-content');
     
     if (!modal || !content) {
-      log.error('PAYMENT', 'Confirmation modal elements not found');
+      log.error('PAYMENT', 'Modal elements not found');
       return;
     }
 
-    if (status === 'success' && booking) {
-      // Format event date
-      let eventDateDisplay = 'Not specified';
-      if (booking.eventDate) {
-        try {
-          const eventDate = new Date(booking.eventDate);
-          eventDateDisplay = eventDate.toLocaleDateString('en-KE', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
-        } catch (e) {
-          eventDateDisplay = booking.eventDate;
-        }
-      }
-
+    if (status === 'success') {
       content.innerHTML = `
-        <div style="text-align: center;">
-          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4CAF50, #45a049); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; color: white; animation: scaleIn 0.5s ease-out;">
-            <i class="fas fa-check"></i>
+        <div style="text-align: center; max-width: 500px;">
+          <!-- Checkmark animation -->
+          <div style="width: 120px; height: 120px; margin: 0 auto 30px; background: linear-gradient(135deg, #4CAF50, #45a049); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+            <i class="fas fa-check" style="font-size: 60px; color: white; animation: popIn 0.6s ease-out 0.3s both;"></i>
           </div>
-          <h1 style="color: #333; font-size: 2em; margin: 20px 0 10px; animation: fadeIn 0.5s ease-out 0.3s both;">Payment Successful!</h1>
-          <p style="color: #666; font-size: 1.05em; margin: 15px 0 30px; animation: fadeIn 0.5s ease-out 0.4s both;">Your booking has been confirmed and payment has been received.</p>
-        </div>
-
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 24px; margin: 30px 0; text-align: left; border-left: 4px solid #4CAF50; animation: fadeIn 0.5s ease-out 0.5s both;">
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Booking Reference</span>
-            <span style="color: #333; font-weight: 600;">#${booking.id || 'BOOKING_' + Date.now()}</span>
+          
+          <h1 style="color: #2e7d32; font-size: 2.2em; font-weight: 700; margin: 20px 0 10px; animation: slideDown 0.5s ease-out 0.2s both;">Payment Successful!</h1>
+          
+          <p style="color: #666; font-size: 1.1em; margin: 15px 0 30px; line-height: 1.6; animation: slideDown 0.5s ease-out 0.4s both;">
+            Your payment has been confirmed. A confirmation email with all booking details has been sent to your email address.
+          </p>
+          
+          <div style="background: #e8f5e9; border: 2px solid #4CAF50; border-radius: 12px; padding: 20px; margin: 30px 0; animation: slideUp 0.5s ease-out 0.5s both;">
+            <p style="color: #2e7d32; margin: 0; font-weight: 600; font-size: 1em;">
+              <i class="fas fa-check-circle" style="margin-right: 10px; color: #4CAF50;"></i>
+              We'll contact you 7 days before your event for final confirmation.
+            </p>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Name</span>
-            <span style="color: #333; font-weight: 600;">${booking.fullname || '—'}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Email</span>
-            <span style="color: #333; font-weight: 600;">${booking.email || '—'}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Venue</span>
-            <span style="color: #333; font-weight: 600;">${booking.venue || '—'}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Event Date</span>
-            <span style="color: #333; font-weight: 600;">${eventDateDisplay}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
-            <span style="font-weight: 600;">Setup Time</span>
-            <span style="color: #333; font-weight: 600;">${booking.setupTime || '—'}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666;">
-            <span style="font-weight: 600;">Final Amount Paid</span>
-            <span style="color: #4CAF50; font-weight: 700; font-size: 1.1em;">KES ${(booking.total || 0).toLocaleString()}</span>
-          </div>
-        </div>
-
-        <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 8px; padding: 16px; margin: 20px 0; color: #2e7d32; font-size: 0.95em; line-height: 1.6; animation: fadeIn 0.5s ease-out 0.6s both;">
-          <i class="fas fa-envelope" style="margin-right: 10px; color: #4CAF50;"></i>
-          A confirmation email has been sent to <strong>${booking.email || 'your email'}</strong> with all the details.
-        </div>
-
-        <p style="color: #666; font-size: 0.95em; margin-top: 20px; animation: fadeIn 0.5s ease-out 0.7s both;">
-          <i class="fas fa-info-circle" style="color: #7851A9; margin-right: 8px;"></i>
-          We'll contact you 7 days before your event to confirm final details.
-        </p>
-
-        <div style="display: flex; gap: 12px; margin-top: 30px; animation: fadeIn 0.5s ease-out 0.8s both;">
-          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; localStorage.removeItem('bintiBooking'); localStorage.removeItem('bintiSelectedPackage'); window.location.href='index.html';" style="flex: 1; background: linear-gradient(135deg, #7851A9, #6b3fa0); color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s;">
+          
+          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; localStorage.removeItem('bintiBooking'); localStorage.removeItem('bintiSelectedPackage'); window.location.href='index.html';" style="width: 100%; background: linear-gradient(135deg, #7851A9, #6b3fa0); color: white; border: none; padding: 16px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1.05em; margin-top: 20px; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
             <i class="fas fa-home" style="margin-right: 8px;"></i> Back to Home
           </button>
-          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none';" style="flex: 1; background: #f0f0f0; color: #333; border: 2px solid #e0e0e0; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s;">
-            <i class="fas fa-times" style="margin-right: 8px;"></i> Close
-          </button>
         </div>
-
+        
         <style>
-          @keyframes scaleIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes scaleIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+          @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+          @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         </style>
       `;
     } else {
       // Failure modal
       content.innerHTML = `
-        <div style="text-align: center;">
-          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; color: white;">
-            <i class="fas fa-exclamation-circle"></i>
+        <div style="text-align: center; max-width: 500px;">
+          <!-- X mark animation -->
+          <div style="width: 120px; height: 120px; margin: 0 auto 30px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+            <i class="fas fa-times" style="font-size: 60px; color: white; animation: popIn 0.6s ease-out 0.3s both;"></i>
           </div>
-          <h1 style="color: #333; font-size: 2em; margin: 20px 0 10px;">Payment Failed</h1>
-          <p style="color: #666; font-size: 1.05em; margin: 15px 0 30px;">Unfortunately, your payment could not be processed at this time.</p>
+          
+          <h1 style="color: #c62828; font-size: 2.2em; font-weight: 700; margin: 20px 0 10px; animation: slideDown 0.5s ease-out 0.2s both;">Payment Failed</h1>
+          
+          <p style="color: #666; font-size: 1.1em; margin: 15px 0 30px; line-height: 1.6; animation: slideDown 0.5s ease-out 0.4s both;">
+            ${errorMessage || 'We were unable to process your payment. Please try again.'}
+          </p>
+          
+          <div style="background: #fff3e0; border: 2px solid #ff9800; border-radius: 12px; padding: 20px; margin: 30px 0; animation: slideUp 0.5s ease-out 0.5s both;">
+            <p style="color: #e65100; margin: 0; font-weight: 600; font-size: 1em;">
+              <i class="fas fa-info-circle" style="margin-right: 10px; color: #ff9800;"></i>
+              Please check your phone number and try again.
+            </p>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
+              <i class="fas fa-redo" style="margin-right: 8px;"></i> Try Again
+            </button>
+            <button type="button" onclick="window.location.href='checkout.html';" style="flex: 1; background: #6c757d; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
+              <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back
+            </button>
+          </div>
         </div>
-
-        <div style="background: #fdf2f1; border: 1px solid #ffcdd2; border-radius: 8px; padding: 16px; margin: 20px 0; color: #c62828; font-size: 0.95em; line-height: 1.6;">
-          <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
-          Please check your phone number and try again, or contact us for assistance.
-        </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 30px;">
-          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em;">
-            <i class="fas fa-redo" style="margin-right: 8px;"></i> Try Again
-          </button>
-          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none';" style="flex: 1; background: #f0f0f0; color: #333; border: 2px solid #e0e0e0; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em;">
-            <i class="fas fa-times" style="margin-right: 8px;"></i> Close
-          </button>
-        </div>
+        
+        <style>
+          @keyframes scaleIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+          @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+          @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        </style>
       `;
     }
 
     // Show the modal
     modal.style.display = 'flex';
-    log.info('PAYMENT', `${status.toUpperCase()} confirmation modal shown`);
+    log.info('PAYMENT', `${status.toUpperCase()} payment result modal shown`);
+  };
+
+  // --- Show confirmation modal (success or failure)
+  window.showConfirmationModal = function(status, booking) {
+    // Delegate to the new simplified payment result modal
+    window.showPaymentResultModal(status);
+  };
+
+  // --- Show confirmation modal (success or failure)
+  window.showConfirmationModal = function(status, booking) {
+    // Delegate to the new simplified payment result modal
+    window.showPaymentResultModal(status);
   };
 
   // --- Update payment button state based on terms checkbox only
