@@ -893,6 +893,61 @@
       transportVenueEl.addEventListener('input', updateSummary);
     }
     
+    // Zone identification for transport venue
+    if (transportVenueEl) {
+      let transportZoneTimeout;
+      const transportZoneInfoBox = document.createElement('div');
+      transportZoneInfoBox.id = 'transport-zone-info-display';
+      transportZoneInfoBox.style.cssText = 'padding: 12px; margin: 12px 0; background: rgba(120, 81, 169, 0.08); border-left: 4px solid #7851A9; border-radius: 4px; display: none; font-size: 0.9em; color: #333;';
+      
+      // Insert zone info display after transport venue field
+      if (transportVenueEl && transportVenueEl.parentNode) {
+        transportVenueEl.parentNode.insertBefore(transportZoneInfoBox, transportVenueEl.nextSibling);
+      }
+      
+      transportVenueEl.addEventListener('input', () => {
+        clearTimeout(transportZoneTimeout);
+        if (!transportVenueEl.value) {
+          transportZoneInfoBox.style.display = 'none';
+          return;
+        }
+        
+        transportZoneTimeout = setTimeout(() => {
+          const zoneUrl = `${API_BASE_URL}/bookings/identify-zone`;
+          log.info('BOOKING', 'Calling zone identification API for transport', { url: zoneUrl, location: transportVenueEl.value });
+          
+          apiCall(zoneUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ location: transportVenueEl.value }),
+            timeout: API_TIMEOUT
+          })
+            .then(data => {
+              log.info('BOOKING', 'Transport zone identification response', data);
+              if (data.success) {
+                const info = data;
+                let infoHtml = `<strong style="color: #7851A9;">📍 ${info.zoneName}</strong><br>`;
+                if (info.serviceArea === 'nairobi') {
+                  infoHtml += `<small>Nairobi zone • Transport: <strong>KES ${info.transportCost.toLocaleString()}</strong></small>`;
+                } else {
+                  const zoneInfo = info.zoneInfo || {};
+                  infoHtml += `<small>${zoneInfo.region} (${zoneInfo.distance}) • Transport: <strong>KES ${info.transportCost.toLocaleString()}</strong></small>`;
+                }
+                transportZoneInfoBox.innerHTML = infoHtml;
+                transportZoneInfoBox.style.display = 'block';
+              } else {
+                log.warn('BOOKING', 'Transport zone identification failed', data);
+                transportZoneInfoBox.style.display = 'none';
+              }
+            })
+            .catch(err => {
+              log.error('BOOKING', 'Transport zone identification API error', err);
+              transportZoneInfoBox.style.display = 'none';
+            });
+        }, 300);
+      });
+    }
+    
     [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
