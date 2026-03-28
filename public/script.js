@@ -343,8 +343,7 @@
     const cheeseColorEl = q('#cheese-color');
     const aframeSectionsEl = q('#aframe-sections');
     const lightingEl = q('#ambient-lighting');
-    const transportOwnEl = q('#transport-own');
-    const transportArrangeEl = q('#transport-arrange');
+    const transportArrangementEl = q('#transport-arrangement');
     const transportVenueEl = q('#transport-venue');
     const transportLocationSectionEl = q('#transport-location-section');
     const decorEl = q('#decor');
@@ -626,7 +625,7 @@
     function updateSummary() {
       try {
         // Determine transport arrangement status
-        const needsTransport = transportArrangeEl && transportArrangeEl.checked;
+        const needsTransport = transportArrangementEl && transportArrangementEl.value === 'arrange';
         const transportVenue = (needsTransport && transportVenueEl) ? transportVenueEl.value.trim() : '';
         
         const values = {
@@ -949,7 +948,7 @@
     // Transport arrangement toggle - show/hide location section
     function toggleTransportSection() {
       if (transportLocationSectionEl) {
-        const needsTransport = transportArrangeEl && transportArrangeEl.checked;
+        const needsTransport = transportArrangementEl && transportArrangementEl.value === 'arrange';
         transportLocationSectionEl.style.display = needsTransport ? 'block' : 'none';
         transportVenueEl.required = needsTransport;
         log.info('BOOKING', 'Transport section toggled', { needsTransport });
@@ -957,11 +956,8 @@
       }
     }
     
-    if (transportOwnEl) {
-      transportOwnEl.addEventListener('change', toggleTransportSection);
-    }
-    if (transportArrangeEl) {
-      transportArrangeEl.addEventListener('change', toggleTransportSection);
+    if (transportArrangementEl) {
+      transportArrangementEl.addEventListener('change', toggleTransportSection);
     }
     if (transportVenueEl) {
       transportVenueEl.addEventListener('change', updateSummary);
@@ -1057,22 +1053,14 @@
       }
       
       // Handle transport arrangement
-      if (draft.transportArrangement) {
-        if (draft.transportArrangement === 'arrange' && transportArrangeEl) {
-          transportArrangeEl.checked = true;
-          if (transportVenueEl && draft.transportVenue) {
-            transportVenueEl.value = draft.transportVenue;
-          }
-        } else if (draft.transportArrangement === 'own' && transportOwnEl) {
-          transportOwnEl.checked = true;
+      if (draft.transportArrangement && transportArrangementEl) {
+        transportArrangementEl.value = draft.transportArrangement;
+        if (draft.transportVenue && transportVenueEl) {
+          transportVenueEl.value = draft.transportVenue;
         }
-      } else if (draft.transport) {
+      } else if (draft.transport && transportArrangementEl) {
         // Convert old transport boolean to new arrangement system
-        if (draft.transport && transportArrangeEl) {
-          transportArrangeEl.checked = true;
-        } else if (!draft.transport && transportOwnEl) {
-          transportOwnEl.checked = true;
-        }
+        transportArrangementEl.value = draft.transport ? 'arrange' : 'own';
       }
       
       // call showConditional and update summary
