@@ -1798,6 +1798,10 @@
             <span style="color: #333; font-weight: 600;">${booking.email || '—'}</span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
+            <span style="font-weight: 600;">Venue</span>
+            <span style="color: #333; font-weight: 600;">${booking.venue || '—'}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 12px 0; color: #666; border-bottom: 1px solid #e0e0e0;">
             <span style="font-weight: 600;">Event Date</span>
             <span style="color: #333; font-weight: 600;">${eventDateDisplay}</span>
           </div>
