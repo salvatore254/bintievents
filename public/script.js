@@ -598,19 +598,20 @@
       const hasPhone = phoneInput && phoneInput.value && phoneInput.value.trim();
       const hasEmail = emailInput && emailInput.value && emailInput.value.trim();
       
-      // Always show tent section in tent-flow mode, but with notice when details incomplete
+      // Always show tent section in tent-flow mode, and always enable tent dropdown
       tentSection.style.display = 'block';
       
+      // Tent dropdown is always enabled so users can browse/change tent types freely
+      if (tentTypeEl) tentTypeEl.disabled = false;
+      
       if (hasFullname && hasPhone && hasEmail) {
-        // All details filled - enable tent selection and hide notice
+        // All details filled - hide notice
         if (tentSectionNotice) tentSectionNotice.style.display = 'none';
-        if (tentTypeEl) tentTypeEl.disabled = false;
-        log.info('BOOKING', 'Tent section enabled - all details filled');
+        log.info('BOOKING', 'Tent section - all details filled');
       } else {
-        // Details missing - show notice and disable tent selection
+        // Details missing - show notice but still allow tent selection
         if (tentSectionNotice) tentSectionNotice.style.display = 'block';
-        if (tentTypeEl) tentTypeEl.disabled = true;
-        log.info('BOOKING', 'Tent section disabled - incomplete details');
+        log.info('BOOKING', 'Tent section - incomplete details (but tent selection still enabled)');
       }
     }
 
