@@ -952,7 +952,7 @@
       });
     }
     
-    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, setupTimeEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
+    [stretchSizeEl, cheeseColorEl, aframeSectionsEl, lightingEl, decorEl, pasoundEl, dancefloorEl, stagepodiumEl, welcomesignsEl, setupTimeEl, eventDateEl, venueEl, q('#fullname'), q('#phone'), q('#email'), q('#bline-config'), q('#highpeak-config')].forEach(el => {
       if (!el) return;
       el.addEventListener('change', updateSummary);
       el.addEventListener('input', updateSummary);
