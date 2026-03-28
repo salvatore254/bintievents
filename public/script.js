@@ -1604,6 +1604,9 @@
       stagepodium: booking.stagepodium,
       welcomesigns: booking.welcomesigns,
       additionalInfo: booking.additionalInfo || '',
+      // PERFORMANCE: Include pre-calculated totals to skip backend recalculation
+      totalAmount: booking.total || 0,
+      breakdown: booking.breakdown || {},
       bookingDetails: {
         tentType: booking.tentType,
         stretchSize: booking.stretchSize,
