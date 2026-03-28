@@ -132,7 +132,9 @@
                   <option value="stretch">Stretch Tent - KES 250/m²</option>
                   <option value="cheese">Cheese Tent - KES 15,000</option>
                   <option value="aframe">A-frame - KES 40,000/section</option>
-                  <option value="bline">B-line - KES 30,000</option>
+                  <option value="bline">B-line - KES 30,000-40,000</option>
+                  <option value="highpeak">High Peak - KES 5,000-10,000</option>
+                  <option value="pergola">Pergola - KES 20,000</option>
                 </select>
                 <i class="fas fa-chevron-down"></i>
               </div>
@@ -227,6 +229,36 @@
                 </div>
               </div>
             </div>
+
+            <!-- B-Line Options -->
+            <div id="bline-options" class="conditional-section">
+              <div class="form-group">
+                <label for="bline-config">Guest Count</label>
+                <div class="select-wrapper">
+                  <select id="bline-config" name="bline_config">
+                    <option value="50">50 Guests - KES 30,000</option>
+                    <option value="100">100 Guests - KES 40,000</option>
+                  </select>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- High Peak Options -->
+            <div id="highpeak-options" class="conditional-section">
+              <div class="form-group">
+                <label for="highpeak-config">Seating Capacity</label>
+                <div class="select-wrapper">
+                  <select id="highpeak-config" name="highpeak_config">
+                    <option value="50">50 Seater - KES 5,000</option>
+                    <option value="100">100 Seater - KES 10,000</option>
+                  </select>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pergola has no options, flat pricing -->
 
             <!-- B-Line has fixed pricing, no options needed -->
           </div>
