@@ -84,7 +84,7 @@
               <p style="color: #5A4A5F; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #7851A9; font-size: 1.2rem; font-weight: 700;">KES 25,000</span></p>
             </div>
             <div style="padding-top: 20px;">
-              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Basic', 100000)">Choose Package</button>
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Basic', 75000)">Choose Package</button>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@
               <p style="color: #5A4A48; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #B97C7C; font-size: 1.2rem; font-weight: 700;">KES 45,000</span></p>
             </div>
             <div style="padding-top: 20px;">
-              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Plus', 100000)">Choose Package</button>
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Plus', 125000)">Choose Package</button>
             </div>
           </div>
         </div>
@@ -148,7 +148,32 @@
               <p style="color: #5A4A48; font-size: 0.9rem;"><strong>Prices from:</strong> <span style="color: #B97C7C; font-size: 1.2rem; font-weight: 700;">KES 80,000</span></p>
             </div>
             <div style="padding-top: 20px;">
-              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Premium', 100000)">Choose Package</button>
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="selectPackage('Party Premium', 175000)">Choose Package</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package 4: Custom Package -->
+        <div class="package-card" data-aos="fade-up" data-aos-delay="300" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(120, 81, 169, 0.12); border: 2px dashed #7851A9;">
+          <div style="background: linear-gradient(135deg, rgba(120, 81, 169, 0.1), rgba(212, 175, 55, 0.1)); padding: 40px 20px; text-align: center; color: #7851A9;">
+            <h3 style="font-size: 1.8rem; margin-bottom: 8px;">Build Your Own</h3>
+            <p style="font-size: 0.95rem; opacity: 0.95;">Design your perfect package</p>
+          </div>
+          <div style="padding: 32px;">
+            <div style="margin-bottom: 24px;">
+              <p style="font-size: 0.9rem; color: #5A4A5F; margin-bottom: 16px;"><strong>For You:</strong> Fully customizable event setup with your choice of tents, add-ons, and services</p>
+              <div style="background: rgba(120, 81, 169, 0.08); padding: 16px; border-radius: 8px; border-left: 4px solid #7851A9;">
+                <p style="color: #4A7A6B; font-weight: 600; margin-bottom: 12px;">Customize:</p>
+                <ul style="color: #5A4A5F; font-size: 0.9rem; line-height: 1.8; list-style: none; padding: 0;">
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Choose your tent type and size</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Select add-ons you want</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>View real-time pricing updates</li>
+                  <li><i class="fas fa-check" style="color: #7851A9; margin-right: 8px;"></i>Add multiple tents if needed</li>
+                </ul>
+              </div>
+            </div>
+            <div style="padding-top: 20px;">
+              <button class="btn-gold" style="width: 100%; padding: 12px 20px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600;" onclick="buildCustomPackage()">Build Custom Package</button>
             </div>
           </div>
         </div>
@@ -288,6 +313,14 @@
       localStorage.setItem('bintiSelectedPackage', JSON.stringify(packageData));
       
       // Redirect to booking form
+      window.location.href = 'bookings.html';
+    }
+
+    function buildCustomPackage() {
+      // Clear any selected preset package to allow full customization
+      localStorage.removeItem('bintiSelectedPackage');
+      
+      // Redirect to booking form in tent/custom mode
       window.location.href = 'bookings.html';
     }
   </script>

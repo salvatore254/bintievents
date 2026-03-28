@@ -353,6 +353,7 @@
     const welcomesignsEl = q('#welcome-signs');
     const venueEl = q('#venue');
     const setupTimeEl = q('#setup-time');
+    const eventDateEl = q('#event-date');
     const additionalInfoEl = q('#additional-info');
     const summaryBox = q('#booking-summary');
     const siteVisitBtn = q('#site-visit-btn');
@@ -636,6 +637,7 @@
           welcomesigns: welcomesignsEl && welcomesignsEl.checked ? true : false,
           venue: venueEl ? venueEl.value : '',
           setupTime: setupTimeEl ? setupTimeEl.value : '',
+          eventDate: eventDateEl ? eventDateEl.value : '',
           sections: aframeSectionsEl ? aframeSectionsEl.value : '1',
           additionalInfo: q('#additional-info') ? q('#additional-info').value.trim() : ''
         };
@@ -707,6 +709,7 @@
         location: values.venue,
         sections: values.sections,
         setupTime: values.setupTime,
+        eventDate: values.eventDate,
         packageName: selectedPackage ? selectedPackage.name : null,
         packageBasePrice: selectedPackage ? selectedPackage.basePrice : 0
       };
@@ -1530,6 +1533,7 @@
       packageBasePrice: booking.packageBasePrice || 0,
       mpesaPhone: mpesaPhone ? formatPhoneDisplay(mpesaPhone) : '',
       setupTime: booking.setupTime,
+      eventDate: booking.eventDate,
       sections: booking.sections || booking.aframeSections, // Include sections
       lighting: booking.lighting,
       transportArrangement: booking.transportArrangement || 'own',
@@ -1548,6 +1552,8 @@
         venue: booking.venue,
         location: booking.location || booking.venue,
         sections: booking.sections || booking.aframeSections,
+        setupTime: booking.setupTime,
+        eventDate: booking.eventDate,
         lighting: booking.lighting,
         transportArrangement: booking.transportArrangement || 'own',
         transportVenue: booking.transportVenue || '',

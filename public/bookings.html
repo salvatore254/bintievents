@@ -361,20 +361,26 @@
             </div>
           </div>
 
-          <!-- Location & Setup Time Section -->
+          <!-- Location, Date & Setup Time Section -->
           <div class="form-section">
-            <h3><i class="fas fa-calendar-alt"></i> Location & Setup Time</h3>
+            <h3><i class="fas fa-calendar-alt"></i> Event Date & Location</h3>
             
             <div class="form-group">
-              <label for="venue">Event Venue/Location</label>
-              <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa">
-              <small><i class="fas fa-map-pin"></i> Tell us where your event will be held</small>
+              <label for="event-date">Event Date *</label>
+              <input id="event-date" name="event_date" type="date" required>
+              <small><i class="fas fa-calendar"></i> When is your event?</small>
             </div>
 
             <div class="form-group">
               <label for="setup-time">Setup Time *</label>
               <input id="setup-time" name="setup_time" type="time" required>
               <small>What time should we set up?</small>
+            </div>
+
+            <div class="form-group">
+              <label for="venue">Event Venue/Location</label>
+              <input id="venue" name="venue" type="text" placeholder="e.g., Westlands, Nairobi OR Mombasa">
+              <small><i class="fas fa-map-pin"></i> Tell us where your event will be held</small>
             </div>
           </div>
 
