@@ -352,7 +352,6 @@
     const stagepodiumEl = q('#stage-podium');
     const welcomesignsEl = q('#welcome-signs');
     const venueEl = q('#venue');
-    const eventDateEl = q('#event-date');
     const setupTimeEl = q('#setup-time');
     const additionalInfoEl = q('#additional-info');
     const summaryBox = q('#booking-summary');
@@ -403,9 +402,7 @@
 
     // Log element references for debugging
     log.info('BOOKING', 'Form elements found', {
-      hasEventDateEl: !!eventDateEl,
       hasSetupTimeEl: !!setupTimeEl,
-      eventDateValue: eventDateEl ? eventDateEl.value : 'N/A',
       setupTimeValue: setupTimeEl ? setupTimeEl.value : 'N/A'
     });
 
@@ -643,7 +640,6 @@
           stagepodium: stagepodiumEl && stagepodiumEl.checked ? true : false,
           welcomesigns: welcomesignsEl && welcomesignsEl.checked ? true : false,
           venue: venueEl ? venueEl.value : '',
-          eventDate: eventDateEl ? eventDateEl.value : '',
           setupTime: setupTimeEl ? setupTimeEl.value : '',
           sections: aframeSectionsEl ? aframeSectionsEl.value : '1',
           additionalInfo: q('#additional-info') ? q('#additional-info').value.trim() : ''
@@ -651,11 +647,10 @@
 
         log.info('BOOKING', 'Form values updated', values);
         
-        // Explicit logging for date/time fields
-        if (!values.eventDate) log.warn('BOOKING', 'Event date is EMPTY in updateSummary');
+        // Explicit logging for time field
         if (!values.setupTime) log.warn('BOOKING', 'Setup time is EMPTY in updateSummary');
-        if (values.eventDate && values.setupTime) {
-          log.info('BOOKING', '✓ Date and time captured successfully', { eventDate: values.eventDate, setupTime: values.setupTime });
+        if (values.setupTime) {
+          log.info('BOOKING', '✓ Setup time captured successfully', { setupTime: values.setupTime });
         }
 
       // GUARD: Different validation based on booking flow
@@ -724,7 +719,6 @@
         decor: values.decor ? 'yes' : 'no',
         location: values.venue,
         sections: values.sections,
-        eventDate: values.eventDate,
         setupTime: values.setupTime,
         packageName: selectedPackage ? selectedPackage.name : null,
         packageBasePrice: selectedPackage ? selectedPackage.basePrice : 0
@@ -763,10 +757,7 @@
             html += `<p style="background: rgba(212, 175, 55, 0.15); padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;"><strong>📦 Package:</strong> ${selectedPackage.name}</p>`;
           }
 
-          // Event date and setup time
-          if (values.eventDate) {
-            html += `<p><strong>Event Date:</strong> ${values.eventDate}</p>`;
-          }
+          // Setup Time
           if (values.setupTime) {
             html += `<p><strong>Setup Time:</strong> ${values.setupTime}</p>`;
           }
@@ -855,7 +846,6 @@
             welcomesigns: values.welcomesigns,
             venue: values.venue,
             location: values.venue, // Duplicate for backend compatibility
-            eventDate: values.eventDate,
             setupTime: values.setupTime,
             sections: values.sections, // Add sections field
             additionalInfo: values.additionalInfo,
@@ -870,8 +860,7 @@
           if (!safeSetItem('bintiBooking', bookingSave)) {
             log.warn('BOOKING', 'Could not save booking to localStorage - quota may be exceeded');
           } else {
-            log.info('BOOKING', 'Booking saved to localStorage with date/time', {
-              eventDate: bookingSave.eventDate,
+            log.info('BOOKING', 'Booking saved to localStorage', {
               setupTime: bookingSave.setupTime,
               fullname: bookingSave.fullname,
               phone: bookingSave.phone,
@@ -1164,10 +1153,8 @@
     try { 
       booking = JSON.parse(raw);
       log.info('CHECKOUT', 'Booking loaded from localStorage', booking);
-      log.info('CHECKOUT', 'Date/Time data in booking', {
-        eventDate: booking.eventDate,
+      log.info('CHECKOUT', 'Setup Time data in booking', {
         setupTime: booking.setupTime,
-        hasEventDate: !!booking.eventDate,
         hasSetupTime: !!booking.setupTime
       });
     } catch (e) { 
@@ -1185,15 +1172,6 @@
     html += `<p><strong>Phone:</strong> ${booking.phone || '—'}</p>`;
     html += `<p><strong>Email:</strong> ${booking.email || '—'}</p>`;
     html += `<p><strong>Venue:</strong> ${booking.venue || '—'}</p>`;
-    
-    // Event Date - with better formatting
-    const eventDateDisplay = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-KE') : '—';
-    log.info('CHECKOUT', 'Event Date Processing', { 
-      rawValue: booking.eventDate, 
-      displayValue: eventDateDisplay,
-      isEmpty: !booking.eventDate 
-    });
-    html += `<p style="background: rgba(212, 175, 55, 0.1); padding: 8px 12px; border-radius: 4px; margin: 8px 0;"><i class="fas fa-calendar-alt" style="color: #D4AF37; margin-right: 8px;"></i><strong>Event Date:</strong> ${eventDateDisplay}</p>`;
     
     // Setup Time - with better formatting
     const setupTimeDisplay = booking.setupTime || '—';
@@ -1323,7 +1301,6 @@
       email: booking.email || '',
       contactPhone: booking.phone || '',
       venue: booking.venue || '',
-      eventDate: booking.eventDate || '',
       setupTime: booking.setupTime || '',
       tentType: booking.tentType || 'Package + Tent',
       bookingType: booking.bookingType || booking.tentType || 'Package + Tent'
@@ -1557,7 +1534,6 @@
       packageName: booking.selectedPackage || booking.packageName,
       packageBasePrice: booking.packageBasePrice || 0,
       mpesaPhone: mpesaPhone ? formatPhoneDisplay(mpesaPhone) : '',
-      eventDate: booking.eventDate,
       setupTime: booking.setupTime,
       sections: booking.sections || booking.aframeSections, // Include sections
       lighting: booking.lighting,
