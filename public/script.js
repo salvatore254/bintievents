@@ -1278,10 +1278,11 @@
     const paymentPhone = mpesaPhone || phone;
     const booking = bookingData || safeGetItem('bintiBooking') || {};
     
-    // Create payment status modal
+    // STEP 1: Show M-Pesa STK push initiated modal
     const modal = document.createElement('div');
     modal.id = 'payment-status-modal';
     modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    log.info('PAYMENT', 'Step 1: Showing M-Pesa STK push modal (modal sequence: 1/3)');
     modal.innerHTML = `
       <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
         <div style="background: linear-gradient(135deg, #25D366, #00b842); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px; position: relative; overflow: hidden;">
@@ -1366,12 +1367,13 @@
         // Show the success confirmation modal after 2 seconds (allow payment to be processed)
         setTimeout(() => {
           // Close the payment status modal
+          log.info('PAYMENT', 'Step 3: Showing success confirmation modal (modal sequence: 3/3)');
           if (modal && modal.parentNode) {
             modal.parentNode.removeChild(modal);
           }
           
           // Show success confirmation modal
-          log.info('PAYMENT', 'Showing success confirmation modal');
+          log.info('PAYMENT', 'Closing STK push modal and displaying success');
           window.showConfirmationModal('success', booking);
         }, 2000);
       })
@@ -1511,6 +1513,60 @@
     const paymentAmount = q('input[name="payment-amount"]:checked')?.value || 'deposit';
     const booking = safeGetItem('bintiBooking') || {};
     
+    // VALIDATION: Ensure all required fields are present
+    const requiredFields = ['fullname', 'phone', 'email', 'venue'];
+    const missingFields = [];
+    
+    for (const field of requiredFields) {
+      if (!booking[field] || booking[field].toString().trim() === '') {
+        missingFields.push(field);
+      }
+    }
+    
+    if (missingFields.length > 0) {
+      log.error('PAYMENT', 'Missing required fields for payment', { missingFields });
+      window.showConfirmationModal('failure', {
+        email: booking.email || 'user@example.com',
+        fullname: booking.fullname || 'Guest',
+        total: booking.total || 0,
+      });
+      
+      // Show error detail in modal
+      const modalContent = q('#confirmation-content');
+      if (modalContent) {
+        modalContent.innerHTML = `
+          <div style="text-align: center;">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; color: white;">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h1 style="color: #333; font-size: 1.8em; margin: 20px 0 10px;">Incomplete Booking Information</h1>
+            <p style="color: #666; font-size: 1.05em; margin: 15px 0 30px;">Please complete the following required fields before proceeding:</p>
+          </div>
+
+          <div style="background: #fdf2f1; border: 1px solid #ffcdd2; border-radius: 8px; padding: 16px; margin: 20px 0; color: #c62828; font-size: 0.95em; line-height: 1.6;">
+            <p style="margin: 0;"><strong style="text-transform: capitalize; font-weight: 700;">Missing fields:</strong></p>
+            <ul style="margin: 8px 0 0 20px; padding: 8px 0;">
+              ${missingFields.map(field => `<li>${field.charAt(0).toUpperCase() + field.slice(1)}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 30px;">
+            <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; window.location.href='bookings.html';" style="flex: 1; background: #7851A9; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em;">
+              <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Go Back to Bookings
+            </button>
+            <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none';" style="flex: 1; background: #f0f0f0; color: #333; border: 2px solid #e0e0e0; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em;">
+              <i class="fas fa-times" style="margin-right: 8px;"></i> Close
+            </button>
+          </div>
+        `;
+      }
+      
+      q('#confirmation-modal').style.display = 'flex';
+      return;
+    }
+    
+    log.info('PAYMENT', 'All required fields validated successfully');
+    
     // Calculate payment amount
     const totalAmount = booking.total || 0;
     const depositAmount = Math.round(totalAmount * 0.8);
@@ -1526,11 +1582,11 @@
     
     // Create payment request
     const paymentData = {
-      fullname: booking.fullname,
-      phone: booking.phone,
-      email: booking.email,
-      venue: booking.venue,
-      location: booking.location || booking.venue, // Backend compatibility
+      fullname: booking.fullname.trim(),
+      phone: booking.phone.trim(),
+      email: booking.email.trim(),
+      venue: booking.venue.trim(),
+      location: (booking.location || booking.venue).trim(), // Backend compatibility
       tentType: booking.tentType || 'none',
       tentConfigs: booking.tentConfigs || [],
       packageName: booking.selectedPackage || booking.packageName,
@@ -1589,7 +1645,15 @@
     
     // Send to backend to create booking and initiate payment
     const confirmUrl = `${API_BASE_URL}/bookings/confirm`;
+    log.info('PAYMENT', 'Step 2: Sending payment data to backend (modal sequence: 2/3)');
     log.info('PAYMENT', 'Calling booking confirm API', { url: confirmUrl });
+    log.info('PAYMENT', 'Payment data includes:', {
+      fullname: paymentData.fullname || '❌ MISSING',
+      phone: paymentData.phone || '❌ MISSING',
+      email: paymentData.email || '❌ MISSING',
+      venue: paymentData.venue || '❌ MISSING',
+      total: paymentData.bookingDetails?.total || paymentData.total
+    });
     
     apiCall(confirmUrl, {
       method: 'POST',
@@ -1604,7 +1668,7 @@
           log.info('PAYMENT', 'Booking created successfully', { bookingId: data.bookingId });
           // Successfully created booking
           if (paymentMethod === 'mpesa') {
-            log.info('PAYMENT', 'Initiating M-Pesa payment');
+            log.info('PAYMENT', 'Initiating M-Pesa payment - will show STK modal');
             // Trigger M-Pesa STK push with calculated amount and booking details
             window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone, booking);
           } else if (paymentMethod === 'pesapal') {
@@ -1613,7 +1677,7 @@
             window.loadPesapalIframe(data.bookingId);
           } else {
             log.error('PAYMENT', 'Unknown payment method', paymentMethod);
-            alert('Payment method not recognized. Please contact support.');
+            window.showConfirmationModal('failure', booking);
           }
         } else {
           log.error('PAYMENT', 'Booking creation failed', data);
@@ -1622,6 +1686,13 @@
       })
       .catch(err => {
         log.error('PAYMENT', 'Payment processing error', err);
+        log.error('PAYMENT', 'Error details:', {
+          message: err.message,
+          fullnameEmpty: !paymentData.fullname?.trim(),
+          phoneEmpty: !paymentData.phone?.trim(),
+          emailEmpty: !paymentData.email?.trim(),
+          venueEmpty: !paymentData.venue?.trim(),
+        });
         window.showConfirmationModal('failure', booking);
       })
       .finally(() => {
