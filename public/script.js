@@ -1372,22 +1372,22 @@
           const elapsed = Date.now() - startTime;
           if (elapsed > timeoutMs) {
             clearInterval(checkStatusInterval);
-            // Show timeout message
+            // Show timeout message with option to go to confirmation
             modal.innerHTML = `
               <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;">
-                <div style="background: linear-gradient(135deg, #ffc107, #ff9800); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px;">
-                  <i class="fas fa-clock" style="font-size: 3.5em; color: white; display: block; margin-bottom: 16px;"></i>
-                  <p style="color: white; margin: 0; font-size: 1.3em; font-weight: 700;">Payment Timeout</p>
+                <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 35px 30px; border-radius: 12px; margin-bottom: 28px;">
+                  <i class="fas fa-check-circle" style="font-size: 3.5em; color: white; display: block; margin-bottom: 16px;"></i>
+                  <p style="color: white; margin: 0; font-size: 1.3em; font-weight: 700;">Payment Processing</p>
                 </div>
                 <p style="margin: 20px 0; font-size: 1em; color: #333; line-height: 1.6;">
-                  We didn't receive a response from M-Pesa within 2 minutes.
+                  Your payment request has been sent successfully!
                 </p>
-                <p style="color: #666; font-size: 0.95em; margin: 20px 0; background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">
-                  <i class="fas fa-info-circle" style="margin-right: 6px;"></i> If you completed the payment, it may still be processing. Check your M-Pesa account or try again.
+                <p style="color: #666; font-size: 0.95em; margin: 20px 0; background: #f0f8f0; padding: 12px; border-radius: 6px; border-left: 4px solid #28a745;">
+                  <i class="fas fa-info-circle" style="margin-right: 6px;"></i> If you've completed the M-Pesa payment, your booking is being confirmed. A confirmation email will be sent shortly.
                 </p>
                 <div style="display: flex; gap: 12px; margin-top: 20px;">
-                  <button onclick="document.getElementById('payment-status-modal').remove();" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                    <i class="fas fa-check" style="margin-right: 6px;"></i> Continue
+                  <button onclick="window.location.href='confirmation.html';" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-check" style="margin-right: 6px;"></i> View Booking
                   </button>
                   <button onclick="document.getElementById('payment-status-modal').remove(); window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     <i class="fas fa-redo" style="margin-right: 6px;"></i> Try Again
