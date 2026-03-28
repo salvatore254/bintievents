@@ -231,6 +231,22 @@
     }
   });
 
+  // --- Handle tentCategory query parameter from tents page
+  const handleTentCategoryParam = () => {
+    const params = new URLSearchParams(window.location.search);
+    const tentCategory = params.get('tentCategory');
+    
+    if (tentCategory) {
+      log.info('BOOKING', 'Tent category from URL parameter', { tentCategory });
+      const draft = { source: 'tent-page', timestamp: Date.now(), tentType: tentCategory };
+      safeSetItem('bintiBookingDraft', draft);
+      // Clean up URL
+      window.history.replaceState({}, document.title, 'bookings.html');
+    }
+  };
+  
+  handleTentCategoryParam();
+
   // --- Card Book Now clicks: save a draft and redirect to bookings
   onReady(() => {
     qa('.btn-card').forEach(btn => {

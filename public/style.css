@@ -410,6 +410,60 @@ section h2::after {
   box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); 
 }
 
+/* Tent Showcase Card Animations */
+.tent-showcase {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  position: relative;
+}
+
+.tent-showcase:hover {
+  transform: translateY(-12px) !important;
+  box-shadow: 0 20px 50px rgba(120, 81, 169, 0.2) !important;
+}
+
+.tent-showcase img {
+  transition: transform 0.4s ease;
+}
+
+.tent-showcase:hover img {
+  transform: scale(1.05);
+}
+
+.tent-showcase .btn-card {
+  background-color: #7851A9;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+}
+
+.tent-showcase .btn-card:hover {
+  background-color: #5d3d7a;
+  transform: scale(1.02);
+  box-shadow: 0 10px 28px rgba(120, 81, 169, 0.35);
+}
+
+/* Stretch Tents - Flagship Service - Larger Display */
+.stretch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.stretch-grid .tent-showcase {
+  min-height: 420px;
+}
+
+.stretch-grid .tent-showcase img {
+  height: 320px;
+}
+
+/* Mobile responsiveness for Stretch */
+@media (max-width: 768px) {
+  .stretch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Why Choose Grid Card alignment */
 .why-choose-grid .service-card {
   display: flex;
