@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Event Extras | Binti Tents & Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Premium event furniture, lighting, audio visual, decorations, and LED screen solutions for unforgettable events." />
+  <link rel="icon" type="image/png" href="images/logo1.png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body {
+      background: linear-gradient(180deg, rgba(255, 250, 248, 0.5) 0%, rgba(255, 245, 240, 0.3) 100%);
+    }
+
+    /* Extras Grid */
+    .extras-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 48px 45px;
+      margin: 40px auto;
+      max-width: 1400px;
+      padding: 0 40px;
+    }
+
+    /* Extras Cards */
+    .extras-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .extras-card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+    }
+
+    .extras-icon-section {
+      width: 100%;
+      height: 260px;
+      background: linear-gradient(135deg, #F8E5F0 0%, #FCE4EC 50%, #F3E5F5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #B97C7C;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .extras-icon-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .extras-card:hover .extras-icon-section::before {
+      opacity: 1;
+    }
+
+    .extras-content {
+      padding: 32px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .extras-category {
+      font-size: 0.8rem;
+      color: #AA5B9A;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .extras-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 12px 0 20px 0;
+      color: #3E2723;
+      line-height: 1.5;
+      font-family: 'Georgia', serif;
+      letter-spacing: -0.5px;
+    }
+
+    .extras-description {
+      color: #6D4A4A;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      font-weight: 400;
+    }
+
+    .extras-features {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: #A1887A;
+      margin-bottom: 24px;
+    }
+
+    .extras-features span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-inquire {
+      background-color: #B97C7C;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+    }
+
+    .btn-inquire:hover {
+      background-color: #A06B6B;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(185, 124, 124, 0.3);
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(120, 81, 169, 0.1), transparent);
+      margin: 60px 0;
+    }
+
+    @media (max-width: 768px) {
+      .extras-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 0 20px;
+      }
+    }
+
+    /* Recommendations Section */
+    .recommendations-section {
+      background: linear-gradient(135deg, rgba(185, 124, 124, 0.08), rgba(212, 175, 55, 0.08));
+      border-radius: 16px;
+      padding: 48px 40px;
+      margin: 60px auto;
+      max-width: 1200px;
+    }
+
+    .recommendations-section h2 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .recommendation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    .recommendation-item {
+      background: white;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #B97C7C;
+    }
+
+    .recommendation-item h3 {
+      color: #6B4B4B;
+      margin-bottom: 12px;
+    }
+
+    .recommendation-item p {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo"><a href="index.html"><img src="images/logo1.png" alt="Binti Logo"></a></div>
+      <nav class="main-nav">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="tents.html">Tents</a></li>
+          <li><a href="event-extras.html" class="active">Event Extras</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <a class="btn-gold" href="bookings.html">Book Now</a>
+      <button id="hamburger" class="hamburger">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-hero" style="background-image:url('images/well-dressed-table-26.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <h1 data-aos="fade-up">Elevate Your Event with Premium Extras</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="100">From lighting and furniture to audio-visual equipment and stunning decorations—everything you need to create an unforgettable experience.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- Event Furniture Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">Event Furniture</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Transform your space with elegant and functional furniture solutions tailored to your event style</p>
+      
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-chair"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <h3 class="extras-title">Premium Seating</h3>
+              <p class="extras-description">Elegant chairs and sofas available in various styles. From contemporary to classic, we have seating arrangements for every aesthetic.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Multiple styles</span>
+                <span><i class="fas fa-check"></i> Premium quality</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-utensils"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <h3 class="extras-title">Dining Tables</h3>
+              <p class="extras-description">Professional-grade dining tables designed for elegance and functionality. Perfect for wedding receptions, corporate dinners, and gala events.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Various sizes</span>
+                <span><i class="fas fa-check"></i> Durable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-couch"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <h3 class="extras-title">Lounge Furniture</h3>
+              <p class="extras-description">Sophisticated lounge seating and accent pieces. Create intimate conversation areas and upscale relaxation zones at your event.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Luxurious</span>
+                <span><i class="fas fa-check"></i> Customizable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Event Lighting Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">Event Lighting Solutions</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Set the perfect mood with professional lighting that enhances atmosphere and creates visual impact</p>
+
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-lightbulb"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <h3 class="extras-title">LED Uplighting</h3>
+              <p class="extras-description">Customizable LED uplighting to transform venues. Create stunning color schemes that match your event theme and brand colors.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> RGB capable</span>
+                <span><i class="fas fa-check"></i> Programmable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-star"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <h3 class="extras-title">Spot & Stage Lighting</h3>
+              <p class="extras-description">Professional-grade stage lighting for speeches, performances, and focal points. Ensure your main moments are beautifully illuminated.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> High-powered</span>
+                <span><i class="fas fa-check"></i> Professional</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-wand-magic-sparkles"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <h3 class="extras-title">String & Ambient Lighting</h3>
+              <p class="extras-description">Romantic string lights and ambient installations for intimate settings. Perfect for outdoor events and creating magical atmospheres.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Stylish</span>
+                <span><i class="fas fa-check"></i> Aesthetic</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Audio Visual Equipment Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">Audio Visual Equipment</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Crystal-clear sound and stunning visuals for professional event presentations and entertainment</p>
+
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-microphone"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <h3 class="extras-title">Professional Sound Systems</h3>
+              <p class="extras-description">High-fidelity audio equipment with microphones, speakers, and mixing capabilities. Ensure every word and note is heard clearly.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Crystal clear</span>
+                <span><i class="fas fa-check"></i> Adjustable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-video"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <h3 class="extras-title">Projection Systems</h3>
+              <p class="extras-description">High-definition projection for presentations, slideshows, and video content. Versatile setups for indoor and outdoor events.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> HD quality</span>
+                <span><i class="fas fa-check"></i> Versatile</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-headphones"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <h3 class="extras-title">Wireless Mic & Mixing</h3>
+              <p class="extras-description">Wireless microphone systems and professional mixing boards. Freedom of movement for speakers with professional audio control.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Wireless</span>
+                <span><i class="fas fa-check"></i> Professional</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Event Decorations Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">Event Decorations</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Elegant decorative pieces that add sophistication and charm to your celebration</p>
+
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-vial"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <h3 class="extras-title">Premium Vases</h3>
+              <p class="extras-description">Stunning vases in various styles and finishes. Perfect for floral arrangements, centerpieces, and adding elegance to any table.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Multiple styles</span>
+                <span><i class="fas fa-check"></i> Elegant</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-wine-glass"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <h3 class="extras-title">Goblets & Chalices</h3>
+              <p class="extras-description">Ornate goblets and decorative chalices for themed events. Luxurious statement pieces for cocktail areas and display tables.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Ornate</span>
+                <span><i class="fas fa-check"></i> Luxurious</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-sparkles"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <h3 class="extras-title">Decorative Centerpieces</h3>
+              <p class="extras-description">Curated decorative pieces and centerpieces to elevate table settings. From floral to sculptural, we have options for every theme.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Curated</span>
+                <span><i class="fas fa-check"></i> Thematic</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Backdrop & Staging Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">Backdrops & Stage Designs</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Create stunning focal points and flow designs for photography and performances</p>
+
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-image"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Backdrop</div>
+              <h3 class="extras-title">Photo Backdrops</h3>
+              <p class="extras-description">Elegant photo backdrop designs perfect for guest photos and social media moments. Customizable to match your event theme.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Photogenic</span>
+                <span><i class="fas fa-check"></i> Customizable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-water"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Backdrop</div>
+              <h3 class="extras-title">Waterfall & Drape Designs</h3>
+              <p class="extras-description">Luxurious fabric installations and waterfall designs. Create dramatic focal points and elegant stage settings with premium fabrics.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Dramatic</span>
+                <span><i class="fas fa-check"></i> Luxurious</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-person-circle-plus"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Staging</div>
+              <h3 class="extras-title">Dance Floor & Flow Designs</h3>
+              <p class="extras-description">Professional stage setups with designed flow for dancing and performances. Optimized layouts for guest movement and entertainment.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Professional</span>
+                <span><i class="fas fa-check"></i> Optimized flow</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- LED Screens Section -->
+    <section style="padding: 40px 20px;">
+      <h2 data-aos="fade-up" style="margin-bottom: 20px; text-align: center;">TV & LED Screen Solutions</h2>
+      <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">High-definition display solutions for presentations, entertainment, and live feeds</p>
+
+      <div class="extras-grid">
+        <div class="extras-card" data-aos="fade-up">
+          <div class="extras-icon-section"><i class="fas fa-tv"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <h3 class="extras-title">Professional LED Screens</h3>
+              <p class="extras-description">Large-format LED screens for aerial views and presentations. Perfect for corporate events, concerts, and major celebrations.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> High resolution</span>
+                <span><i class="fas fa-check"></i> Scalable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="extras-icon-section"><i class="fas fa-circle-play"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <h3 class="extras-title">Video Display Walls</h3>
+              <p class="extras-description">Seamless video display walls for immersive experiences. Ideal for live feeds, slideshows, and creative video content.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Seamless</span>
+                <span><i class="fas fa-check"></i> Immersive</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+
+        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="extras-icon-section"><i class="fas fa-cast"></i></div>
+          <div class="extras-content">
+            <div>
+              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <h3 class="extras-title">Live Stream & Monitoring</h3>
+              <p class="extras-description">Professional live streaming equipment and remote monitoring solutions. Connect guests and stakeholders from anywhere in the world.</p>
+              <div class="extras-features">
+                <span><i class="fas fa-check"></i> Professional</span>
+                <span><i class="fas fa-check"></i> Remote capable</span>
+              </div>
+            </div>
+            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Recommendations Section -->
+    <section class="recommendations-section">
+      <h2 data-aos="fade-up">Our Recommendations</h2>
+      
+      <div class="recommendation-grid">
+        <div class="recommendation-item" data-aos="fade-up">
+          <h3><i class="fas fa-lightbulb"></i> Lighting + Backdrop Combo</h3>
+          <p>Pair professional lighting with a stunning backdrop for maximum visual impact. This combination creates memorable Photo opportunities and transforms your venue into a premium space.</p>
+        </div>
+
+        <div class="recommendation-item" data-aos="fade-up" data-aos-delay="100">
+          <h3><i class="fas fa-music"></i> Complete Audio-Visual Package</h3>
+          <p>Combine professional sound systems with LED screens for seamless presentations and entertainment. Perfect for speeches, performances, and live entertainment during your event.</p>
+        </div>
+
+        <div class="recommendation-item" data-aos="fade-up" data-aos-delay="200">
+          <h3><i class="fas fa-chair"></i> Furniture + Decor Bundle</h3>
+          <p>Coordinate premium furniture with complementary decorative pieces for a cohesive, elegant aesthetic. Create a unified look throughout your event space.</p>
+        </div>
+
+        <div class="recommendation-item" data-aos="fade-up" data-aos-delay="300">
+          <h3><i class="fas fa-crown"></i> Premium Stage Setup</h3>
+          <p>Invest in professional stage design with lighting, LED screens, and optimized flow. Elevate your main moments and create an unforgettable ceremonial experience.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section style="padding: 40px 30px; background: linear-gradient(135deg, rgba(120, 81, 169, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%); border-top: 1px solid rgba(120, 81, 169, 0.1); margin-top: 16px; border-radius: 8px;">
+      <div style="text-align: center;">
+        <h2 data-aos="fade-up" style="margin-bottom: 20px;">Customize Your Event Experience</h2>
+        <p data-aos="fade-up" data-aos-delay="100" style="margin-bottom: 30px; font-size: 1.05rem; color: #666; max-width: 600px; margin-left: auto; margin-right: auto;">Our event extras packages are fully customizable. Mix and match to create the perfect setup for your celebration.</p>
+        <div data-aos="fade-up" data-aos-delay="200" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+          <a href="contact.html" class="btn-card" style="background-color: #B97C7C; color: white; text-decoration: none; padding: 14px 28px; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-envelope"></i> Get Custom Quote</a>
+          <a href="https://wa.me/+254728307327?text=Hi%20Binti%20Events!%20I%20would%20like%20to%20inquire%20about%20event%20extras%20for%20my%20celebration." target="_blank" rel="noopener" class="btn-card" style="background-color: #25D366; color: white; text-decoration: none; padding: 14px 28px; border-radius: 4px; display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="images/logo1.png" alt="Binti Events" class="footer-logo">
+        <p class="caption">Instinctively Elegant</p>
+        <div class="footer-contact">
+          <div class="footer-contact-item">
+            <i class="fas fa-phone" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Phone</strong><br>+254 728 307 327</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Email</strong><br>info@bintievents.com</div>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-right: 8px;"></i>
+            <div><strong>Location</strong><br>Nairobi, Kenya</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tents.html">Our Tents</a></li>
+          <li><a href="privatepackages.html">Private Events</a></li>
+          <li><a href="corporatepackages.html">Corporate Events</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/bintievents" aria-label="Facebook" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://instagram.com/bintievents" aria-label="Instagram" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://tiktok.com/@bintievents" aria-label="TikTok" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+254728307327" aria-label="WhatsApp" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-top: 20px;"><strong>Office Hours:</strong><br>Mon - Fri: 8am - 6pm<br>Sat: 9am - 1pm</p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Binti Events. All rights reserved.</p>
+      <div>
+        <a href="#">Privacy Policy</a> | <a href="terms.html">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/+254728307327" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 600,
+      easing: 'ease-in-out',
+      once: true,
+      offset: 50
+    });
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
