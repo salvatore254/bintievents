@@ -1427,14 +1427,16 @@
       timeout: API_TIMEOUT
     })
       .then(data => {
-        if (!data.iframeUrl) {
+        const iframeUrl = data?.iframeUrl || data?.iframe_url || data?.redirectUrl || data?.redirect_url || data?.url;
+        if (!iframeUrl) {
+          log.error('PAYMENT', 'Pesapal iframe response missing URL field', data);
           throw new Error('Invalid response from server');
         }
         const iframe = document.createElement('iframe');
         iframe.width = '100%';
         iframe.height = '600';
         iframe.frameBorder = '0';
-        iframe.src = data.iframeUrl;
+        iframe.src = iframeUrl;
         container.innerHTML = '';
         container.appendChild(iframe);
         log.info('PAYMENT', 'Pesapal iframe loaded successfully in modal');
