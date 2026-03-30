@@ -9,6 +9,27 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Responsive stretch tent grid */
+    .stretch-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    @media (max-width: 768px) {
+      .stretch-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    /* Compact button styling */
+    .btn-card[style*="width: 100%"] {
+      width: auto !important;
+      padding: 10px 24px !important;
+      border-radius: 50px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -49,7 +70,7 @@
     <section style="padding: 30px 20px;">
       <h2 data-aos="fade-up" style="margin-bottom: 20px;">Stretch Tents</h2>
       <p data-aos="fade-up" style="margin-bottom: 30px; font-size: 1.05rem; color: #666; line-height: 1.6;">At the heart of our collection lie our magnificent Stretch Tents—the pinnacle of modern event luxury. With their signature peaked design and seamless fabric, these tents create an unforgettable atmosphere that adapts to your vision.</p>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;" class="stretch-grid">
+      <div style="display: grid; gap: 20px;" class="stretch-grid">
         <div class="tent-showcase" tabindex="0" data-aos="fade-up" style="border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.1); transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(120, 81, 169, 0.08); cursor: pointer;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 16px 40px rgba(120, 81, 169, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)';">
           <div style="position: relative; overflow: hidden; height: 300px;">
             <img src="images/2215.jpeg" alt="Stretch Tent 22x15" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease;">
@@ -62,7 +83,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">22 × 15<span style="font-size: 0.75em; color: #999; font-weight: 400;"> meters</span></h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-users" style="color: #7851A9; margin-right: 6px;"></i>For larger gatherings</p>
-            <button class="btn-card" data-action="book" data-tent="stretch" data-size="22x15" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="stretch" data-size="22x15" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
 
@@ -78,7 +99,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">10 × 12<span style="font-size: 0.75em; color: #999; font-weight: 400;"> meters</span></h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-users" style="color: #7851A9; margin-right: 6px;"></i>Perfect for medium events</p>
-            <button class="btn-card" data-action="book" data-tent="stretch" data-size="10x12" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="stretch" data-size="10x12" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
 
@@ -94,7 +115,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">9 × 8<span style="font-size: 0.75em; color: #999; font-weight: 400;"> meters</span></h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-users" style="color: #7851A9; margin-right: 6px;"></i>For intimate celebrations</p>
-            <button class="btn-card" data-action="book" data-tent="stretch" data-size="9x8" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="stretch" data-size="9x8" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
 
@@ -110,7 +131,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">10 × 7.5<span style="font-size: 0.75em; color: #999; font-weight: 400;"> meters</span></h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-users" style="color: #7851A9; margin-right: 6px;"></i>Cozy & elegant setup</p>
-            <button class="btn-card" data-action="book" data-tent="stretch" data-size="10x7.5" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="stretch" data-size="10x7.5" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
@@ -134,7 +155,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">Classic White</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-check-circle" style="color: #7851A9; margin-right: 6px;"></i>Clean & professional</p>
-            <button class="btn-card" data-action="book" data-tent="cheese" data-color="white" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="cheese" data-color="white" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
 
@@ -150,7 +171,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">Sunburst Yellow</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-lightbulb" style="color: #7851A9; margin-right: 6px;"></i>Bright & cheerful</p>
-            <button class="btn-card" data-action="book" data-tent="cheese" data-color="yellow" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="cheese" data-color="yellow" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
@@ -174,7 +195,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">50 Guests</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-spa" style="color: #7851A9; margin-right: 6px;"></i>Elegant & refined</p>
-            <button class="btn-card" data-action="book" data-tent="bline" data-config="50" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="bline" data-config="50" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
 
@@ -190,7 +211,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">100 Guests</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-champagne-glasses" style="color: #7851A9; margin-right: 6px;"></i>Spacious & luxurious</p>
-            <button class="btn-card" data-action="book" data-tent="bline" data-config="100" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="bline" data-config="100" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
@@ -214,7 +235,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">Modern Appeal</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-sparkles" style="color: #7851A9; margin-right: 6px;"></i>Bold architectural design</p>
-            <button class="btn-card" data-action="book" data-tent="aframe" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="aframe" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
@@ -238,7 +259,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">Affordable Focus</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-coins" style="color: #7851A9; margin-right: 6px;"></i>Great value option</p>
-            <button class="btn-card" data-action="book" data-tent="highpeak" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="highpeak" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
@@ -262,7 +283,7 @@
             </div>
             <h3 style="margin: 0 0 8px 0; font-size: 1.35rem; color: #2c1a3f; font-weight: 700;">Rustic Charm</h3>
             <p style="margin: 0 0 16px 0; color: #666; font-size: 0.9rem; line-height: 1.4;"><i class="fas fa-camera" style="color: #7851A9; margin-right: 6px;"></i>Instagram-worthy moments</p>
-            <button class="btn-card" data-action="book" data-tent="pergola" style="width: 100%; padding: 12px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
+            <button class="btn-card" data-action="book" data-tent="pergola" style="padding: 10px 24px; border: 2px solid #7851A9; background-color: #7851A9; color: white; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#6b3fa0'; this.style.boxShadow='0 6px 16px rgba(120, 81, 169, 0.35)';" onmouseout="this.style.background='#7851A9'; this.style.boxShadow='none';"><i class="fas fa-arrow-right" style="margin-right: 8px;"></i>Book</button>
           </div>
         </div>
       </div>
