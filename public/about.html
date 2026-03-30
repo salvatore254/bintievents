@@ -212,32 +212,36 @@
     // Countdown effect for stats
     document.addEventListener('DOMContentLoaded', function() {
       const statNumbers = document.querySelectorAll('.stat-number');
-      let hasAnimated = false;
 
       const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
-          if (entry.isIntersecting && !hasAnimated) {
-            hasAnimated = true;
-            statNumbers.forEach(stat => {
-              const target = parseInt(stat.getAttribute('data-target'));
-              const suffix = stat.textContent.match(/[+%]+/)[0];
-              let current = 0;
-              const increment = Math.ceil(target / 50);
-              
-              const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                  current = target;
-                  clearInterval(timer);
-                }
-                stat.textContent = current + suffix;
-              }, 30);
-            });
+          // Animate only when the stat item is in view
+          if (entry.isIntersecting && !entry.target.dataset.animated) {
+            entry.target.dataset.animated = 'true';
+            
+            const stat = entry.target;
+            const target = parseInt(stat.getAttribute('data-target'));
+            const suffix = stat.textContent.match(/[+%]+/)[0];
+            let current = 0;
+            const increment = Math.ceil(target / 50);
+            const duration = 100; // Slower animation: 100ms per increment
+            
+            const timer = setInterval(() => {
+              current += increment;
+              if (current >= target) {
+                current = target;
+                clearInterval(timer);
+              }
+              stat.textContent = current + suffix;
+            }, duration);
           }
         });
       }, { threshold: 0.5 });
 
-      document.querySelector('.stat-item') && observer.observe(document.querySelector('.stat-item'));
+      // Observe each stat individually
+      statNumbers.forEach(stat => {
+        observer.observe(stat);
+      });
     });
   </script>
   <script src="script.js" defer></script>
