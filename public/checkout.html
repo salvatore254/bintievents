@@ -50,6 +50,82 @@
     .payment-icon.pesapal-icon {
       background: linear-gradient(135deg, rgba(0, 102, 204, 0.1), rgba(0, 102, 204, 0.05));
     }
+
+    .pesapal-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      box-sizing: border-box;
+      backdrop-filter: blur(4px);
+    }
+
+    .pesapal-modal__dialog {
+      background: white;
+      border-radius: 18px;
+      width: min(1200px, 96vw);
+      height: min(92vh, 960px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+      overflow: hidden;
+    }
+
+    .pesapal-modal__header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #E5D5F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+
+    .pesapal-modal__body {
+      flex: 1 1 auto;
+      overflow: hidden;
+      padding: 0;
+      background: linear-gradient(180deg, #faf8ff 0%, #ffffff 100%);
+    }
+
+    .pesapal-modal__loading {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .pesapal-modal__frame {
+      width: 100%;
+      height: 100%;
+      min-height: 720px;
+      border: 0;
+      display: block;
+      background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .pesapal-modal {
+        padding: 0;
+      }
+
+      .pesapal-modal__dialog {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+      }
+
+      .pesapal-modal__header {
+        padding: 14px 16px;
+      }
+
+      .pesapal-modal__frame {
+        min-height: 0;
+      }
+    }
   </style>
   
   <!-- API Configuration for separate frontend/backend deployment -->
@@ -241,10 +317,10 @@
     </div>
 
     <!-- Pesapal Modal (hidden by default) -->
-    <div id="pesapal-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
-      <div style="background: white; border-radius: 16px; width: 100%; max-width: 900px; height: auto; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);">
+    <div id="pesapal-modal" class="pesapal-modal">
+      <div class="pesapal-modal__dialog">
         <!-- Modal Header -->
-        <div style="padding: 20px; border-bottom: 1px solid #E5D5F0; display: flex; justify-content: space-between; align-items: center;">
+        <div class="pesapal-modal__header">
           <div>
             <h3 style="margin: 0 0 4px 0; color: #4A7A6B; font-size: 1.3rem; font-weight: 600;">
               <i class="fas fa-credit-card" style="color: #0066CC; margin-right: 10px;"></i> Pesapal Payment
@@ -256,8 +332,8 @@
           </button>
         </div>
         <!-- Modal Body (iframe container) -->
-        <div id="pesapal-container" style="flex: 1; overflow: auto; padding: 20px;">
-          <div class="message-container" style="text-align: center; padding: 40px 20px;">
+        <div id="pesapal-container" class="pesapal-modal__body">
+          <div class="message-container pesapal-modal__loading">
             <p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p>
           </div>
         </div>

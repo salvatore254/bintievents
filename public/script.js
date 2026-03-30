@@ -1420,7 +1420,7 @@
     // Show the modal
     modal.style.display = 'flex';
     
-    container.innerHTML = '<div class="message-container" style="text-align: center; padding: 40px 20px;"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p></div>';
+    container.innerHTML = '<div class="message-container pesapal-modal__loading"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p></div>';
     
     // Fetch the secure iframe URL from backend
     apiCall(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`, {
@@ -1433,9 +1433,13 @@
           throw new Error('Invalid response from server');
         }
         const iframe = document.createElement('iframe');
+        iframe.className = 'pesapal-modal__frame';
         iframe.width = '100%';
-        iframe.height = '600';
+        iframe.height = '100%';
         iframe.frameBorder = '0';
+        iframe.setAttribute('loading', 'eager');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        iframe.setAttribute('allow', 'payment *; fullscreen');
         iframe.src = iframeUrl;
         container.innerHTML = '';
         container.appendChild(iframe);
