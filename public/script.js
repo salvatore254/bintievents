@@ -1415,12 +1415,18 @@
   window.loadPesapalIframe = function(bookingId) {
     const modal = q('#pesapal-modal');
     const container = q('#pesapal-container');
+    const openExternalLink = q('#pesapal-open-external');
     if (!modal || !container) return;
     
     // Show the modal
     modal.style.display = 'flex';
     
-    container.innerHTML = '<div class="message-container pesapal-modal__loading"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p></div>';
+    if (openExternalLink) {
+      openExternalLink.style.display = 'none';
+      openExternalLink.removeAttribute('href');
+    }
+
+    container.innerHTML = '<div class="message-container pesapal-modal__loading"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p><p class="pesapal-modal__hint">If the payment window appears cramped, use <strong>Open full page</strong>.</p></div>';
     
     // Fetch the secure iframe URL from backend
     apiCall(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`, {
@@ -1441,8 +1447,15 @@
         iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
         iframe.setAttribute('allow', 'payment *; fullscreen');
         iframe.src = iframeUrl;
+        const viewport = document.createElement('div');
+        viewport.className = 'pesapal-modal__viewport';
+        viewport.appendChild(iframe);
         container.innerHTML = '';
-        container.appendChild(iframe);
+        container.appendChild(viewport);
+        if (openExternalLink) {
+          openExternalLink.href = iframeUrl;
+          openExternalLink.style.display = 'inline-flex';
+        }
         log.info('PAYMENT', 'Pesapal iframe loaded successfully in modal');
       })
       .catch(err => {

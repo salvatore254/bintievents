@@ -55,41 +55,69 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, 0.82);
       z-index: 9999;
       justify-content: center;
-      align-items: center;
-      padding: 12px;
+      align-items: stretch;
+      padding: 0;
       box-sizing: border-box;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(6px);
     }
 
     .pesapal-modal__dialog {
       background: white;
-      border-radius: 18px;
-      width: min(1200px, 96vw);
-      height: min(92vh, 960px);
+      width: 100vw;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+      box-shadow: none;
       overflow: hidden;
     }
 
     .pesapal-modal__header {
-      padding: 18px 22px;
+      padding: 14px 18px;
       border-bottom: 1px solid #E5D5F0;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
       flex: 0 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .pesapal-modal__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pesapal-modal__open-link {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #0066CC;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pesapal-modal__hint {
+      margin: 0;
+      color: #666;
+      font-size: 0.82rem;
     }
 
     .pesapal-modal__body {
       flex: 1 1 auto;
-      overflow: hidden;
+      overflow: auto;
       padding: 0;
-      background: linear-gradient(180deg, #faf8ff 0%, #ffffff 100%);
+      background: linear-gradient(180deg, #f5f1ff 0%, #ffffff 100%);
     }
 
     .pesapal-modal__loading {
@@ -97,33 +125,49 @@
       padding: 40px 20px;
     }
 
+    .pesapal-modal__viewport {
+      width: 100%;
+      min-width: 1120px;
+      min-height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
     .pesapal-modal__frame {
       width: 100%;
-      height: 100%;
-      min-height: 720px;
+      min-width: 1120px;
+      height: calc(100vh - 76px);
+      min-height: 860px;
       border: 0;
       display: block;
       background: #fff;
     }
 
     @media (max-width: 768px) {
-      .pesapal-modal {
-        padding: 0;
-      }
-
-      .pesapal-modal__dialog {
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
-        border-radius: 0;
-      }
-
       .pesapal-modal__header {
-        padding: 14px 16px;
+        padding: 12px 14px;
+        align-items: flex-start;
+      }
+
+      .pesapal-modal__actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .pesapal-modal__open-link {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+      }
+
+      .pesapal-modal__viewport,
+      .pesapal-modal__frame {
+        min-width: 980px;
       }
 
       .pesapal-modal__frame {
-        min-height: 0;
+        height: calc(100vh - 92px);
+        min-height: 780px;
       }
     }
   </style>
@@ -327,14 +371,20 @@
             </h3>
             <p style="margin: 0; color: #888; font-size: 0.9rem;">Complete your secure payment</p>
           </div>
-          <button type="button" id="pesapal-modal-close" onclick="document.getElementById('pesapal-modal').style.display='none';" style="background: none; border: none; font-size: 1.8rem; color: #999; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-times"></i>
-          </button>
+          <div class="pesapal-modal__actions">
+            <a id="pesapal-open-external" class="pesapal-modal__open-link" href="#" target="_blank" rel="noopener noreferrer">
+              <i class="fas fa-up-right-from-square"></i> Open full page
+            </a>
+            <button type="button" id="pesapal-modal-close" onclick="document.getElementById('pesapal-modal').style.display='none';" style="background: none; border: none; font-size: 1.8rem; color: #999; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
         <!-- Modal Body (iframe container) -->
         <div id="pesapal-container" class="pesapal-modal__body">
           <div class="message-container pesapal-modal__loading">
             <p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p>
+            <p class="pesapal-modal__hint">If the payment window appears cramped, use <strong>Open full page</strong>.</p>
           </div>
         </div>
       </div>
