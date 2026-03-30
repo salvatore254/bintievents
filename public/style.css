@@ -434,6 +434,8 @@ section h2::after {
   transition: all 0.3s ease;
   font-size: 0.95rem;
   padding: 12px 20px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .tent-showcase .btn-card:hover {
