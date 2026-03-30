@@ -266,6 +266,9 @@
           // Pergola has no config, just add the tent type
         }
         
+        // Clear any previously selected package (tent-only flow)
+        localStorage.removeItem('bintiSelectedPackage');
+        
         // save draft with safe storage
         if (!safeSetItem('bintiBookingDraft', draft)) {
           alert('Could not save selection. Please try again.');
