@@ -465,7 +465,7 @@
       
       // Update add button text and visibility
       if (addTentConfigBtn) {
-        if (tentConfigs.length >= 4) {
+        if (tentConfigs.length >= 12) {
           addTentConfigBtn.style.display = 'none';
         } else if (tentConfigs.length > 0) {
           addTentConfigBtn.innerHTML = '<i class="fas fa-plus"></i> Add Another Tent';
