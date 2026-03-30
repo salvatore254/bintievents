@@ -904,7 +904,7 @@ section h2::after {
 .booking-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 48px;
   margin-bottom: 40px;
 }
 
@@ -1127,6 +1127,7 @@ section h2::after {
   display: flex;
   gap: 12px;
   margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 .btn-large {
@@ -1552,7 +1553,7 @@ section h2::after {
   .booking-container,
   .checkout-wrapper {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 32px;
   }
 
   .booking-summary-panel {
