@@ -18,25 +18,27 @@
     /* Extras Grid */
     .extras-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 24px;
-      margin: 40px auto;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0px;
+      margin: 50px auto;
       width: 100%;
-      padding: 0;
+      max-width: 1400px;
+      padding: 40px 20px;
     }
 
     /* Extras Cards */
     .extras-card {
       background: white;
-      border-radius: 24px;
+      border-radius: 50px;
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 40px 20px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
       height: 100%;
       cursor: pointer;
+      width: 100%;
     }
 
     .extras-card:hover {
@@ -46,7 +48,7 @@
 
     .extras-icon-section {
       width: 100%;
-      height: 260px;
+      height: 300px;
       background-size: cover;
       background-position: center;
       display: flex;
@@ -87,12 +89,12 @@
     }
 
     .extras-category {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #AA5B9A;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -135,29 +137,149 @@
       background-color: #B97C7C;
       color: white;
       border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
+      padding: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      width: fit-content;
+      justify-content: center;
+      gap: 0;
+      font-size: 1.2rem;
     }
 
     .btn-inquire:hover {
       background-color: #A06B6B;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(185, 124, 124, 0.3);
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(185, 124, 124, 0.4);
+    }
+
+    /* Category-specific colors */
+    .category-furniture .btn-inquire {
+      background-color: #C69C7B;
+    }
+
+    .category-furniture .btn-inquire:hover {
+      background-color: #B08A6B;
+    }
+
+    .category-lighting .btn-inquire {
+      background-color: #D4AF37;
+    }
+
+    .category-lighting .btn-inquire:hover {
+      background-color: #C49B2D;
+      color: #333;
+    }
+
+    .category-av .btn-inquire {
+      background-color: #7851A9;
+    }
+
+    .category-av .btn-inquire:hover {
+      background-color: #673C96;
+    }
+
+    .category-decorations .btn-inquire {
+      background-color: #AA5B9A;
+    }
+
+    .category-decorations .btn-inquire:hover {
+      background-color: #964B86;
+    }
+
+    .category-backdrops .btn-inquire {
+      background-color: #D5869B;
+    }
+
+    .category-backdrops .btn-inquire:hover {
+      background-color: #C37389;
+    }
+
+    .category-leds .btn-inquire {
+      background-color: #48A8E4;
+    }
+
+    .category-leds .btn-inquire:hover {
+      background-color: #3A95CE;
+    }
+
+    /* Category header styling */
+    .extras-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background-color: rgba(185, 124, 124, 0.1);
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+
+    .category-furniture .extras-category {
+      background-color: rgba(198, 156, 123, 0.15);
+      color: #C69C7B;
+    }
+
+    .category-lighting .extras-category {
+      background-color: rgba(212, 175, 55, 0.15);
+      color: #D4AF37;
+    }
+
+    .category-av .extras-category {
+      background-color: rgba(120, 81, 169, 0.15);
+      color: #7851A9;
+    }
+
+    .category-decorations .extras-category {
+      background-color: rgba(170, 91, 154, 0.15);
+      color: #AA5B9A;
+    }
+
+    .category-backdrops .extras-category {
+      background-color: rgba(213, 134, 155, 0.15);
+      color: #D5869B;
+    }
+
+    .category-leds .extras-category {
+      background-color: rgba(72, 168, 228, 0.15);
+      color: #48A8E4;
     }
 
     @media (max-width: 768px) {
       .extras-grid {
         grid-template-columns: 1fr;
-        gap: 32px;
-        padding: 0 20px;
+        gap: 12px;
+        padding: 0;
+        margin: 20px 0;
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .extras-content {
+        padding: 16px;
+      }
+
+      .extras-icon-section {
+        height: 200px;
+      }
+
+      .extras-title {
+        font-size: 1.2rem;
+        margin: 8px 0 16px 0;
+      }
+
+      .extras-description {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+
+      .extras-card {
+        border-radius: 32px;
       }
     }
 
@@ -168,6 +290,7 @@
       padding: 48px 40px;
       margin: 60px auto;
       max-width: 1200px;
+      width: 100%;
     }
 
     .recommendations-section h2 {
@@ -242,11 +365,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Transform your space with elegant and functional furniture solutions tailored to your event style</p>
       
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-furniture" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/goldchiavari.jpeg');"><i class="fas fa-chair"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <div class="extras-category"><i class="fas fa-couch"></i> Furniture</div>
               <h3 class="extras-title">Premium Seating</h3>
               <p class="extras-description">Elegant chairs and sofas available in various styles. From contemporary to classic, we have seating arrangements for every aesthetic.</p>
               <div class="extras-features">
@@ -254,15 +377,15 @@
                 <span><i class="fas fa-check"></i> Premium quality</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-furniture" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/diningtable.jpeg');"><i class="fas fa-utensils"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <div class="extras-category"><i class="fas fa-couch"></i> Furniture</div>
               <h3 class="extras-title">Dining Tables</h3>
               <p class="extras-description">Professional-grade dining tables designed for elegance and functionality. Perfect for wedding receptions, corporate dinners, and gala events.</p>
               <div class="extras-features">
@@ -270,15 +393,15 @@
                 <span><i class="fas fa-check"></i> Durable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-furniture" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/loungeseating.jpeg');"><i class="fas fa-couch"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Furniture</div>
+              <div class="extras-category"><i class="fas fa-couch"></i> Furniture</div>
               <h3 class="extras-title">Lounge Furniture</h3>
               <p class="extras-description">Sophisticated lounge seating and accent pieces. Create intimate conversation areas and upscale relaxation zones at your event.</p>
               <div class="extras-features">
@@ -286,7 +409,7 @@
                 <span><i class="fas fa-check"></i> Customizable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -300,11 +423,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Set the perfect mood with professional lighting that enhances atmosphere and creates visual impact</p>
 
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-lighting" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/LEDscreen.jpeg');"><i class="fas fa-lightbulb"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <div class="extras-category"><i class="fas fa-lightbulb"></i> Lighting</div>
               <h3 class="extras-title">LED Uplighting</h3>
               <p class="extras-description">Customizable LED uplighting to transform venues. Create stunning color schemes that match your event theme and brand colors.</p>
               <div class="extras-features">
@@ -312,15 +435,15 @@
                 <span><i class="fas fa-check"></i> Programmable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-lighting" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/Parcan.jpeg');"><i class="fas fa-star"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <div class="extras-category"><i class="fas fa-lightbulb"></i> Lighting</div>
               <h3 class="extras-title">Spot & Stage Lighting</h3>
               <p class="extras-description">Professional-grade stage lighting for speeches, performances, and focal points. Ensure your main moments are beautifully illuminated.</p>
               <div class="extras-features">
@@ -328,15 +451,15 @@
                 <span><i class="fas fa-check"></i> Professional</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-lighting" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/stringlights.jpeg');"><i class="fas fa-wand-magic-sparkles"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Lighting</div>
+              <div class="extras-category"><i class="fas fa-lightbulb"></i> Lighting</div>
               <h3 class="extras-title">String & Ambient Lighting</h3>
               <p class="extras-description">Romantic string lights and ambient installations for intimate settings. Perfect for outdoor events and creating magical atmospheres.</p>
               <div class="extras-features">
@@ -344,7 +467,7 @@
                 <span><i class="fas fa-check"></i> Aesthetic</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -358,11 +481,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Crystal-clear sound and stunning visuals for professional event presentations and entertainment</p>
 
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-av" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/sound.jpeg');"><i class="fas fa-microphone"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <div class="extras-category"><i class="fas fa-volume-high"></i> Audio Visual</div>
               <h3 class="extras-title">Professional Sound Systems</h3>
               <p class="extras-description">High-fidelity audio equipment with microphones, speakers, and mixing capabilities. Ensure every word and note is heard clearly.</p>
               <div class="extras-features">
@@ -370,15 +493,15 @@
                 <span><i class="fas fa-check"></i> Adjustable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-av" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/djservices.jpeg');"><i class="fas fa-video"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <div class="extras-category"><i class="fas fa-volume-high"></i> Audio Visual</div>
               <h3 class="extras-title">Projection Systems</h3>
               <p class="extras-description">High-definition projection for presentations, slideshows, and video content. Versatile setups for indoor and outdoor events.</p>
               <div class="extras-features">
@@ -386,15 +509,15 @@
                 <span><i class="fas fa-check"></i> Versatile</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-av" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/mixing.jpeg');"><i class="fas fa-headphones"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Audio Visual</div>
+              <div class="extras-category"><i class="fas fa-volume-high"></i> Audio Visual</div>
               <h3 class="extras-title">Wireless Mic & Mixing</h3>
               <p class="extras-description">Wireless microphone systems and professional mixing boards. Freedom of movement for speakers with professional audio control.</p>
               <div class="extras-features">
@@ -402,7 +525,7 @@
                 <span><i class="fas fa-check"></i> Professional</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -416,11 +539,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Elegant decorative pieces that add sophistication and charm to your celebration</p>
 
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-decorations" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/glassvases.jpeg');"><i class="fas fa-vial"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <div class="extras-category"><i class="fas fa-sparkles"></i> Decor</div>
               <h3 class="extras-title">Premium Vases</h3>
               <p class="extras-description">Stunning vases in various styles and finishes. Perfect for floral arrangements, centerpieces, and adding elegance to any table.</p>
               <div class="extras-features">
@@ -428,15 +551,15 @@
                 <span><i class="fas fa-check"></i> Elegant</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-decorations" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/goblets.jpeg');"><i class="fas fa-wine-glass"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <div class="extras-category"><i class="fas fa-sparkles"></i> Decor</div>
               <h3 class="extras-title">Goblets & Chalices</h3>
               <p class="extras-description">Ornate goblets and decorative chalices for themed events. Luxurious statement pieces for cocktail areas and display tables.</p>
               <div class="extras-features">
@@ -444,15 +567,15 @@
                 <span><i class="fas fa-check"></i> Luxurious</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-decorations" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/centerpiecedesign.jpeg');"><i class="fas fa-sparkles"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Decor</div>
+              <div class="extras-category"><i class="fas fa-sparkles"></i> Decor</div>
               <h3 class="extras-title">Decorative Centerpieces</h3>
               <p class="extras-description">Curated decorative pieces and centerpieces to elevate table settings. From floral to sculptural, we have options for every theme.</p>
               <div class="extras-features">
@@ -460,7 +583,7 @@
                 <span><i class="fas fa-check"></i> Thematic</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -474,11 +597,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">Create stunning focal points and flow designs for photography and performances</p>
 
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-backdrops" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/birthdaybackdrop.jpeg');"><i class="fas fa-image"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Backdrop</div>
+              <div class="extras-category"><i class="fas fa-images"></i> Backdrop</div>
               <h3 class="extras-title">Photo Backdrops</h3>
               <p class="extras-description">Elegant photo backdrop designs perfect for guest photos and social media moments. Customizable to match your event theme.</p>
               <div class="extras-features">
@@ -486,15 +609,15 @@
                 <span><i class="fas fa-check"></i> Customizable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-backdrops" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/drapedesign.jpeg');"><i class="fas fa-water"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Backdrop</div>
+              <div class="extras-category"><i class="fas fa-images"></i> Backdrop</div>
               <h3 class="extras-title">Waterfall & Drape Designs</h3>
               <p class="extras-description">Luxurious fabric installations and waterfall designs. Create dramatic focal points and elegant stage settings with premium fabrics.</p>
               <div class="extras-features">
@@ -502,15 +625,15 @@
                 <span><i class="fas fa-check"></i> Luxurious</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-backdrops" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/dancefloor.jpeg');"><i class="fas fa-person-circle-plus"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Staging</div>
+              <div class="extras-category"><i class="fas fa-images"></i> Staging</div>
               <h3 class="extras-title">Dance Floor & Flow Designs</h3>
               <p class="extras-description">Professional stage setups with designed flow for dancing and performances. Optimized layouts for guest movement and entertainment.</p>
               <div class="extras-features">
@@ -518,7 +641,7 @@
                 <span><i class="fas fa-check"></i> Optimized flow</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -532,11 +655,11 @@
       <p data-aos="fade-up" style="text-align: center; max-width: 600px; margin: 0 auto 30px; font-size: 1.05rem; color: #666;">High-definition display solutions for presentations, entertainment, and live feeds</p>
 
       <div class="extras-grid">
-        <div class="extras-card" data-aos="fade-up">
+        <div class="extras-card category-leds" data-aos="fade-up">
           <div class="extras-icon-section" style="background-image: url('extras images/LEDscreen.jpeg');"><i class="fas fa-tv"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <div class="extras-category"><i class="fas fa-square"></i> Display</div>
               <h3 class="extras-title">Professional LED Screens</h3>
               <p class="extras-description">Large-format LED screens for aerial views and presentations. Perfect for corporate events, concerts, and major celebrations.</p>
               <div class="extras-features">
@@ -544,15 +667,15 @@
                 <span><i class="fas fa-check"></i> Scalable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="extras-card category-leds" data-aos="fade-up" data-aos-delay="100">
           <div class="extras-icon-section" style="background-image: url('extras images/TV.jpeg');"><i class="fas fa-circle-play"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <div class="extras-category"><i class="fas fa-square"></i> Display</div>
               <h3 class="extras-title">Video Display Walls</h3>
               <p class="extras-description">Seamless video display walls for immersive experiences. Ideal for live feeds, slideshows, and creative video content.</p>
               <div class="extras-features">
@@ -560,15 +683,15 @@
                 <span><i class="fas fa-check"></i> Immersive</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
 
-        <div class="extras-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="extras-card category-leds" data-aos="fade-up" data-aos-delay="200">
           <div class="extras-icon-section" style="background-image: url('extras images/mixing.jpeg');"><i class="fas fa-cast"></i></div>
           <div class="extras-content">
             <div>
-              <div class="extras-category"><i class="fas fa-check-circle"></i> Display</div>
+              <div class="extras-category"><i class="fas fa-square"></i> Display</div>
               <h3 class="extras-title">Live Stream & Monitoring</h3>
               <p class="extras-description">Professional live streaming equipment and remote monitoring solutions. Connect guests and stakeholders from anywhere in the world.</p>
               <div class="extras-features">
@@ -576,7 +699,7 @@
                 <span><i class="fas fa-check"></i> Remote capable</span>
               </div>
             </div>
-            <a href="contact.html" class="btn-inquire"><i class="fas fa-envelope"></i> Inquire</a>
+            <a href="contact.html" class="btn-inquire" title="Inquire"><i class="fas fa-envelope"></i></a>
           </div>
         </div>
       </div>
