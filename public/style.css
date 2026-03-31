@@ -617,6 +617,13 @@ section h2::after {
   background: #C0A028;
 }
 
+/* Section Divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 81, 169, 0.1), transparent);
+  margin: 20px 0;
+}
+
 /* Footer */
 .site-footer { 
   background-image: linear-gradient(135deg, rgba(120, 81, 169, 0.5), rgba(74, 122, 107, 0.5)), url('images/footer.png');
