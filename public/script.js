@@ -566,9 +566,9 @@
         pergolaOptions.setAttribute('aria-hidden', val !== 'pergola');
       }
       
-      // Show add button when tent type is selected and we have less than 4 tents
+      // Show add button when tent type is selected and we have less than 15 tents
       if (addTentConfigBtn) {
-        addTentConfigBtn.style.display = (val && tentConfigs.length < 4) ? 'block' : 'none';
+        addTentConfigBtn.style.display = (val && tentConfigs.length < 15) ? 'block' : 'none';
       }
     }
 
