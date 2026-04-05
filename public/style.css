@@ -568,6 +568,169 @@ section h2::after {
   padding: 30px 0;
 }
 
+/* Past events showcase */
+.past-events-showcase {
+  position: relative;
+  padding: 56px 0;
+  background:
+    linear-gradient(180deg, rgba(27, 33, 30, 0.76), rgba(27, 33, 30, 0.54)),
+    url('images/well-dressed-table-26.jpg') center/cover no-repeat;
+  border-top: 1px solid rgba(212, 175, 55, 0.18);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.16);
+  overflow: hidden;
+}
+
+.past-events-showcase::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.16), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(74, 122, 107, 0.16), transparent 28%);
+  pointer-events: none;
+}
+
+.past-events-showcase .container {
+  position: relative;
+  z-index: 1;
+}
+
+.past-events-header {
+  max-width: 760px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.past-events-kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f0d889;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.past-events-header h2 {
+  color: #fff;
+}
+
+.past-events-header h2::after {
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+}
+
+.past-events-intro {
+  max-width: 620px;
+  margin: 0 auto;
+  font-size: 1.02rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.past-events-marquee {
+  position: relative;
+  margin-top: 18px;
+}
+
+.past-events-marquee::before,
+.past-events-marquee::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 90px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.past-events-marquee::before {
+  left: 0;
+}
+
+.past-events-marquee::after {
+  right: 0;
+}
+
+.past-events-track {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation: past-events-scroll 34s linear infinite;
+}
+
+.past-events-marquee.reverse .past-events-track {
+  animation-direction: reverse;
+  animation-duration: 38s;
+}
+
+.past-events-marquee:hover .past-events-track {
+  animation-play-state: paused;
+}
+
+.event-shot {
+  position: relative;
+  width: clamp(220px, 24vw, 310px);
+  min-width: clamp(220px, 24vw, 310px);
+  height: 260px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: none;
+  background: #f6efe8;
+}
+
+.event-shot-wide {
+  width: clamp(280px, 30vw, 380px);
+  min-width: clamp(280px, 30vw, 380px);
+}
+
+.event-shot-tall {
+  height: 320px;
+}
+
+.event-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.01);
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.event-shot::after {
+  content: none;
+}
+
+.event-shot-caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
+  color: #fff;
+  font-family: "Playfair Display", serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+  background: linear-gradient(90deg, rgba(19, 24, 22, 0.72), rgba(19, 24, 22, 0.26));
+  padding: 10px 14px;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+  width: fit-content;
+  max-width: calc(100% - 36px);
+}
+
+.event-shot:hover img {
+  transform: scale(1.08);
+  filter: saturate(1.05);
+}
+
+@keyframes past-events-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 9px));
+  }
+}
+
 /* Subscribe section */
 .subscribe-section {
   background: linear-gradient(135deg, #7851A9, #2D5A3D);
@@ -1710,6 +1873,18 @@ section h2::after {
   .subscribe-section { padding: 40px 20px; }
   .subscribe-form { flex-direction: column; gap: 10px; }
   .btn-gold, .btn-primary, .btn-purple { width: 100%; }
+  .past-events-showcase { padding: 44px 0; }
+  .past-events-marquee::before,
+  .past-events-marquee::after { width: 48px; }
+  .event-shot,
+  .event-shot-wide {
+    width: 240px;
+    min-width: 240px;
+  }
+  .event-shot,
+  .event-shot-tall {
+    height: 240px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1723,11 +1898,38 @@ section h2::after {
   .booking-form { padding: 24px; }
   .subscribe-form { flex-direction: column; }
   .subscribe-form input, .subscribe-form button { width: 100%; }
+  .past-events-header { margin-bottom: 22px; }
+  .past-events-kicker { font-size: 0.78rem; }
+  .past-events-intro { font-size: 0.95rem; }
+  .past-events-track { gap: 14px; }
+  .event-shot,
+  .event-shot-wide {
+    width: 210px;
+    min-width: 210px;
+    height: 220px;
+    border-radius: 18px;
+  }
+  .event-shot-caption {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    font-size: 0.96rem;
+  }
   
   /* Fix "How It Works" step grids on mobile */
   div[style*="grid-template-columns: 100px 1fr"] {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .past-events-track {
+    animation: none;
+  }
+
+  .event-shot img {
+    transition: none;
   }
 }
 
