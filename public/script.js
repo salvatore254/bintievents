@@ -27,6 +27,7 @@
   // --- Configuration: API Base URL & Timeouts
   const API_BASE_URL = window.API_BASE_URL || "/api";
   const API_TIMEOUT = 10000; // 10 seconds for all API calls
+  const PENDING_PAYMENT_STORAGE_KEY = 'bintiPendingPayment';
   
   // --- Logging utility for debugging
   const log = {
@@ -199,6 +200,72 @@
       return null;
     }
   };
+
+  const savePendingPayment = (payment) => {
+    if (!payment || !payment.bookingId) return false;
+    return safeSetItem(PENDING_PAYMENT_STORAGE_KEY, {
+      bookingId: payment.bookingId,
+      method: payment.method || 'unknown',
+      createdAt: payment.createdAt || Date.now(),
+      timeoutMs: payment.timeoutMs || 600000
+    });
+  };
+
+  const getPendingPayment = () => safeGetItem(PENDING_PAYMENT_STORAGE_KEY);
+
+  const clearPendingPayment = () => {
+    localStorage.removeItem(PENDING_PAYMENT_STORAGE_KEY);
+  };
+
+  const normalizePaymentStatus = (payload) => {
+    const rawStatus = [
+      payload?.status,
+      payload?.paymentStatus,
+      payload?.payment_status,
+      payload?.booking?.paymentStatus,
+      payload?.booking?.payment_status,
+      payload?.data?.status,
+      payload?.data?.paymentStatus,
+      payload?.data?.payment_status
+    ].find(value => typeof value === 'string' && value.trim());
+
+    const normalized = (rawStatus || '')
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_')
+      .trim();
+
+    if ([
+      'paid',
+      'confirmed',
+      'success',
+      'successful',
+      'completed',
+      'complete',
+      'payment_successful'
+    ].includes(normalized)) {
+      return 'paid';
+    }
+
+    if ([
+      'payment_failed',
+      'failed',
+      'failure',
+      'declined',
+      'cancelled',
+      'canceled',
+      'invalid'
+    ].includes(normalized)) {
+      return 'payment_failed';
+    }
+
+    if (payload?.paidAt || payload?.booking?.paidAt) {
+      return 'paid';
+    }
+
+    return 'pending';
+  };
+
+  let activePaymentPoll = null;
   
   // --- mobile nav
   onReady(() => {
@@ -1370,7 +1437,15 @@
         // Poll backend for actual payment confirmation instead of showing success immediately
         // M-Pesa payment takes 15-30 seconds, so we check every 2 seconds until confirmed
         log.info('PAYMENT', 'Starting payment confirmation polling...');
-        window.pollPaymentStatus(booking.id || bookingId, modal, booking, 60000); // 60 second timeout
+        savePendingPayment({
+          bookingId: booking.id || bookingId,
+          method: 'mpesa',
+          timeoutMs: 180000
+        });
+        window.pollPaymentStatus(booking.id || bookingId, modal, booking, {
+          timeoutMs: 180000,
+          method: 'mpesa'
+        });
       })
       .catch(error => {
         log.error('PAYMENT', 'STK push failed', error);
@@ -1412,7 +1487,54 @@
   };
 
   // --- Pesapal iframe helper with proper error handling
-  window.loadPesapalIframe = function(bookingId) {
+  window.showPesapalConfirmationState = function(message = 'We are confirming your payment with our server. This may take a few seconds.') {
+    const container = q('#pesapal-container');
+    const openExternalLink = q('#pesapal-open-external');
+    if (!container) return;
+
+    if (openExternalLink) {
+      openExternalLink.style.display = 'none';
+    }
+
+    container.innerHTML = `
+      <div style="max-width: 520px; margin: 0 auto; padding: 56px 24px; text-align: center;">
+        <div style="width: 96px; height: 96px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(74, 122, 107, 0.12), rgba(120, 81, 169, 0.12)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4A7A6B;"></i>
+        </div>
+        <h3 style="margin: 0 0 12px 0; color: #4A7A6B; font-size: 1.5rem;">Confirming your payment</h3>
+        <p style="margin: 0 0 20px 0; color: #5A4A48; line-height: 1.7; font-size: 1rem;">${message}</p>
+        <div style="background: rgba(120, 81, 169, 0.08); border-left: 4px solid #7851A9; padding: 16px; border-radius: 10px; text-align: left; color: #5A4A48; line-height: 1.6;">
+          <strong style="display: block; margin-bottom: 6px; color: #4A7A6B;">If you saw a browser block message</strong>
+          That usually comes from the payment provider redirecting inside the iframe after payment. You can stay on this screen while we wait for backend confirmation.
+        </div>
+      </div>
+    `;
+  };
+
+  window.showPesapalPaymentFrame = function(iframeUrl) {
+    const container = q('#pesapal-container');
+    const openExternalLink = q('#pesapal-open-external');
+    if (!container || !iframeUrl) return;
+
+    if (openExternalLink) {
+      openExternalLink.href = iframeUrl;
+      openExternalLink.style.display = 'inline-flex';
+    }
+
+    container.innerHTML = `
+      <div style="padding: 16px 18px 10px; background: rgba(120, 81, 169, 0.06); border-bottom: 1px solid rgba(120, 81, 169, 0.12);">
+        <div style="max-width: 760px; color: #5A4A48; line-height: 1.5;">
+          <strong style="display: block; color: #4A7A6B; margin-bottom: 4px;">Payment confirmation is automatic</strong>
+          After you complete payment, keep this window open for a moment. We will check with Pesapal and show the success message as soon as the backend confirms the payment.
+        </div>
+      </div>
+      <div class="pesapal-modal__viewport">
+        <iframe class="pesapal-modal__frame" width="100%" height="100%" frameborder="0" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="payment *; fullscreen" src="${iframeUrl}"></iframe>
+      </div>
+    `;
+  };
+
+  window.loadPesapalIframe = function(bookingId, paymentAmount = 'deposit', amountToPay = null) {
     const modal = q('#pesapal-modal');
     const container = q('#pesapal-container');
     const openExternalLink = q('#pesapal-open-external');
@@ -1429,7 +1551,15 @@
     container.innerHTML = '<div class="message-container pesapal-modal__loading"><p style="color: #7851A9; font-size: 1rem;"><i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Loading secure payment window…</p><p class="pesapal-modal__hint">If the payment window appears cramped, use <strong>Open full page</strong>.</p></div>';
     
     // Fetch the secure iframe URL from backend
-    apiCall(`${API_BASE_URL}/bookings/pesapal-iframe?bookingId=${encodeURIComponent(bookingId)}`, {
+    const requestedAmount = Number.isFinite(Number(amountToPay)) ? Math.round(Number(amountToPay)) : null;
+    const iframeUrl = new URL(`${API_BASE_URL}/bookings/pesapal-iframe`, window.location.origin);
+    iframeUrl.searchParams.set('bookingId', bookingId);
+    iframeUrl.searchParams.set('paymentAmount', paymentAmount);
+    if (requestedAmount) {
+      iframeUrl.searchParams.set('amount', String(requestedAmount));
+    }
+
+    apiCall(iframeUrl.toString(), {
       timeout: API_TIMEOUT
     })
       .then(data => {
@@ -1438,24 +1568,7 @@
           log.error('PAYMENT', 'Pesapal iframe response missing URL field', data);
           throw new Error('Invalid response from server');
         }
-        const iframe = document.createElement('iframe');
-        iframe.className = 'pesapal-modal__frame';
-        iframe.width = '100%';
-        iframe.height = '100%';
-        iframe.frameBorder = '0';
-        iframe.setAttribute('loading', 'eager');
-        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-        iframe.setAttribute('allow', 'payment *; fullscreen');
-        iframe.src = iframeUrl;
-        const viewport = document.createElement('div');
-        viewport.className = 'pesapal-modal__viewport';
-        viewport.appendChild(iframe);
-        container.innerHTML = '';
-        container.appendChild(viewport);
-        if (openExternalLink) {
-          openExternalLink.href = iframeUrl;
-          openExternalLink.style.display = 'inline-flex';
-        }
+        window.showPesapalPaymentFrame(iframeUrl);
         log.info('PAYMENT', 'Pesapal iframe loaded successfully in modal');
       })
       .catch(err => {
@@ -1690,8 +1803,17 @@
             window.triggerMpesaPayment(data.bookingId, booking.phone, amountToPay, mpesaPhone, booking);
           } else if (paymentMethod === 'pesapal') {
             log.info('PAYMENT', 'Loading Pesapal iframe');
+            savePendingPayment({
+              bookingId: data.bookingId,
+              method: 'pesapal',
+              timeoutMs: 600000
+            });
             // Load Pesapal iframe
-            window.loadPesapalIframe(data.bookingId);
+            window.loadPesapalIframe(data.bookingId, paymentAmount, amountToPay);
+            window.pollPaymentStatus(data.bookingId, null, booking, {
+              timeoutMs: 600000,
+              method: 'pesapal'
+            });
           } else {
             log.error('PAYMENT', 'Unknown payment method', paymentMethod);
             window.showConfirmationModal('failure', booking);
@@ -1766,43 +1888,79 @@
   };
 
   // --- Poll backend for actual payment confirmation
-  window.pollPaymentStatus = function(bookingId, stkModal, booking, timeoutMs = 60000) {
+  window.pollPaymentStatus = function(bookingId, stkModal, booking, timeoutOrOptions = 60000) {
+    const options = typeof timeoutOrOptions === 'object'
+      ? timeoutOrOptions
+      : { timeoutMs: timeoutOrOptions };
+    const timeoutMs = options.timeoutMs || 60000;
+    const paymentMethod = options.method || 'unknown';
+    const silentTimeout = !!options.silentTimeout;
+
+    if (!bookingId) {
+      log.warn('PAYMENT', 'pollPaymentStatus called without bookingId');
+      return;
+    }
+
+    if (activePaymentPoll && activePaymentPoll.bookingId === bookingId) {
+      log.info('PAYMENT', 'Payment polling already active', { bookingId, paymentMethod });
+      return;
+    }
+
     const startTime = Date.now();
     const pollInterval = 2000; // Check every 2 seconds
+    const pollState = { bookingId, paymentMethod, startTime };
+    activePaymentPoll = pollState;
     
     const poll = () => {
+      if (activePaymentPoll !== pollState) {
+        return;
+      }
+
       if (Date.now() - startTime > timeoutMs) {
-        // Timeout - close modal and show error
-        log.warn('PAYMENT', 'Payment confirmation polling timed out');
+        log.warn('PAYMENT', 'Payment confirmation polling timed out', { bookingId, paymentMethod });
+        activePaymentPoll = null;
         if (stkModal && stkModal.parentNode) {
           stkModal.parentNode.removeChild(stkModal);
         }
-        window.showPaymentResultModal('failed', 'Payment confirmation timeout. Please check your email or contact support.');
+        if (!silentTimeout) {
+          window.showPaymentResultModal('failed', 'Payment confirmation timeout. Please check your email or contact support.');
+        }
         return;
       }
       
-      // Check payment status from backend
-      fetch(`${API_BASE_URL}/bookings/payment-status/${bookingId}`)
-        .then(res => res.json())
+      apiCall(`${API_BASE_URL}/bookings/payment-status/${encodeURIComponent(bookingId)}`, {
+        timeout: 8000
+      })
         .then(data => {
-          log.info('PAYMENT', 'Payment status check', { status: data.status });
+          const normalizedStatus = normalizePaymentStatus(data);
+          log.info('PAYMENT', 'Payment status check', {
+            bookingId,
+            paymentMethod,
+            rawStatus: data.status || data.paymentStatus || data.payment_status || null,
+            normalizedStatus
+          });
           
-          if (data.status === 'paid') {
-            // Payment confirmed!
+          if (normalizedStatus === 'paid') {
             log.info('PAYMENT', 'Payment confirmed by backend');
+            activePaymentPoll = null;
+            clearPendingPayment();
             if (stkModal && stkModal.parentNode) {
               stkModal.parentNode.removeChild(stkModal);
             }
+            const pesapalModal = q('#pesapal-modal');
+            if (pesapalModal) {
+              pesapalModal.style.display = 'none';
+            }
             window.showPaymentResultModal('success');
-          } else if (data.status === 'payment_failed') {
-            // Payment failed
+          } else if (normalizedStatus === 'payment_failed') {
             log.error('PAYMENT', 'Payment failed according to backend');
+            activePaymentPoll = null;
+            clearPendingPayment();
             if (stkModal && stkModal.parentNode) {
               stkModal.parentNode.removeChild(stkModal);
             }
             window.showPaymentResultModal('failed', 'Payment was declined. Please try again.');
           } else {
-            // Still pending - continue polling
             setTimeout(poll, pollInterval);
           }
         })
@@ -1826,77 +1984,65 @@
       return;
     }
 
+    if (status === 'success' || status === 'failed') {
+      clearPendingPayment();
+    }
+
     if (status === 'success') {
       content.innerHTML = `
-        <div style="text-align: center; max-width: 500px;">
-          <!-- Checkmark animation -->
-          <div style="width: 120px; height: 120px; margin: 0 auto 30px; background: linear-gradient(135deg, #4CAF50, #45a049); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
-            <i class="fas fa-check" style="font-size: 60px; color: white; animation: popIn 0.6s ease-out 0.3s both;"></i>
+        <div class="confirmation-dialog">
+          <div class="confirmation-icon" style="background: linear-gradient(135deg, #4CAF50, #45a049);">
+            <i class="fas fa-check"></i>
           </div>
           
-          <h1 style="color: #2e7d32; font-size: 2.2em; font-weight: 700; margin: 20px 0 10px; animation: slideDown 0.5s ease-out 0.2s both;">Payment Successful!</h1>
+          <h1 class="confirmation-title" style="color: #2e7d32;">Payment Successful!</h1>
           
-          <p style="color: #666; font-size: 1.1em; margin: 15px 0 30px; line-height: 1.6; animation: slideDown 0.5s ease-out 0.4s both;">
+          <p class="confirmation-message">
             Your payment has been confirmed. A confirmation email with all booking details has been sent to your email address.
           </p>
           
-          <div style="background: #e8f5e9; border: 2px solid #4CAF50; border-radius: 12px; padding: 20px; margin: 30px 0; animation: slideUp 0.5s ease-out 0.5s both;">
+          <div class="confirmation-panel" style="background: #e8f5e9; border: 2px solid #4CAF50;">
             <p style="color: #2e7d32; margin: 0; font-weight: 600; font-size: 1em;">
               <i class="fas fa-check-circle" style="margin-right: 10px; color: #4CAF50;"></i>
               We'll contact you 7 days before your event for final confirmation.
             </p>
           </div>
           
-          <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; localStorage.removeItem('bintiBooking'); localStorage.removeItem('bintiSelectedPackage'); window.location.href='index.html';" style="width: 100%; background: linear-gradient(135deg, #7851A9, #6b3fa0); color: white; border: none; padding: 16px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1.05em; margin-top: 20px; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
+          <button type="button" class="confirmation-button" onclick="document.getElementById('confirmation-modal').style.display='none'; localStorage.removeItem('bintiBooking'); localStorage.removeItem('bintiSelectedPackage'); window.location.href='index.html';" style="width: 100%; background: linear-gradient(135deg, #7851A9, #6b3fa0); color: white; margin-top: 20px;">
             <i class="fas fa-home" style="margin-right: 8px;"></i> Back to Home
           </button>
         </div>
-        
-        <style>
-          @keyframes scaleIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
-          @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-          @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-          @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        </style>
       `;
     } else {
       // Failure modal
       content.innerHTML = `
-        <div style="text-align: center; max-width: 500px;">
-          <!-- X mark animation -->
-          <div style="width: 120px; height: 120px; margin: 0 auto 30px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
-            <i class="fas fa-times" style="font-size: 60px; color: white; animation: popIn 0.6s ease-out 0.3s both;"></i>
+        <div class="confirmation-dialog">
+          <div class="confirmation-icon" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+            <i class="fas fa-times"></i>
           </div>
           
-          <h1 style="color: #c62828; font-size: 2.2em; font-weight: 700; margin: 20px 0 10px; animation: slideDown 0.5s ease-out 0.2s both;">Payment Failed</h1>
+          <h1 class="confirmation-title" style="color: #c62828;">Payment Failed</h1>
           
-          <p style="color: #666; font-size: 1.1em; margin: 15px 0 30px; line-height: 1.6; animation: slideDown 0.5s ease-out 0.4s both;">
+          <p class="confirmation-message">
             ${errorMessage || 'We were unable to process your payment. Please try again.'}
           </p>
           
-          <div style="background: #fff3e0; border: 2px solid #ff9800; border-radius: 12px; padding: 20px; margin: 30px 0; animation: slideUp 0.5s ease-out 0.5s both;">
+          <div class="confirmation-panel" style="background: #fff3e0; border: 2px solid #ff9800;">
             <p style="color: #e65100; margin: 0; font-weight: 600; font-size: 1em;">
               <i class="fas fa-info-circle" style="margin-right: 10px; color: #ff9800;"></i>
               Please check your phone number and try again.
             </p>
           </div>
           
-          <div style="display: flex; gap: 12px; margin-top: 20px;">
-            <button type="button" onclick="document.getElementById('confirmation-modal').style.display='none'; window.proceedToPayment();" style="flex: 1; background: #25D366; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
+          <div class="confirmation-actions">
+            <button type="button" class="confirmation-button" onclick="document.getElementById('confirmation-modal').style.display='none'; window.proceedToPayment();" style="background: #25D366; color: white;">
               <i class="fas fa-redo" style="margin-right: 8px;"></i> Try Again
             </button>
-            <button type="button" onclick="window.location.href='checkout.html';" style="flex: 1; background: #6c757d; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1em; transition: all 0.3s; animation: slideUp 0.5s ease-out 0.6s both;">
+            <button type="button" class="confirmation-button" onclick="window.location.href='checkout.html';" style="background: #6c757d; color: white;">
               <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back
             </button>
           </div>
         </div>
-        
-        <style>
-          @keyframes scaleIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
-          @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-          @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-          @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        </style>
       `;
     }
 
@@ -1915,6 +2061,8 @@
   window.updatePaymentButtonState = function() {
     const termsCheckbox = q('#accept-terms');
     const payButton = q('#pay-now-btn');
+    const pesapalModal = q('#pesapal-modal');
+    const pesapalCloseButton = q('#pesapal-modal-close');
     
     if (!termsCheckbox || !payButton) {
       log.warn('CHECKOUT', 'Button state elements not found', {
@@ -2185,6 +2333,28 @@
       });
     }
 
+    if (pesapalCloseButton) {
+      pesapalCloseButton.addEventListener('click', () => {
+        const pendingPayment = getPendingPayment();
+        if (pendingPayment?.method === 'pesapal' && pendingPayment.bookingId) {
+          log.info('PAYMENT', 'Pesapal modal close converted to confirmation state', pendingPayment);
+          window.showPesapalConfirmationState('The payment window has been closed. We are still checking with our backend for confirmation.');
+          window.pollPaymentStatus(pendingPayment.bookingId, null, safeGetItem('bintiBooking') || {}, {
+            timeoutMs: pendingPayment.timeoutMs || 600000,
+            method: 'pesapal'
+          });
+          if (pesapalModal) {
+            pesapalModal.style.display = 'flex';
+          }
+          return;
+        }
+
+        if (pesapalModal) {
+          pesapalModal.style.display = 'none';
+        }
+      });
+    }
+
 
 
     // Attach click handler to "Proceed to Payment" button
@@ -2232,6 +2402,20 @@
     }
     
     log.info('CHECKOUT', 'Checkout page initialized - all listeners attached');
+
+    const pendingPayment = getPendingPayment();
+    if (pendingPayment && pendingPayment.bookingId) {
+      log.info('CHECKOUT', 'Resuming pending payment status check', pendingPayment);
+      window.pollPaymentStatus(
+        pendingPayment.bookingId,
+        null,
+        safeGetItem('bintiBooking') || {},
+        {
+          timeoutMs: pendingPayment.timeoutMs || 600000,
+          method: pendingPayment.method || 'unknown'
+        }
+      );
+    }
   });
 
   // --- Contact Form Handler
