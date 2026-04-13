@@ -1138,6 +1138,7 @@ section h2::after {
 .blog-cost-table td {
   padding: 14px 16px;
   text-align: left;
+  vertical-align: top;
   border-bottom: 1px solid rgba(120, 81, 169, 0.08);
 }
 
@@ -2443,6 +2444,15 @@ section h2::after {
 }
 
 @media (max-width: 768px) {
+  .blog-shell::before,
+  .blog-post-wrapper::before {
+    background-size: 90px 90px;
+    opacity: 0.18;
+  }
+  .blog-shell .container,
+  .blog-post-wrapper .container {
+    width: min(100%, 94%);
+  }
   .nav-links { 
     display: none; 
     position: fixed; 
@@ -2540,12 +2550,40 @@ section h2::after {
   .blog-post-aside {
     padding: 24px;
   }
+  .blog-intro {
+    padding: 22px 20px;
+  }
+  .blog-category-nav {
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .blog-meta-row {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .blog-pill,
+  .blog-tag {
+    padding: 7px 12px;
+    font-size: 0.76rem;
+  }
+  .blog-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .blog-card-footer .btn-gold,
+  .blog-card-footer .btn-primary {
+    width: auto;
+  }
   .blog-hero {
     min-height: 42vh;
   }
   .blog-post-hero {
     height: 42vh;
     min-height: 300px;
+  }
+  .blog-post-hero .hero-overlay,
+  .blog-hero .hero-overlay {
+    padding: 20px 0;
   }
   .blog-post-wrapper {
     padding: 24px 0 32px;
@@ -2608,6 +2646,15 @@ section h2::after {
 }
 
 @media (max-width: 600px) {
+  .blog-shell::before,
+  .blog-post-wrapper::before {
+    background-size: 72px 72px;
+    opacity: 0.14;
+  }
+  .blog-shell .container,
+  .blog-post-wrapper .container {
+    width: min(100%, 92%);
+  }
   .hero-content h1 { font-size: 1.8rem; }
   .lead { font-size: 0.95rem; }
   .hero-ctas { flex-direction: column; }
@@ -2678,11 +2725,53 @@ section h2::after {
   .blog-article {
     padding: 18px 16px;
   }
+  .blog-intro,
+  .blog-side-panel,
+  .blog-post-aside {
+    padding: 16px 14px;
+  }
   .blog-card {
     padding: 18px;
   }
+  .blog-meta-row {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .blog-pill,
+  .blog-tag,
+  .blog-eyebrow {
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+  }
+  .blog-category-nav {
+    gap: 8px;
+    margin-top: 18px;
+  }
   .blog-article-header h1 {
     font-size: 1.72rem;
+  }
+  .blog-featured-card h2,
+  .blog-library-section h2,
+  .blog-side-panel h3 {
+    word-break: break-word;
+  }
+  .blog-card h3,
+  .blog-featured-card p,
+  .blog-side-panel p,
+  .blog-article-header p {
+    overflow-wrap: anywhere;
+  }
+  .blog-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .blog-card-footer .btn-gold,
+  .blog-card-footer .btn-primary,
+  .blog-card-footer .blog-status,
+  .blog-card-footer .blog-keyword {
+    width: 100%;
+    text-align: left;
   }
   .blog-article h2 {
     margin-top: 18px;
@@ -2704,9 +2793,64 @@ section h2::after {
     width: 100%;
     text-align: center;
   }
-  .blog-cost-table {
+  .blog-cost-table,
+  .blog-cost-table thead,
+  .blog-cost-table tbody,
+  .blog-cost-table tr,
+  .blog-cost-table th,
+  .blog-cost-table td {
     display: block;
-    overflow-x: auto;
+    width: 100%;
+  }
+  .blog-cost-table {
+    border-radius: 0;
+    margin-top: 14px;
+  }
+  .blog-cost-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .blog-cost-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+  .blog-cost-table tbody tr {
+    border: 1px solid rgba(120, 81, 169, 0.12);
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(247, 238, 231, 0.98);
+    box-shadow: 0 8px 18px rgba(52, 45, 44, 0.06);
+  }
+  .blog-cost-table tbody td {
+    border-bottom: 1px solid rgba(120, 81, 169, 0.08);
+    padding: 12px 14px 12px 132px;
+    min-height: 52px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .blog-cost-table tbody td:last-child {
+    border-bottom: 0;
+  }
+  .blog-cost-table tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    width: 104px;
+    font-weight: 700;
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #7851A9;
+    line-height: 1.35;
   }
   .blog-post-aside {
     padding: 14px;
@@ -2725,6 +2869,9 @@ section h2::after {
   .blog-post-aside ul a {
     padding: 9px 11px;
     font-size: 0.9rem;
+  }
+  .blog-post-aside ul a::after {
+    margin-left: 8px;
   }
   .blog-hero-image {
     aspect-ratio: 16 / 8;
